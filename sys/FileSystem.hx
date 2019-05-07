@@ -1,5 +1,6 @@
 package sys;
 
+import haxe.Error;
 import haxe.io.Bytes;
 
 extern class FileSystem {
@@ -34,7 +35,7 @@ extern class FileSystem {
   static function writeFile(path:String, data:Bytes, ?flags:FileOpenFlags, ?mode:FileMode):Void;
   
   // compatibility sys.FileSystem functions
-  static inline function absolutePath(path:String):String; // should be in haxe.io.Path?
+  //static inline function absolutePath(path:String):String; // should be in haxe.io.Path?
   static inline function createDirectory(path:String):Void return mkdir(path, true);
   static inline function deleteDirectory(path:String):Void return rmdir(path);
   static inline function deleteFile(path:String):Void return unlink(path);

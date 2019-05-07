@@ -1,7 +1,8 @@
 package sys.async;
 
-import sys.*;
+import haxe.Error;
 import haxe.io.Bytes;
+import sys.*;
 
 extern class FileSystem {
   // sys.FileSystem-like functions

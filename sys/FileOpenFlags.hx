@@ -13,7 +13,7 @@ enum abstract FileOpenFlags(String) {
   var WriteTruncate = "w";
   var Write = "wx";
   var ReadWriteTruncate = "w+";
-  var ReadWrite = "wx+";
+  var ReadWrite2 = "wx+"; // ????
   
   // O_NOCTTY, O_DIRECTORY, O_NOATIME, O_NOFOLLOW, O_SYNC, O_DSYNC, O_SYMLINK, O_DIRECT, O_NONBLOCK
 }
