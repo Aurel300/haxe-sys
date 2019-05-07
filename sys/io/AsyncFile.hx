@@ -1,6 +1,10 @@
 package sys.io;
 
-class AsyncFile {
+import haxe.Error;
+import haxe.io.Bytes;
+import haxe.io.Encoding;
+
+extern class AsyncFile {
   // node compatibility (file descriptors)
   function appendFile(data:Bytes, ?flags:FileOpenFlags, ?mode:FileMode, callback:(?error:Error)->Void):Void;
   function chmod(mode:FileMode, callback:(?error:Error)->Void):Void;
