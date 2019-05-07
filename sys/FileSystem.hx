@@ -26,11 +26,11 @@ extern class FileSystem {
   static function truncate(path:String, len:Int):Void;
   static function unlink(path:String):Void;
   static function utimes(path:String, atime:Date, mtime:Date):Void;
-  static function watch(filename:String, ?opt:{?persistent:Bool, ?recursive:Bool}):FileWatcher;
+  static function watch(filename:String, ?persistent:Bool, ?recursive:Bool):FileWatcher;
   
   // sys.io.File-like functions
   static function appendFile(path:String, data:Bytes, ?flags:FileOpenFlags, ?mode:FileMode):Void;
-  static function open(path:String, ?flags:FileOpenFlags, ?mode:FileMode):sys.io.File;
+  static function open(path:String, ?flags:FileOpenFlags, ?mode:FileMode, ?binary:Bool = true):sys.io.File;
   static function readFile(path:String, ?flags:FileOpenFlags):Bytes;
   static function writeFile(path:String, data:Bytes, ?flags:FileOpenFlags, ?mode:FileMode):Void;
   

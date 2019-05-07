@@ -7,16 +7,15 @@ import sys.FileStat;
 
 extern class File {
   // sys.io.File compatibility
-  // for methods with binary - we should map this properly
-  static inline function append(path:String, ?binary:Bool = true):FileOutput return sys.FileSystem.open(path, AppendCreate).output;
+  static inline function append(path:String, ?binary:Bool = true):FileOutput return sys.FileSystem.open(path, AppendCreate, binary).output;
   static inline function copy(srcPath:String, dstPath:String):Void sys.FileSystem.copyFile(srcPath, dstPath);
   static inline function getBytes(path:String):Bytes return sys.FileSystem.readFile(path);
   static inline function getContent(path:String):String return sys.FileSystem.readFile(path).toString();
-  static inline function read(path:String, ?binary:Bool = true):FileInput return sys.FileSystem.open(path, Read).input;
+  static inline function read(path:String, ?binary:Bool = true):FileInput return sys.FileSystem.open(path, Read, binary).input;
   static inline function saveBytes(path:String, bytes:Bytes):Void return sys.FileSystem.writeFile(path, bytes);
   static inline function saveContent(path:String, content:String):Void return sys.FileSystem.writeFile(path, Bytes.ofString(content));
-  static inline function update(path:String, ?binary:Bool = true):FileOutput return sys.FileSystem.open(path, ReadWrite).output;
-  static inline function write(path:String, ?binary:Bool = true):FileOutput return sys.FileSystem.open(path, WriteTruncate).output;
+  static inline function update(path:String, ?binary:Bool = true):FileOutput return sys.FileSystem.open(path, ReadWrite, binary).output;
+  static inline function write(path:String, ?binary:Bool = true):FileOutput return sys.FileSystem.open(path, WriteTruncate, binary).output;
   
   final output:Null<FileOutput>;
   final input:Null<FileInput>;

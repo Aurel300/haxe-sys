@@ -31,7 +31,7 @@ extern class FileSystem {
   
   // sys.io.File-like functions
   static function appendFile(path:String, data:Bytes, ?flags:FileOpenFlags, ?mode:FileMode, callback:(?error:Error)->Void):Void;
-  static function open(path:String, ?flags:FileOpenFlags, ?mode:FileMode, callback:(?error:Error, ?file:sys.io.File)->Void):Void;
+  static function open(path:String, ?flags:FileOpenFlags, ?mode:FileMode, ?binary:Bool = true, callback:(?error:Error, ?file:sys.io.File)->Void):Void;
   static function readFile(path:String, ?flags:FileOpenFlags, callback:(?error:Error, ?bytes:Bytes)->Void):Void;
   static function writeFile(path:String, data:Bytes, ?flags:FileOpenFlags, ?mode:FileMode, callback:(?error:Error)->Void):Void;
 }
