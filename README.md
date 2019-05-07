@@ -160,3 +160,7 @@ Existing code should not be affected, since the new classes will have methods fo
 ## Unresolved questions
 
  - [error reporting](#errors)
+ - currently all filesize and file position arguments are `Int`, but this only allows sizes of up to 2 GiB
+   - should we use `haxe.Int64`?
+   - is the support of `haxe.Int64` good enough on sys targets
+   - Node.js uses the `Number` type, which has at least 53 bits of integer precision
