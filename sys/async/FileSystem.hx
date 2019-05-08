@@ -10,7 +10,7 @@ extern class FileSystem {
   static function chmod(path:String, mode:FileMode, ?followSymLinks:Bool = true, callback:(?error:Error)->Void):Void;
   static function chown(path:String, uid:Int, gid:Int, ?followSymLinks:Bool = true, callback:(?error:Error)->Void):Void;
   static function copyFile(src:String, dest:String, ?flags:FileCopyFlags, callback:(?error:Error)->Void):Void;
-  //static function exists(path:String):Promise<Bool>; // deprecated in node.js
+  static function exists(path:String, callback:(?error:Error, ?exists:Bool)->Void):Void; // deprecated in node.js due to a different interface, ok here
   static function link(existingPath:String, newPath:String, callback:(?error:Error)->Void):Void;
   static function mkdir(path:String, ?recursive:Bool, ?mode:FileMode, callback:(?error:Error)->Void):Void;
   static function mkdtemp(prefix:String, callback:(?error:Error, ?path:String)->Void):Void;
