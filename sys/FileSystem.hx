@@ -6,13 +6,11 @@ import haxe.io.Bytes;
 extern class FileSystem {
   // sys.FileSystem-like functions
   static function access(path:String, ?mode:FileAccessMode = FileAccessMode.Ok):Void; // throws on failure
-  static function chmod(path:String, mode:FileMode):Void;
-  static function chown(path:String, uid:Int, gid:Int):Void;
-  static function copyFile(src:String, dest:String, ?flags:FileCopyFlags):Void;
+  static function chmod(path:String, mode:FileMode, ?followSymLinks:Bool = true):Void;
+  static function chown(path:String, uid:Int, gid:Int, ?followSymLinks:Bool = true):Void;
+  static function copyFile(src:String, dest:String, ?flags:FileCopyFlags, ?followSymLinks:Bool = true):Void;
   //static function exists(path:String):Bool; // deprecated in node.js
   static function link(existingPath:String, newPath:String):Void;
-  static function lchown(path:String, uid:Int, gid:Int):Void;
-  static function lstat(path:String):FileStat;
   static function mkdir(path:String, ?recursive:Bool, ?mode:FileMode):Void;
   static function mkdtemp(prefix:String):String;
   static function readdir(path:String):Array<String>;
@@ -21,7 +19,7 @@ extern class FileSystem {
   static function realpath(path:String):String;
   static function rename(oldPath:String, newPath:String):Void;
   static function rmdir(path:String):Void;
-  static function stat(path:String):FileStat;
+  static function stat(path:String, ?followSymLinks:Bool = true):FileStat;
   static function symlink(target:String, path:String, ?type:String):Void;
   static function truncate(path:String, len:Int):Void;
   static function unlink(path:String):Void;

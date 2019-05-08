@@ -7,14 +7,11 @@ import sys.*;
 extern class FileSystem {
   // sys.FileSystem-like functions
   static function access(path:String, ?mode:FileAccessMode = FileAccessMode.Ok, callback:(?error:Error)->Void):Void;
-  static function chmod(path:String, mode:FileMode, callback:(?error:Error)->Void):Void;
-  static function chown(path:String, uid:Int, gid:Int, callback:(?error:Error)->Void):Void;
+  static function chmod(path:String, mode:FileMode, ?followSymLinks:Bool = true, callback:(?error:Error)->Void):Void;
+  static function chown(path:String, uid:Int, gid:Int, ?followSymLinks:Bool = true, callback:(?error:Error)->Void):Void;
   static function copyFile(src:String, dest:String, ?flags:FileCopyFlags, callback:(?error:Error)->Void):Void;
   //static function exists(path:String):Promise<Bool>; // deprecated in node.js
-  static function lchmod(path:String, mode:Int, callback:(?error:Error)->Void):Void;
-  static function lchown(path:String, uid:Int, gid:Int, callback:(?error:Error)->Void):Void;
   static function link(existingPath:String, newPath:String, callback:(?error:Error)->Void):Void;
-  static function lstat(path:String, callback:(?error:Error, ?stats:FileStat)->Void):Void;
   static function mkdir(path:String, ?recursive:Bool, ?mode:FileMode, callback:(?error:Error)->Void):Void;
   static function mkdtemp(prefix:String, callback:(?error:Error, ?path:String)->Void):Void;
   static function readdir(path:String, callback:(?error:Error, ?files:Array<String>)->Void):Void;
@@ -23,7 +20,7 @@ extern class FileSystem {
   static function realpath(path:String, callback:(?error:Error, ?path:String)->Void):Void;
   static function rename(oldPath:String, newPath:String, callback:(?error:Error)->Void):Void;
   static function rmdir(path:String, callback:(?error:Error)->Void):Void;
-  static function stat(path:String, callback:(?error:Error, ?stats:FileStat)->Void):Void;
+  static function stat(path:String, ?followSymLinks:Bool = true, callback:(?error:Error, ?stats:FileStat)->Void):Void;
   static function symlink(target:String, path:String, ?type:String, callback:(?error:Error)->Void):Void;
   static function truncate(path:String, len:Int, callback:(?error:Error)->Void):Void;
   static function unlink(path:String, callback:(?error:Error)->Void):Void;
