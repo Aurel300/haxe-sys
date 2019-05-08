@@ -5,7 +5,7 @@
 
 ## Introduction
 
-Improved API for filesystem operations based on Node.js; includes asynchronous alternatives with callbacks.
+Improved API for filesystem operations based on Node.js; includes asynchronous alternatives with callbacks; I/O streams.
 
 ## Motivation
 
@@ -19,7 +19,7 @@ More importantly, there is no way to asynchronously perform a filesystem operati
 
 ## Detailed design
 
-Modified modules:
+Modified modules (new API + backward compability):
 
  - [`haxe.io.Path`](haxe/io/Path.hx)
  - [`sys.FileStat`](sys/FileStat.hx)
@@ -28,7 +28,17 @@ Modified modules:
 
 Added modules:
 
- - [`haxe.Error`](haxe/Error.hx)
+ - [`haxe.Error`](haxe/Error.hx) - for reporting errors, see [errors](#errors)
+ - [`haxe.ErrorType`](haxe/ErrorType.hx)
+ - [`haxe.NoData`](haxe/NoData.hx) - type to represent an absence of data in generics (e.g. `Callback<NoData>`)
+ - [`haxe.async.Callback`](haxe/async/Callback.hx) - generic type to represent an error-first callback, see [callbacks](#callbacks)
+ - [`haxe.async.Event`](haxe/async/Event.hx) - see [events](#events)
+ - [`haxe.async.EventEmitter`](haxe/async/EventEmitter.hx)
+ - [`haxe.io.Duplex`](haxe/io/Duplex.hx) - see [streams](#streams)
+ - [`haxe.io.IReadable`](haxe/io/IReadable.hx)
+ - [`haxe.io.IWritable`](haxe/io/IWritable.hx)
+ - [`haxe.io.Readable`](haxe/io/Readable.hx)
+ - [`haxe.io.Writable`](haxe/io/Writable.hx)
  - [`sys.FileAccessMode`](sys/FileAccessMode.hx)
  - [`sys.FileCopyFlags`](sys/FileCopyFlags.hx)
  - [`sys.FileMode`](sys/FileMode.hx)
@@ -36,6 +46,12 @@ Added modules:
  - [`sys.FileWatcher`](sys/FileWatcher.hx)
  - [`sys.async.FileSystem`](sys/async/FileSystem.hx)
  - [`sys.io.AsyncFile`](sys/io/AsyncFile.hx)
+
+Relevant Node.js APIs:
+
+ - [Fs](https://nodejs.org/api/fs.html)
+ - [Path](https://nodejs.org/api/path.html)
+ - [Stream](https://nodejs.org/api/stream.html)
 
 ### Errors
 
@@ -76,9 +92,10 @@ try {
 Asynchronous methods are identical to their synchronous counter-parts, except:
 
  - their return type is `Void`
- - they have an additional, required `callback` argument
+ - they have an additional, required `callback` argument of type `Callback<DataType>` or `Callback<NoData>`
    - first argument passed to the callback is a `haxe.Error`, or `null` if no error occurred
    - any additional arguments represent the data returned by the call, analogous to the return type of the synchronous method; if the synchronous method has a `Void` return type, the callback takes no additional arguments
+   - `Callback<T>` is an abstract which has some `from` methods, allowing a callback to be created from functions with a simpler signature (e.g. a `Callback<NoData>` from `(err:Error)->Void`)
 
 ### File descriptors
 
@@ -118,6 +135,22 @@ See https://github.com/HaxeFoundation/haxe/issues/8134
 
 The methods in the current `sys.FileSystem` and `sys.io.File` APIs will be kept for the time being, as `inline`s using the new methods. The names of the methods in Node.js are arguably less intuitive (e.g. `mkdir` instead of `createDirectory`), but they were kept to retain familiarity.
 
+### Events
+
+A type-safe system for emitting events, similar to `tink_core` `Signal`s is added. An `Event<T>` instance holds an array of its `handlers`. An event-emitting object has a number of `final` events.
+
+Currently no efforts were made to "hide" the `emit` method (like the `Signal` and `SignalTrigger` distinction made in `tink_core`).
+
+### Streams
+
+At the core of a lot of Node.js APIs lie [streams](https://nodejs.org/api/stream.html), which are abstractions for data consumers (`Writable`), data producers (`Readable`), or a mix of both (`Duplex` or `Transform`). Streams enable better composition of data operations with methods such as `pipeline`. There is also a mechanism to minimise buffering of data in memory (`highWaterMark`, `drain`) when combining streams.
+
+In Haxe these concepts are currently expressed using the simplified `haxe.io.Input` and `haxe.io.Output` APIs. These lack:
+
+ - ability to express a read / write stream (`sys.io.File` has two separate streams)
+ - pipelining without manual chunking
+ - proper asynchronous operations
+
 ### Target specifics
 
 Where possible, the asynchronous methods should use native calls. For some targets this might not be possible, so in the worst-case scenario these methods will run the synchronous call in a `Thread`, then trigger the callback once done.
@@ -155,7 +188,8 @@ Existing code should not be affected, since the new classes will have methods fo
 
 ## Opening possibilities
 
--
+ - new socket API
+ - better haxelib
 
 ## Unresolved questions
 
