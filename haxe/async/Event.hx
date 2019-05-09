@@ -7,6 +7,13 @@ abstract Event<T>(Array<T->Void>) {
     this.push(handler);
   }
   
+  public inline function once(handler:T->Void):Void {
+    this.push(function wrapped(data:T):Void {
+      this.remove(wrapped);
+      handler(data);
+    });
+  }
+  
   public inline function off(?handler:T->Void):Void {
     if (handler != null) {
       this.remove(handler);

@@ -75,6 +75,9 @@ Added modules:
  - [`sys.FileWatcher`](sys/FileWatcher.hx)
  - [`sys.async.FileSystem`](sys/async/FileSystem.hx)
  - [`sys.io.AsyncFile`](sys/io/AsyncFile.hx)
+ - [`sys.net.Net`](sys/net/Net.hx)
+ - [`sys.net.Server`](sys/net/Server.hx)
+ - [`sys.net.Socket`](sys/net/Socket.hx)
 
 Relevant Node.js APIs:
 
