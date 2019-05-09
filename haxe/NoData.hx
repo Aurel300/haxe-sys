@@ -1,5 +1,5 @@
 package haxe;
 
 abstract NoData({}) {
-  inline function new() this = {};
+  public inline function new() this = {};
 }

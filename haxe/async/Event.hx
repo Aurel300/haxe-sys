@@ -1,28 +1,22 @@
 package haxe.async;
 
-class Event<T> {
-  final name:String;
-  final handlers:Array<T->Void> = [];
-  
-  public function new(emitter:EventEmitter, name:String) {
-    this.name = name;
-    emitter.registerEvent(this);
-  }
+abstract Event<T>(Array<T->Void>) {
+  public inline function new() this = [];
   
   public inline function on(handler:T->Void):Void {
-    handlers.push(handler);
+    this.push(handler);
   }
   
   public inline function off(?handler:T->Void):Void {
     if (handler != null) {
-      handlers.remove(handler);
+      this.remove(handler);
     } else {
-      handlers.resize(0);
+      this.resize(0);
     }
   }
   
-  public function emit(data:T):Void {
-    for (handler in handlers) {
+  public inline function emit(data:T):Void {
+    for (handler in this) {
       handler(data);
     }
   }

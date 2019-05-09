@@ -3,16 +3,15 @@ package haxe.io;
 import haxe.Error;
 import haxe.NoData;
 import haxe.async.Event;
-import haxe.async.EventEmitter;
 
-extern class Readable extends EventEmitter implements IReadable {
-  final eventClose:Event<NoData>; // = new Event(this, "close");
-  final eventData:Event<Bytes>; // = new Event(this, "data");
-  final eventEnd:Event<NoData>; // = new Event(this, "end");
-  final eventError:Event<Error>; // = new Event(this, "error");
-  final eventPause:Event<NoData>; // = new Event(this, "pause");
-  final eventReadable:Event<NoData>; // = new Event(this, "readable");
-  final eventResume:Event<NoData>; // = new Event(this, "resume");
+extern class Readable implements IReadable {
+  final eventClose:Event<NoData>;
+  final eventData:Event<Bytes>;
+  final eventEnd:Event<NoData>;
+  final eventError:Event<Error>;
+  final eventPause:Event<NoData>;
+  final eventReadable:Event<NoData>;
+  final eventResume:Event<NoData>;
   
   var readable(default, null):Bool;
   var readableHighWaterMark(default, null):Int;

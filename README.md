@@ -1,25 +1,54 @@
-# New filesystem API
+## **Work in progress!**
+
+This is the working draft for the new `sys` package interfaces (not concrete implementations). Eventually a PR will be submitted into `haxe-evolution`.
+
+---
+
+# New `sys` APIs
 
 * Proposal: [HXP-NNNN](NNNN-filename.md)
 * Author: [Aurel Bílý](https://github.com/Aurel300)
 
 ## Introduction
 
-Improved API for filesystem operations based on Node.js; includes asynchronous alternatives with callbacks; I/O streams.
+Improved API for both synchronous and asynchronous filesystem operations based on Node.js; improved networking API; asynchrony primitives; I/O streams.
 
 ## Motivation
 
-The current filesystem APIs in Haxe lack a number of features commonly found in other APIs, such as Node.js. Some examples include:
+### Asynchrony
 
+There is currently no good way to asynchronously perform many `sys`-related tasks (without manually creating `Thread`s). Two basic primitives are added to the library:
+
+ - [events](#events)
+ - [unified callback style](#callbacks)
+
+### Streams
+
+The current Haxe API contains `haxe.io.Input` and `haxe.io.Output` for input and output streams. These lack:
+
+ - ability to express a read **and** write stream (`sys.io.File` has two separate streams rather than one RW stream)
+ - pipelining without manual chunking
+ - proper asynchronous operations
+ - automatically pacing streams with different data emission / consumption rates
+
+### Filesystem
+
+The current filesystem APIs in Haxe lack a number of important features:
+
+ - asynchronous tasks
  - changing permissions, owners of files
  - symlink operations
  - watching for changes
 
-More importantly, there is no way to asynchronously perform a filesystem operation without creating a `Thread` to execute the task.
+### Networking
+
+Non-blocking socket operations are inconvenient to use in the current API even though they are the only (non-`Thread`) solution to some real-time network communication problems. IPC communication is not possible.
+
+There is a lack of proper unit testing of the networking APIs. Certain platforms also miss full implementations of various parts of the networking API. (See https://github.com/HaxeFoundation/haxe/issues/6933, https://github.com/HaxeFoundation/haxe/issues/6816)
 
 ## Detailed design
 
-Modified modules (new API + backward compability):
+Modified modules (new API + backward compatibility):
 
  - [`haxe.io.Path`](haxe/io/Path.hx)
  - [`sys.FileStat`](sys/FileStat.hx)
@@ -33,11 +62,11 @@ Added modules:
  - [`haxe.NoData`](haxe/NoData.hx) - type to represent an absence of data in generics (e.g. `Callback<NoData>`)
  - [`haxe.async.Callback`](haxe/async/Callback.hx) - generic type to represent an error-first callback, see [callbacks](#callbacks)
  - [`haxe.async.Event`](haxe/async/Event.hx) - see [events](#events)
- - [`haxe.async.EventEmitter`](haxe/async/EventEmitter.hx)
  - [`haxe.io.Duplex`](haxe/io/Duplex.hx) - see [streams](#streams)
  - [`haxe.io.IReadable`](haxe/io/IReadable.hx)
  - [`haxe.io.IWritable`](haxe/io/IWritable.hx)
  - [`haxe.io.Readable`](haxe/io/Readable.hx)
+ - [`haxe.io.Stream`](haxe/io/Stream.hx)
  - [`haxe.io.Writable`](haxe/io/Writable.hx)
  - [`sys.FileAccessMode`](sys/FileAccessMode.hx)
  - [`sys.FileCopyFlags`](sys/FileCopyFlags.hx)
@@ -50,6 +79,7 @@ Added modules:
 Relevant Node.js APIs:
 
  - [Fs](https://nodejs.org/api/fs.html)
+ - [Net](https://nodejs.org/api/net.html)
  - [Path](https://nodejs.org/api/path.html)
  - [Stream](https://nodejs.org/api/stream.html)
 
@@ -87,6 +117,33 @@ try {
 > 
 > The primary aim for any solution is to be able to catch specific types of errors without having to rely on string comparison.
 
+### Events
+
+A type-safe system for emitting events, similar to `tink_core` `Signal`s is added. An `Event<T>` is simply an abstract over an array of its `handlers`. An event-emitting object has a number of `final` events.
+
+```haxe
+class Example {
+  public final eventFoo = new Event<NoData>();
+  public final eventBar = new Event<String>();
+  public function new() super();
+  public function emitEvents() {
+    eventFoo.emit(new NoData());
+    eventBar.emit("hello");
+  }
+}
+
+class Main {
+  static function main():Void {
+    var example = new Example();
+    example.eventFoo.on(() -> trace("event foo"));
+    example.eventBar.on(str -> trace("event bar", str));
+    example.emitEvents();
+  }
+}
+```
+
+Currently no efforts were made to "hide" the `emit` method (like the `Signal` and `SignalTrigger` distinction made in `tink_core`).
+
 ### Callbacks
 
 Asynchronous methods are identical to their synchronous counter-parts, except:
@@ -96,6 +153,10 @@ Asynchronous methods are identical to their synchronous counter-parts, except:
    - first argument passed to the callback is a `haxe.Error`, or `null` if no error occurred
    - any additional arguments represent the data returned by the call, analogous to the return type of the synchronous method; if the synchronous method has a `Void` return type, the callback takes no additional arguments
    - `Callback<T>` is an abstract which has some `from` methods, allowing a callback to be created from functions with a simpler signature (e.g. a `Callback<NoData>` from `(err:Error)->Void`)
+
+### Streams
+
+At the core of a lot of Node.js APIs lie [streams](https://nodejs.org/api/stream.html), which are abstractions for data consumers (`Writable`), data producers (`Readable`), or a mix of both (`Duplex` or `Transform`). Streams enable better composition of data operations with methods such as `pipeline`. There is also a mechanism to minimise buffering of data in memory (`highWaterMark`, `drain`) when combining streams.
 
 ### File descriptors
 
@@ -108,7 +169,7 @@ Various `fs.f*` methods from Node.js which take `fd` as their first argument are
 To avoid the `someMethod` + `someMethodSync` naming scheme present in Node.js, the two versions are more clearly split:
 
  - `sys.FileSystem` and `sys.async.FileSystem` (static methods)
- - `sys.io.File` has an `async` filed for asynchronous instance methods
+ - `sys.io.File` has an `async` field for asynchronous instance methods
 
 ```haxe
 // synchronously:
@@ -134,22 +195,6 @@ See https://github.com/HaxeFoundation/haxe/issues/8134
 ### Backward compatibility
 
 The methods in the current `sys.FileSystem` and `sys.io.File` APIs will be kept for the time being, as `inline`s using the new methods. The names of the methods in Node.js are arguably less intuitive (e.g. `mkdir` instead of `createDirectory`), but they were kept to retain familiarity.
-
-### Events
-
-A type-safe system for emitting events, similar to `tink_core` `Signal`s is added. An `Event<T>` instance holds an array of its `handlers`. An event-emitting object has a number of `final` events.
-
-Currently no efforts were made to "hide" the `emit` method (like the `Signal` and `SignalTrigger` distinction made in `tink_core`).
-
-### Streams
-
-At the core of a lot of Node.js APIs lie [streams](https://nodejs.org/api/stream.html), which are abstractions for data consumers (`Writable`), data producers (`Readable`), or a mix of both (`Duplex` or `Transform`). Streams enable better composition of data operations with methods such as `pipeline`. There is also a mechanism to minimise buffering of data in memory (`highWaterMark`, `drain`) when combining streams.
-
-In Haxe these concepts are currently expressed using the simplified `haxe.io.Input` and `haxe.io.Output` APIs. These lack:
-
- - ability to express a read / write stream (`sys.io.File` has two separate streams)
- - pipelining without manual chunking
- - proper asynchronous operations
 
 ### Target specifics
 
@@ -188,7 +233,6 @@ Existing code should not be affected, since the new classes will have methods fo
 
 ## Opening possibilities
 
- - new socket API
  - better haxelib
 
 ## Unresolved questions

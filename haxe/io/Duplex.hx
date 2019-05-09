@@ -4,20 +4,19 @@ import haxe.Error;
 import haxe.NoData;
 import haxe.async.Callback;
 import haxe.async.Event;
-import haxe.async.EventEmitter;
 
-extern class Duplex extends EventEmitter implements IReadable implements IWritable {
-  final eventClose:Event<NoData>; // = new Event(this, "close");
-  final eventData:Event<Bytes>; // = new Event(this, "data");
-  final eventDrain:Event<NoData>; // = new Event(this, "drain");
-  final eventEnd:Event<NoData>; // = new Event(this, "end");
-  final eventError:Event<Error>; // = new Event(this, "error");
-  final eventFinish:Event<NoData>; // = new Event(this, "finish");
-  final eventPause:Event<NoData>; // = new Event(this, "pause");
-  final eventPipe:Event<IReadable>; // = new Event(this, "pipe");
-  final eventReadable:Event<NoData>; // = new Event(this, "readable");
-  final eventResume:Event<NoData>; // = new Event(this, "resume");
-  final eventUnpipe:Event<IReadable>; // = new Event(this, "unpipe");
+extern class Duplex implements IReadable implements IWritable {
+  final eventClose:Event<NoData>;
+  final eventData:Event<Bytes>;
+  final eventDrain:Event<NoData>;
+  final eventEnd:Event<NoData>;
+  final eventError:Event<Error>;
+  final eventFinish:Event<NoData>;
+  final eventPause:Event<NoData>;
+  final eventPipe:Event<IReadable>;
+  final eventReadable:Event<NoData>;
+  final eventResume:Event<NoData>;
+  final eventUnpipe:Event<IReadable>;
   
   var readable(default, null):Bool;
   var readableHighWaterMark(default, null):Int;
