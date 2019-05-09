@@ -9,6 +9,7 @@ import sys.net.Net.NetFamily;
 import sys.net.Net.SocketAddress;
 
 extern class Socket extends haxe.io.Duplex {
+  // node compatibility
   //final eventClose:Event<NoData>;
   final eventConnect:Event<NoData>;
   //final eventData:Event<Bytes>;
@@ -39,7 +40,6 @@ extern class Socket extends haxe.io.Duplex {
   
   // function new(fd, ?readable:Bool, ?writable:Bool); ?
   function new(?allowHalfOpen:Bool);
-  
   function address():SocketAddress;
   function connectTCP(port:Int, ?host:String, ?localAddress:String, ?localPort:Int, ?family:IPFamily, ?hints:Int, ?lookup:String->String, ?connectListener:Callback<NoData>):Void;
   function connectIPC(path:String, ?connectListener:Callback<NoData>):Void;

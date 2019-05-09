@@ -1,6 +1,12 @@
-## **Work in progress!**
+# **Work in progress!**
 
 This is the working draft for the new `sys` package interfaces (not concrete implementations). Eventually a PR will be submitted into `haxe-evolution`.
+
+## TODO
+
+ - Dns
+ - Http(s)
+ - Haxe compatibility: Socket
 
 ---
 
@@ -81,10 +87,11 @@ Added modules:
 
 Relevant Node.js APIs:
 
- - [Fs](https://nodejs.org/api/fs.html)
- - [Net](https://nodejs.org/api/net.html)
- - [Path](https://nodejs.org/api/path.html)
- - [Stream](https://nodejs.org/api/stream.html)
+ - [`fs`](https://nodejs.org/api/fs.html)
+ - [`net`](https://nodejs.org/api/net.html)
+ - [`path`](https://nodejs.org/api/path.html)
+ - [`stream`](https://nodejs.org/api/stream.html)
+ - [`dgram`](https://nodejs.org/api/dgram.html)
 
 ### Errors
 
