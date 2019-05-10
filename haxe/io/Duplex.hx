@@ -2,8 +2,7 @@ package haxe.io;
 
 import haxe.Error;
 import haxe.NoData;
-import haxe.async.Callback;
-import haxe.async.Event;
+import haxe.async.*;
 
 extern class Duplex implements IReadable implements IWritable {
   final eventClose:Event<NoData>;
@@ -28,7 +27,7 @@ extern class Duplex implements IReadable implements IWritable {
   function new();
   function cork():Void;
   function destroy(?error:Error):Void;
-  function end(?chunk:Bytes, callback:Callback<NoData>):Void;
+  function end(?chunk:Bytes, ?listener:Listener<NoData>):Void;
   function isPaused():Bool;
   function pause():Void;
   function pipe(destination:IWritable, ?end:Bool = true):IWritable;
@@ -37,5 +36,5 @@ extern class Duplex implements IReadable implements IWritable {
   function uncork():Void;
   function unpipe(?destination:IWritable):Void;
   function unshift(chunk:Bytes):Void;
-  function write(chunk:Bytes, callback:Callback<NoData>):Bool;
+  function write(chunk:Bytes, ?callback:Callback<NoData>):Bool;
 }

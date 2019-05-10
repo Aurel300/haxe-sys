@@ -1,9 +1,8 @@
-package sys.net;
+package sys.async.net;
 
 import haxe.Error;
 import haxe.NoData;
-import haxe.async.Callback;
-import haxe.async.Event;
+import haxe.async.*;
 import sys.net.Net.IPFamily;
 import sys.net.Net.NetFamily;
 import sys.net.Net.SocketAddress;
@@ -41,8 +40,8 @@ extern class Socket extends haxe.io.Duplex {
   // function new(fd, ?readable:Bool, ?writable:Bool); ?
   function new(?allowHalfOpen:Bool);
   function address():SocketAddress;
-  function connectTCP(port:Int, ?host:String, ?localAddress:String, ?localPort:Int, ?family:IPFamily, ?hints:Int, ?lookup:String->String, ?connectListener:Callback<NoData>):Void;
-  function connectIPC(path:String, ?connectListener:Callback<NoData>):Void;
+  function connectTCP(port:Int, ?host:String, ?localAddress:String, ?localPort:Int, ?family:IPFamily, ?hints:sys.net.Dns.DnsHints, ?lookup:String->String, ?connectListener:Listener<NoData>):Void;
+  function connectIPC(path:String, ?connectListener:Listener<NoData>):Void;
   //function destroy(?error:Error); // Duplex
   //function end(...); // Duplex
   //function pause():Void; // Duplex
@@ -50,7 +49,7 @@ extern class Socket extends haxe.io.Duplex {
   //function resume():Void; // Duplex
   function setKeepAlive(?enable:Bool, ?initialDelay:Float):Void;
   function setNoDelay(?noDelay:Bool):Void;
-  function setTimeout(timeout:Float, ?callback:Callback<NoData>):Void;
+  function setTimeout(timeout:Float, ?listener:Listener<NoData>):Void;
   function unref():Void;
   //function write(...); // Duplex
 }

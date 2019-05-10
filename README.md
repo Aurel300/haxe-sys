@@ -5,10 +5,12 @@ This is the working draft for the new `sys` package interfaces (not concrete imp
 ## TODO
 
  - Haxe compatibility: Dns, Socket
- - listener arguments passed to a function should not be `Callback` (no error)!
+ - (I)Stream - base class (interface) for all streams
 
 ## Issues with Node APIs
 
+ - `options` mostly converted into separate signatures + optional arguments
+   - for some functions, `options` still seems like the better approach (e.g. `Http.RequestOptions`)
  - Http
    - `setHeader` takes a name (`String`) as well as a value, which can be `Int`, `String`, `Array<String>`; the same must then be returned by `getHeader` - map to an enum?
    - similar problem with `getHeaders`, `getTrailers`
@@ -66,6 +68,7 @@ Modified modules (new API + backward compatibility):
  - [`sys.FileStat`](sys/FileStat.hx)
  - [`sys.FileSystem`](sys/FileSystem.hx)
  - [`sys.io.File`](sys/io/File.hx)
+ - [`sys.net.UdpSocket`](sys/net/UdpSocket.hx)
 
 Added modules:
 
@@ -74,6 +77,7 @@ Added modules:
  - [`haxe.NoData`](haxe/NoData.hx) - type to represent an absence of data in generics (e.g. `Callback<NoData>`)
  - [`haxe.async.Callback`](haxe/async/Callback.hx) - generic type to represent an error-first callback, see [callbacks](#callbacks)
  - [`haxe.async.Event`](haxe/async/Event.hx) - see [events](#events)
+ - [`haxe.async.Listener`](haxe/async/Listener.hx) - event listener
  - [`haxe.io.Duplex`](haxe/io/Duplex.hx) - see [streams](#streams)
  - [`haxe.io.IReadable`](haxe/io/IReadable.hx)
  - [`haxe.io.IWritable`](haxe/io/IWritable.hx)
@@ -87,11 +91,11 @@ Added modules:
  - [`sys.FileWatcher`](sys/FileWatcher.hx)
  - [`sys.async.FileSystem`](sys/async/FileSystem.hx)
  - [`sys.async.Http`](sys/async/Http.hx)
+ - [`sys.async.net.Socket`](sys/net/Socket.hx)
  - [`sys.io.AsyncFile`](sys/io/AsyncFile.hx)
  - [`sys.net.Dns`](sys/net/Dns.hx)
  - [`sys.net.Net`](sys/net/Net.hx)
  - [`sys.net.Server`](sys/net/Server.hx)
- - [`sys.net.Socket`](sys/net/Socket.hx)
  - [`sys.net.UdpSocket`](sys/net/UdpSocket.hx)
 
 Relevant Node.js APIs:
@@ -140,7 +144,7 @@ try {
 
 ### Events
 
-A type-safe system for emitting events, similar to `tink_core` `Signal`s is added. An `Event<T>` is simply an abstract over an array of its `handlers`. An event-emitting object has a number of `final` events.
+A type-safe system for emitting events, similar to `tink_core` `Signal`s is added. An `Event<T>` is simply an abstract over an array of listeners (`Listener<T>`). An event-emitting object has a number of `final` events.
 
 ```haxe
 class Example {
@@ -242,7 +246,10 @@ For methods that were not present in the original APIs, some tests may be based 
 
 ## Impact on existing code
 
-Existing code should not be affected, since the new classes will have methods for backward compatibility.
+Existing code should not be affected:
+
+ - completely new APIs will be in new packages
+ - new APIs which are largely compatible with the old APIs still keep the methods of the old APIs for backward compatibility
 
 ## Drawbacks
 

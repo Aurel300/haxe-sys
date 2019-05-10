@@ -2,8 +2,7 @@ package haxe.io;
 
 import haxe.Error;
 import haxe.NoData;
-import haxe.async.Callback;
-import haxe.async.Event;
+import haxe.async.*;
 
 interface IWritable {
   final eventClose:Event<NoData>;
@@ -19,7 +18,7 @@ interface IWritable {
   
   function cork():Void;
   function destroy(?error:Error):Void;
-  function end(?chunk:Bytes, callback:Callback<NoData>):Void;
+  function end(?chunk:Bytes, ?listener:Listener<NoData>):Void;
   function uncork():Void;
-  function write(chunk:Bytes, callback:Callback<NoData>):Bool;
+  function write(chunk:Bytes, ?callback:Callback<NoData>):Bool;
 }
