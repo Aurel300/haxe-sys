@@ -4,9 +4,15 @@ This is the working draft for the new `sys` package interfaces (not concrete imp
 
 ## TODO
 
- - Dns
- - Http(s)
- - Haxe compatibility: Socket
+ - Haxe compatibility: Dns, Socket
+ - listener arguments passed to a function should not be `Callback` (no error)!
+
+## Issues with Node APIs
+
+ - Http
+   - `setHeader` takes a name (`String`) as well as a value, which can be `Int`, `String`, `Array<String>`; the same must then be returned by `getHeader` - map to an enum?
+   - similar problem with `getHeaders`, `getTrailers`
+   - `Http.createServer` allows specifying alternative classes for IncomingMessage and ServerResponse; incompatible with Haxe
 
 ---
 
@@ -80,6 +86,7 @@ Added modules:
  - [`sys.FileOpenFlags`](sys/FileOpenFlags.hx)
  - [`sys.FileWatcher`](sys/FileWatcher.hx)
  - [`sys.async.FileSystem`](sys/async/FileSystem.hx)
+ - [`sys.async.Http`](sys/async/Http.hx)
  - [`sys.io.AsyncFile`](sys/io/AsyncFile.hx)
  - [`sys.net.Dns`](sys/net/Dns.hx)
  - [`sys.net.Net`](sys/net/Net.hx)
@@ -89,11 +96,13 @@ Added modules:
 
 Relevant Node.js APIs:
 
+ - [`dgram`](https://nodejs.org/api/dgram.html)
+ - [`dns`](https://nodejs.org/api/dns.html)
  - [`fs`](https://nodejs.org/api/fs.html)
+ - [`http`](https://nodejs.org/api/http.html)
  - [`net`](https://nodejs.org/api/net.html)
  - [`path`](https://nodejs.org/api/path.html)
  - [`stream`](https://nodejs.org/api/stream.html)
- - [`dgram`](https://nodejs.org/api/dgram.html)
 
 ### Errors
 
@@ -254,3 +263,4 @@ Existing code should not be affected, since the new classes will have methods fo
    - should we use `haxe.Int64`?
    - is the support of `haxe.Int64` good enough on sys targets
    - Node.js uses the `Number` type, which has at least 53 bits of integer precision
+ - specifics of packages, class names
