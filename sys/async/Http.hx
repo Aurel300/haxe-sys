@@ -13,7 +13,7 @@ extern class Http {
   static var globalAgent:Agent;
   static var maxHeaderSize:Int;
   
-  static function createServer(?requestListener:Listener<{request:IncomingMessage, response:ServerResponse}>):Server;
+  static function createServer(?incomingMessages:()->IncomingMessage, ?serverResponses:()->ServerResponse, ?requestListener:Listener<{request:IncomingMessage, response:ServerResponse}>):Server;
   static function get(url:String, ?opt:RequestOptions, listener:Listener<IncomingMessage>):ClientRequest;
   static function request(url:String, ?opt:RequestOptions, listener:Listener<IncomingMessage>):ClientRequest;
 }
@@ -52,8 +52,6 @@ extern class Agent {
   
   function new(?keepAlive:Bool, ?keepAliveMsecs:Float, ?maxSockets:Int, ?maxFreeSockets:Int, ?timeout:Float);
   
-  // options here refer to the options for new Socket(opt) + socket.connect(opt)
-  // by default returns a Socket but subclasses may return any Duplex stream
   //function createConnection(?opt:{}, ?callback:Callback<haxe.io.Duplex>):haxe.io.Duplex;
   
   function destroy():Void;

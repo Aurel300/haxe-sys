@@ -6,16 +6,12 @@ This is the working draft for the new `sys` package interfaces (not concrete imp
 
  - Haxe compatibility: Dns, Socket
  - Https - mostly a copy of the Http APIs, some extra SSL-specific options
- - URL?
  - (I)Stream - base class (interface) for all streams
 
 ## Issues with Node APIs
 
  - `options` mostly converted into separate signatures + optional arguments
-   - for some functions, `options` still seems like the better approach (e.g. `Http.RequestOptions`)
- - Http
-   - `Agent.createConnection`
-   - `Http.createServer` allows specifying alternative classes for IncomingMessage and ServerResponse; incompatible with Haxe
+   - for some functions, `options` still seems like the better approach (e.g. `Http.RequestOptions`) although this is not very Haxe-styled
 
 ---
 
@@ -34,7 +30,7 @@ Improved API for both synchronous and asynchronous filesystem operations based o
 
 There is currently no good way to asynchronously perform many `sys`-related tasks (without manually creating `Thread`s). Two basic primitives are added to the library:
 
- - [events](#events)
+ - [events](#events) (and listeners)
  - [unified callback style](#callbacks)
 
 ### Streams
@@ -108,6 +104,7 @@ Relevant Node.js APIs:
  - [`net`](https://nodejs.org/api/net.html)
  - [`path`](https://nodejs.org/api/path.html)
  - [`stream`](https://nodejs.org/api/stream.html)
+ - [`url`](https://nodejs.org/api/url.html)
 
 ### Errors
 
@@ -266,9 +263,13 @@ Existing code should not be affected:
 
 ## Unresolved questions
 
- - [error reporting](#errors)
+To be determined before implementation (in PR discussions):
+
+ - [error reporting style](#errors)
+ - specifics of packages, class names generally
+ - [`sys.async.Http`](sys/async/Http.hx)
+   - in `Agent` - `createConnection` should be overridable by subclasses to return a `Duplex` stream (by default a `Socket` is returned), but its arguments are `options`-style currently (passed into both `Socket.new` and `Socket.connect` in Node.js)
  - currently all filesize and file position arguments are `Int`, but this only allows sizes of up to 2 GiB
    - should we use `haxe.Int64`?
    - is the support of `haxe.Int64` good enough on sys targets
    - Node.js uses the `Number` type, which has at least 53 bits of integer precision
- - specifics of packages, class names
