@@ -6,7 +6,6 @@ This is the working draft for the new `sys` package interfaces (not concrete imp
 
  - Haxe compatibility: Dns, Socket
  - Https - mostly a copy of the Http APIs, some extra SSL-specific options
- - (I)Stream - base class (interface) for all streams
 
 ## Issues with Node APIs
 
@@ -77,6 +76,7 @@ Added modules:
  - [`haxe.async.Listener`](haxe/async/Listener.hx) - event listener
  - [`haxe.io.Duplex`](haxe/io/Duplex.hx) - see [streams](#streams)
  - [`haxe.io.IReadable`](haxe/io/IReadable.hx)
+ - [`haxe.io.IStream`](haxe/io/IStream.hx)
  - [`haxe.io.IWritable`](haxe/io/IWritable.hx)
  - [`haxe.io.Readable`](haxe/io/Readable.hx)
  - [`haxe.io.Stream`](haxe/io/Stream.hx)

@@ -4,10 +4,10 @@ import haxe.Error;
 import haxe.NoData;
 import haxe.async.*;
 
-interface IWritable {
-  final eventClose:Event<NoData>;
+interface IWritable extends IStream {
+  // final eventClose:Event<NoData>;
   final eventDrain:Event<NoData>;
-  final eventError:Event<haxe.Error>;
+  // final eventError:Event<haxe.Error>;
   final eventFinish:Event<NoData>;
   final eventPipe:Event<IReadable>;
   final eventUnpipe:Event<IReadable>;

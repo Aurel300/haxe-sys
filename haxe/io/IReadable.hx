@@ -4,11 +4,11 @@ import haxe.Error;
 import haxe.NoData;
 import haxe.async.Event;
 
-interface IReadable {
-  final eventClose:Event<NoData>;
+interface IReadable extends IStream {
+  // final eventClose:Event<NoData>;
   final eventData:Event<Bytes>;
   final eventEnd:Event<NoData>;
-  final eventError:Event<Error>;
+  // final eventError:Event<Error>;
   final eventPause:Event<NoData>;
   final eventReadable:Event<NoData>;
   final eventResume:Event<NoData>;
