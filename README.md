@@ -5,6 +5,8 @@ This is the working draft for the new `sys` package interfaces (not concrete imp
 ## TODO
 
  - Haxe compatibility: Dns, Socket
+ - Https - mostly a copy of the Http APIs, some extra SSL-specific options
+ - URL?
  - (I)Stream - base class (interface) for all streams
 
 ## Issues with Node APIs
@@ -12,8 +14,7 @@ This is the working draft for the new `sys` package interfaces (not concrete imp
  - `options` mostly converted into separate signatures + optional arguments
    - for some functions, `options` still seems like the better approach (e.g. `Http.RequestOptions`)
  - Http
-   - `setHeader` takes a name (`String`) as well as a value, which can be `Int`, `String`, `Array<String>`; the same must then be returned by `getHeader` - map to an enum?
-   - similar problem with `getHeaders`, `getTrailers`
+   - `Agent.createConnection`
    - `Http.createServer` allows specifying alternative classes for IncomingMessage and ServerResponse; incompatible with Haxe
 
 ---

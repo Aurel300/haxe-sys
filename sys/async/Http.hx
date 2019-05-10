@@ -18,13 +18,19 @@ extern class Http {
   static function request(url:String, ?opt:RequestOptions, listener:Listener<IncomingMessage>):ClientRequest;
 }
 
+enum HttpHeaderValue {
+  Single(s:String);
+  SingleInt(i:Int);
+  Multiple(as:Array<String>);
+}
+
 typedef RequestOptions = {
     ?agent:Agent, // differentiate: passed-in agent, no agent (create), no agent (global)
     ?auth:String,
-    ?createConnection:()->haxe.io.Duplex,
+    //?createConnection:()->haxe.io.Duplex, // see Agent.createConnection
     ?defaultPort:Int,
     ?family:IPFamily,
-    ?headers:Map<String, String>,
+    ?headers:Map<String, HttpHeaderValue>,
     ?host:String,
     // ?hostname:String, // alias for host
     ?localAddress:String,
@@ -45,6 +51,11 @@ extern class Agent {
   // var sockets:?
   
   function new(?keepAlive:Bool, ?keepAliveMsecs:Float, ?maxSockets:Int, ?maxFreeSockets:Int, ?timeout:Float);
+  
+  // options here refer to the options for new Socket(opt) + socket.connect(opt)
+  // by default returns a Socket but subclasses may return any Duplex stream
+  //function createConnection(?opt:{}, ?callback:Callback<haxe.io.Duplex>):haxe.io.Duplex;
+  
   function destroy():Void;
   function getName(host:String, port:Int, localAddress:String, family:IPFamily):String;
 }
@@ -69,9 +80,9 @@ extern class ClientRequest { // extends Writable
   function abort():Void;
   // function end(?data:Bytes, ?callback:Callback<NoData>):Void;
   function flushHeaders():Void;
-  function getHeader(name:String):String; // Node.js has Dynamic return here
+  function getHeader(name:String):HttpHeaderValue;
   function removeHeader(name:String):Void;
-  function setHeader(name:String, value:Dynamic):Void; // ...
+  function setHeader(name:String, value:HttpHeaderValue):Void;
   function setNoDelay(?noDelay:Bool):Void;
   function setSocketKeepAlive(?enable:Bool, ?initialDelay:Float):Void;
   function setTimeout(timeout:Float, ?callback:Listener<NoData>):Void;
@@ -108,7 +119,7 @@ extern class IncomingMessage extends haxe.io.Readable {
   
   var aborted:Bool;
   var complete:Bool;
-  var headers:Map<String, String>; // may be an array...
+  var headers:Map<String, HttpHeaderValue>;
   var httpVersion:String;
   var method:String;
   var rawHeaders:Array<String>;
@@ -116,7 +127,7 @@ extern class IncomingMessage extends haxe.io.Readable {
   var socket:sys.async.net.Socket;
   var statusCode:Int;
   var statusMessage:String;
-  var trailers:Map<String, String>;
+  var trailers:Map<String, HttpHeaderValue>;
   var url:String;
   
   function destroy(?error:Error):Void;
@@ -135,15 +146,15 @@ extern class ServerResponse extends haxe.io.Writable {
   var statusCode:Int;
   var statusMessage:String;
   
-  function addTrailers(headers:Map<String, String>):Void;
-  function getHeader(name:String):String; // Node.js has Dynamic return
+  function addTrailers(headers:Map<String, HttpHeaderValue>):Void;
+  function getHeader(name:String):HttpHeaderValue;
   function getHeaderNames():Array<String>;
-  function getHeaders():Map<String, String>; // dynamic?
+  function getHeaders():Map<String, HttpHeaderValue>;
   function hasHeader(name:String):Bool;
   function removeHeader(name:String):Void;
-  function setHeader(name:String, value:Dynamic):Void; // ...
+  function setHeader(name:String, value:HttpHeaderValue):Void;
   function setTimeout(msecs:Float, ?callback:Listener<NoData>):Void;
   function writeContinue():Void;
-  function writeHead(statusCode:Int, ?statusMessage:String, ?headers:Map<String, Dynamic>):Void;
+  function writeHead(statusCode:Int, ?statusMessage:String, ?headers:Map<String, HttpHeaderValue>):Void;
   function writeProcessing():Void;
 }
