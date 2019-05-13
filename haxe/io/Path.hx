@@ -11,8 +11,8 @@ typedef PathObject = {
 extern class Path {
   // node compatibility (path module)
   static final delimiter:String;
-  static final posix:PathPosix;
   static final sep:String;
+  static final posix:PathPosix;
   static final win32:PathWin32;
   
   static function basename(path:String, ?ext:String):String;
@@ -48,5 +48,36 @@ extern class Path {
   function toString():String;
 }
 
-typedef PathPosix = {};
-typedef PathWin32 = {};
+extern class PathPosix {
+  final delimiter:String;
+  final sep:String;
+  
+  function basename(path:String, ?ext:String):String;
+  function dirname(path:String):String;
+  function extname(path:String):String;
+  function format(pathObject:PathObject):String;
+  function isAbsolute(path:String):Bool;
+  function join(paths:Array<String>):String;
+  function normalize(path:String):String;
+  function parse(path:String):PathObject;
+  function relative(from:String, to:String):String;
+  function resolve(paths:Array<String>):String;
+  function toNamespacedPath(path:String):String;
+}
+
+extern class PathWin32 {
+  final delimiter:String;
+  final sep:String;
+  
+  function basename(path:String, ?ext:String):String;
+  function dirname(path:String):String;
+  function extname(path:String):String;
+  function format(pathObject:PathObject):String;
+  function isAbsolute(path:String):Bool;
+  function join(paths:Array<String>):String;
+  function normalize(path:String):String;
+  function parse(path:String):PathObject;
+  function relative(from:String, to:String):String;
+  function resolve(paths:Array<String>):String;
+  function toNamespacedPath(path:String):String;
+}
