@@ -39,11 +39,11 @@ extern class UdpSocket {
 }
 
 typedef UdpMessage = {
-     msg:Bytes
-    ,rinfo:{
-         address:String
-        ,family:IPFamily
-        ,port:Int
-        ,size:Int
+    msg:Bytes,
+    rinfo:{
+        address:String,
+        family:IPFamily,
+        port:Int,
+        size:Int
       }
   };

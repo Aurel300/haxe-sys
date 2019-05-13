@@ -7,11 +7,6 @@ This is the working draft for the new `sys` package interfaces (not concrete imp
  - Haxe compatibility: Dns, Socket
  - Https - mostly a copy of the Http APIs, some extra SSL-specific options
 
-## Issues with Node APIs
-
- - `options` mostly converted into separate signatures + optional arguments
-   - for some functions, `options` still seems like the better approach (e.g. `Http.RequestOptions`) although this is not very Haxe-styled
-
 ---
 
 # New `sys` APIs
@@ -267,8 +262,6 @@ To be determined before implementation (in PR discussions):
 
  - [error reporting style](#errors)
  - specifics of packages, class names generally
- - [`sys.async.Http`](sys/async/Http.hx)
-   - in `Agent` - `createConnection` should be overridable by subclasses to return a `Duplex` stream (by default a `Socket` is returned), but its arguments are `options`-style currently (passed into both `Socket.new` and `Socket.connect` in Node.js)
  - currently all filesize and file position arguments are `Int`, but this only allows sizes of up to 2 GiB
    - should we use `haxe.Int64`?
    - is the support of `haxe.Int64` good enough on sys targets

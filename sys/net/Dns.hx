@@ -3,9 +3,18 @@ package sys.net;
 import haxe.async.Callback;
 import sys.net.Net.IPFamily;
 
+typedef DnsLookupOptions = {
+    ?family:IPFamily,
+    ?hints:DnsHints,
+    ?all:Bool,
+    ?verbatim:Bool
+  };
+
+typedef DnsLookupFunction = (hostname:String, ?lookupOptions:DnsLookupOptions, callback:Callback<{address:String, family:IPFamily}>)->Void;
+
 extern class Dns {
   static function getServers():Array<String>;
-  static function lookup(hostname:String, ?family:IPFamily, ?hints:DnsHints, ?all:Bool, ?verbatim:Bool, callback:Callback<{address:String, family:IPFamily}>):Void;
+  static function lookup(hostname:String, ?lookupOptions:DnsLookupOptions, callback:Callback<{address:String, family:IPFamily}>):Void;
   static function lookupService(address:String, port:Int, callback:Callback<{hostname:String, service:String}>):Void;
   static function resolve(hostname:String, ?rrtype:String, callback:Callback<Array<DnsRecord>>):Void;
   static function resolve4(hostname:String, ?ttl:Bool, callback:Callback<Array<DnsRecord>>):Void;

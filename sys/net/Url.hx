@@ -26,10 +26,10 @@ extern class Url { // once implemented might be abstract over String
 }
 
 typedef UrlFormatOptions = {
-     ?auth:Bool
-    ,?fragment:Bool
-    ,?search:Bool
-    ,?unicode:Bool
+    ?auth:Bool,
+    ?fragment:Bool,
+    ?search:Bool,
+    ?unicode:Bool
   };
 
 extern class UrlSearchParams {
@@ -40,7 +40,7 @@ extern class UrlSearchParams {
   function new();
   function append(name:String, value:String):Void;
   function delete(name:String):Void;
-  // function entries():KeyValueIterator<String, String>;
+  // function entries();
   // function forEach();
   function get(name:String):Null<String>;
   function getAll(name:String):Array<String>;
@@ -50,4 +50,7 @@ extern class UrlSearchParams {
   // function sort();
   function toString():String;
   // function values();
+  
+  function iterator():Iterator<String>;
+  function keyValueIterator():KeyValueIterator<String, String>;
 }

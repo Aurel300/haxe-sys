@@ -15,7 +15,7 @@ extern class Server {
   var maxConnections:Int;
   
   // net.createServer
-  function new(?allowHalfOpen:Bool, ?pauseOnConnect:Bool, ?connectionListener:Listener<sys.async.net.Socket>);
+  function new(?options:{?allowHalfOpen:Bool, ?pauseOnConnect:Bool}, ?connectionListener:Listener<sys.async.net.Socket>);
   
   function address():SocketAddress;
   function close(?callback:Callback<NoData>):Void;
@@ -23,8 +23,8 @@ extern class Server {
   function listenSocket(socket:Socket, ?backlog:Int, ?listener:Listener<NoData>):Void;
   function listenServer(server:Server, ?backlog:Int, ?listener:Listener<NoData>):Void;
   function listenFile(file:sys.io.File, ?backlog:Int, ?listener:Listener<NoData>):Void;
-  function listenIPC(path:String, ?backlog:Int, ?exclusive:Bool, ?readableAll:Bool, ?writableAll:Bool, ?listener:Listener<NoData>):Void;
-  function listenTCP(?port:Int, ?host:String, ?backlog:Int, ?exclusive:Bool, ?ipv6only:Bool, ?listener:Listener<NoData>):Void;
+  function listenIPC(path:String, ?backlog:Int, ?options:{?exclusive:Bool, ?readableAll:Bool, ?writableAll:Bool}, ?listener:Listener<NoData>):Void;
+  function listenTCP(?port:Int, ?host:String, ?backlog:Int, ?options:{?exclusive:Bool, ?ipv6only:Bool}, ?listener:Listener<NoData>):Void;
   function ref():Void;
   function unref():Void;
 }
