@@ -5,6 +5,7 @@ import haxe.NoData;
 import haxe.async.*;
 import haxe.io.Bytes;
 import sys.net.Net.IPFamily;
+import sys.async.net.Socket.SocketCreationOptions;
 
 extern class Http {
   static final METHODS:Array<String>;
@@ -30,12 +31,10 @@ enum RequestOptionsAgent {
   Use(agent:Agent);
 }
 
-typedef CreateConnectionOptions = sys.async.net.Socket.SocketOptions & sys.async.net.Socket.SocketConnectOptions;
-
 typedef RequestOptions = {
     ?agent:RequestOptionsAgent,
     ?auth:String,
-    ?createConnection:(options:CreateConnectionOptions, ?callback:Callback<haxe.io.Duplex>)->haxe.io.Duplex,
+    ?createConnection:(options:SocketCreationOptions, ?callback:Callback<haxe.io.Duplex>)->haxe.io.Duplex,
     ?defaultPort:Int,
     ?family:IPFamily,
     ?headers:Map<String, HttpHeaderValue>,
@@ -59,7 +58,7 @@ extern class Agent {
   var sockets:Map<String, Array<sys.async.net.Socket>>;
   
   function new(?options:{?keepAlive:Bool, ?keepAliveMsecs:Float, ?maxSockets:Int, ?maxFreeSockets:Int, ?timeout:Float});
-  function createConnection(options:CreateConnectionOptions, ?callback:Callback<haxe.io.Duplex>):haxe.io.Duplex;
+  function createConnection(options:SocketCreationOptions, ?callback:Callback<haxe.io.Duplex>):haxe.io.Duplex;
   function destroy():Void;
   function getName(host:String, port:Int, localAddress:String, family:IPFamily):String;
 }

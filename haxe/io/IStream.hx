@@ -7,4 +7,6 @@ import haxe.async.Event;
 interface IStream {
   final eventClose:Event<NoData>;
   final eventError:Event<Error>;
+
+  function destroy(?error:Error):Void;
 }

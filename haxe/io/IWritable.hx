@@ -17,7 +17,6 @@ interface IWritable extends IStream {
   var writableLength(default, null):Int;
   
   function cork():Void;
-  function destroy(?error:Error):Void;
   function end(?chunk:Bytes, ?listener:Listener<NoData>):Void;
   function uncork():Void;
   function write(chunk:Bytes, ?callback:Callback<NoData>):Bool;

@@ -2,8 +2,11 @@ package sys.net;
 
 import haxe.Error;
 import haxe.NoData;
+import haxe.async.Callback;
 import haxe.async.Event;
+import haxe.async.Listener;
 import haxe.io.Bytes;
+import sys.net.Dns.DnsLookupFunction;
 import sys.net.Net.IPFamily;
 
 extern class UdpSocket {
@@ -14,6 +17,8 @@ extern class UdpSocket {
   // function setBroadcast(b:Bool):Void; // matching interface
   
   // node compatibility (dgram.Socket)
+  static function createSocket(type:IPFamily, options:{?reuseAddr:Bool, ?ipv6Only:Bool, ?recvBufferSize:Int, ?sendBufferSize:Int, ?lookup:DnsLookupFunction}, ?listener:Listener<UdpMessage>):UdpSocket;
+  
   final eventClose:Event<NoData>;
   final eventConnect:Event<NoData>;
   final eventError:Event<Error>;
@@ -23,9 +28,9 @@ extern class UdpSocket {
   function new();
   function addMembership(multicastAddress:String, ?multicastInterface:String):Void;
   function address():SocketAddress;
-  function bind(?port:Int, ?address:String, ?callback:Callback<NoData>):Void;
+  function bind(?port:Int, ?address:String, ?listener:Listener<NoData>):Void;
   // bind over fd?
-  function close(?callback:Callback<NoData>):Void;
+  function close(?listener:Listener<NoData>):Void;
   function connect(port:Int, ?address:String, ?callback:Callback<NoData>):Void;
   function disconnect():Void;
   function dropMembership(multicastAddress:String, ?multicastInterface:String):Void;
@@ -36,6 +41,12 @@ extern class UdpSocket {
   function send(msg:Bytes, ?offset:Int, ?length:Int, ?port:Int, ?address:String, ?callback:Callback<NoData>):Void;
   function setBroadcast(flag:Bool):Void;
   function setMulticastInterface(multicastInterface:String):Void;
+  function setMulticastLoopback(flag:Bool):Void;
+  function setMulticastTTL(ttl:Int):Void;
+  function setRecvBufferSize(size:Int):Void;
+  function setSendBufferSize(size:Int):Void;
+  function setTTL(ttl:Int):Void;
+  function unref():Void;
 }
 
 typedef UdpMessage = {

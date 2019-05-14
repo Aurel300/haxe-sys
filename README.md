@@ -101,6 +101,8 @@ Relevant Node.js APIs:
  - [`stream`](https://nodejs.org/api/stream.html)
  - [`url`](https://nodejs.org/api/url.html)
 
+See also the [detailed differences from Node.js APIs](NODE-DIFF.md) and [Haxe 4 breaking chagnes](BREAKING.md).
+
 ### Errors
 
 A `haxe.Error` class is added to unify error reporting in the system APIs. It has a `message` field which contains the human-readable description of the error. It also includes a `type` field which can be `switch`-ed on.
@@ -224,7 +226,7 @@ Where possible, the asynchronous methods should use native calls. For some targe
  - cs
  - eval
  - hl
- - java
+ - java + jvm
  - js (with `hxnodejs`) - mostly trivial mapping since it is the Node.js API
  - lua
  - neko

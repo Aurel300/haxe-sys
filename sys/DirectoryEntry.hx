@@ -1,7 +1,7 @@
 package sys;
 
 extern class DirectoryEntry {
-  var name:String;
+  final name:String;
   
   function isBlockDevice():Bool;
   function isCharacterDevice():Bool;

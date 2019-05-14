@@ -20,11 +20,11 @@ extern class Path {
   static function extname(path:String):String;
   static function format(pathObject:PathObject):String;
   static function isAbsolute(path:String):Bool;
-  static function join(paths:Array<String>):String;
+  static function join(?paths:Array<String>):String;
   static function normalize(path:String):String;
   static function parse(path:String):PathObject;
   static function relative(from:String, to:String):String;
-  static function resolve(paths:Array<String>):String;
+  static function resolve(?paths:Array<String>):String;
   static function toNamespacedPath(path:String):String;
   
   // Haxe haxe.io.Path compatibility

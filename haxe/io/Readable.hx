@@ -14,6 +14,7 @@ extern class Readable implements IReadable {
   final eventResume:Event<NoData>;
   
   var readable(default, null):Bool;
+  var readableFlowing(default, null):ReadableState;
   var readableHighWaterMark(default, null):Int;
   var readableLength(default, null):Int;
   
@@ -21,7 +22,7 @@ extern class Readable implements IReadable {
   function destroy(?error:Error):Void;
   function isPaused():Bool;
   function pause():Void;
-  function pipe(destination:IWritable, ?end:Bool = true):IWritable;
+  function pipe(destination:IWritable, ?end:Bool = true):Void;
   function read(?size:Int):Bytes;
   function resume():Void;
   function unpipe(?destination:IWritable):Void;

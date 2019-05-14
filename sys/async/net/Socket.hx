@@ -27,6 +27,8 @@ typedef SocketConnectOptions = {
     ?path:String
   };
 
+typedef SocketCreationOptions = sys.async.net.Socket.SocketOptions & sys.async.net.Socket.SocketConnectOptions;
+
 extern class Socket extends haxe.io.Duplex {
   // node compatibility
   //final eventClose:Event<NoData>;
@@ -36,7 +38,7 @@ extern class Socket extends haxe.io.Duplex {
   //final eventEnd:Event<NoData>;
   //final eventError:Event<Error>;
   //final eventFinish:Event<NoData>;
-  final eventLookup:Event<{err:Error, address:String, ?family:String, host:String}>;
+  final eventLookup:Event<{?err:Error, address:String, ?family:String, host:String}>;
   //final eventPause:Event<NoData>;
   //final eventPipe:Event<IReadable>;
   //final eventReadable:Event<NoData>;
@@ -50,6 +52,7 @@ extern class Socket extends haxe.io.Duplex {
   var bytesWritten:Int;
   var connecting:Bool;
   var destroyed:Bool;
+  var hadError:Bool;
   var localAddress:String;
   var localPort:Int;
   var pending:Bool;

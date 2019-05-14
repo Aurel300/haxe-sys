@@ -18,6 +18,7 @@ extern class Duplex implements IReadable implements IWritable {
   final eventUnpipe:Event<IReadable>;
   
   var readable(default, null):Bool;
+  var readableFlowing(default, null):ReadableState;
   var readableHighWaterMark(default, null):Int;
   var readableLength(default, null):Int;
   var writable(default, null):Bool;
@@ -30,7 +31,7 @@ extern class Duplex implements IReadable implements IWritable {
   function end(?chunk:Bytes, ?listener:Listener<NoData>):Void;
   function isPaused():Bool;
   function pause():Void;
-  function pipe(destination:IWritable, ?end:Bool = true):IWritable;
+  function pipe(destination:IWritable, ?end:Bool = true):Void;
   function read(?size:Int):Bytes;
   function resume():Void;
   function uncork():Void;

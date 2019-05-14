@@ -4,7 +4,7 @@ typedef FileStatData = {
     // sys.FileStat compatibility
     var atime:Date;
     var ctime:Date;
-    var dev:Int; //???
+    var dev:Int;
     var gid:Int;
     var ino:Int;
     var mode:Int;

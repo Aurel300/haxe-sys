@@ -14,7 +14,7 @@ extern class Url { // once implemented might be abstract over String
   var origin:String;
   var password:String;
   var pathname:String;
-  var port:Int;
+  var port:Null<Int>;
   var protocol:String;
   var search:String;
   var searchParams:UrlSearchParams;
@@ -22,7 +22,6 @@ extern class Url { // once implemented might be abstract over String
   
   function new(input:String, ?base:String);
   function toString():String;
-  function toJSON():String;
 }
 
 typedef UrlFormatOptions = {
@@ -47,7 +46,7 @@ extern class UrlSearchParams {
   function has(name:String):Bool;
   // function keys();
   function set(name:String, value:String):Void;
-  // function sort();
+  function sort():Void;
   function toString():String;
   // function values();
   

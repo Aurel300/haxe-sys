@@ -12,7 +12,7 @@ extern class FileSystem {
   static function chmod(path:String, mode:FileMode, ?followSymLinks:Bool = true, callback:Callback<NoData>):Void;
   static function chown(path:String, uid:Int, gid:Int, ?followSymLinks:Bool = true, callback:Callback<NoData>):Void;
   static function copyFile(src:String, dest:String, ?flags:FileCopyFlags, callback:Callback<NoData>):Void;
-  static function exists(path:String, callback:Callback<Bool>):Void; // deprecated in node.js due to a different interface, ok here
+  static function exists(path:String, callback:Callback<Bool>):Void;
   static function link(existingPath:String, newPath:String, callback:Callback<NoData>):Void;
   static function mkdir(path:String, ?recursive:Bool, ?mode:FileMode, callback:Callback<NoData>):Void;
   static function mkdtemp(prefix:String, callback:Callback<String>):Void;

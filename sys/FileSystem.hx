@@ -5,11 +5,13 @@ import haxe.io.Bytes;
 
 extern class FileSystem {
   // sys.FileSystem-like functions
-  static function access(path:String, ?mode:FileAccessMode = FileAccessMode.Ok):Void; // throws on failure
+  static function access(path:String, ?mode:FileAccessMode):Void;
   static function chmod(path:String, mode:FileMode, ?followSymLinks:Bool = true):Void;
   static function chown(path:String, uid:Int, gid:Int, ?followSymLinks:Bool = true):Void;
-  static function copyFile(src:String, dest:String, ?flags:FileCopyFlags, ?followSymLinks:Bool = true):Void;
+  static function copyFile(src:String, dest:String, ?flags:FileCopyFlags):Void;
   //static function exists(path:String):Bool; // deprecated in node.js
+  static function createReadStream(path:String, ?options:{?flags:FileOpenFlags, ?mode:FileMode, ?autoClose:Bool, ?start:Int, ?end:Int, ?highWaterMark:Int}):FileReadStream;
+  static function createWriteStream(path:String, ?options:{?flags:FileOpenFlags, ?mode:FileMode, ?autoClose:Bool, ?start:Int}):FileWriteStream;
   static function link(existingPath:String, newPath:String):Void;
   static function mkdir(path:String, ?recursive:Bool, ?mode:FileMode):Void;
   static function mkdtemp(prefix:String):String;
