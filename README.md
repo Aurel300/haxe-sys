@@ -4,7 +4,7 @@ This is the working draft for the new `sys` package interfaces (not concrete imp
 
 ## TODO
 
- - Haxe compatibility: Dns, Socket
+ - Haxe compatibility: Dns (Host), Socket
  - Https - mostly a copy of the Http APIs, some extra SSL-specific options
 
 ---
@@ -47,7 +47,7 @@ The current filesystem APIs in Haxe lack a number of important features:
 
 ### Networking
 
-Non-blocking socket operations are inconvenient to use in the current API even though they are the only (non-`Thread`) solution to some real-time network communication problems. IPC communication is not possible.
+Non-blocking socket operations are inconvenient to use in the current API even though they are the only (non-`Thread`) solution to some real-time network communication problems. IPC communication is not possible, UDP sockets are not fully featured.
 
 There is a lack of proper unit testing of the networking APIs. Certain platforms also miss full implementations of various parts of the networking API. (See https://github.com/HaxeFoundation/haxe/issues/6933, https://github.com/HaxeFoundation/haxe/issues/6816)
 
@@ -76,6 +76,7 @@ Added modules:
  - [`haxe.io.Readable`](haxe/io/Readable.hx)
  - [`haxe.io.Stream`](haxe/io/Stream.hx)
  - [`haxe.io.Writable`](haxe/io/Writable.hx)
+ - [`sys.DirectoryEntry`](sys/DirectoryEntry.hx)
  - [`sys.FileAccessMode`](sys/FileAccessMode.hx)
  - [`sys.FileCopyFlags`](sys/FileCopyFlags.hx)
  - [`sys.FileMode`](sys/FileMode.hx)
@@ -85,10 +86,13 @@ Added modules:
  - [`sys.async.Http`](sys/async/Http.hx)
  - [`sys.async.net.Socket`](sys/net/Socket.hx)
  - [`sys.io.AsyncFile`](sys/io/AsyncFile.hx)
+ - [`sys.io.FileReadStream`](sys/io/FileReadStream.hx)
+ - [`sys.io.FileWriteStream`](sys/io/FileWriteStream.hx)
  - [`sys.net.Dns`](sys/net/Dns.hx)
  - [`sys.net.Net`](sys/net/Net.hx)
  - [`sys.net.Server`](sys/net/Server.hx)
  - [`sys.net.UdpSocket`](sys/net/UdpSocket.hx)
+ - [`sys.net.Url`](sys/net/Url.hx)
 
 Relevant Node.js APIs:
 
@@ -174,6 +178,10 @@ Asynchronous methods are identical to their synchronous counter-parts, except:
    - any additional arguments represent the data returned by the call, analogous to the return type of the synchronous method; if the synchronous method has a `Void` return type, the callback takes no additional arguments
    - `Callback<T>` is an abstract which has some `from` methods, allowing a callback to be created from functions with a simpler signature (e.g. a `Callback<NoData>` from `(err:Error)->Void`)
 
+### Flags, modes, constants
+
+Several methods in the API accept constants or a combination of flags. Constants (where the argument is *exactly one of* a set of options) have been converted to an `enum` or `enum abstract`. Flags (where the argument is *zero or more of* a set of options) have been converted to an `abstract` over `Int`, with an overloaded `|` operator.
+
 ### Streams
 
 At the core of a lot of Node.js APIs lie [streams](https://nodejs.org/api/stream.html), which are abstractions for data consumers (`Writable`), data producers (`Readable`), or a mix of both (`Duplex` or `Transform`). Streams enable better composition of data operations with methods such as `pipeline`. There is also a mechanism to minimise buffering of data in memory (`highWaterMark`, `drain`) when combining streams.
@@ -220,15 +228,17 @@ The methods in the current `sys.FileSystem` and `sys.io.File` APIs will be kept 
 
 Where possible, the asynchronous methods should use native calls. For some targets this might not be possible, so in the worst-case scenario these methods will run the synchronous call in a `Thread`, then trigger the callback once done.
 
-(**TODO:** research individual APIs for most targets)
+For many targets, wrapping libuv (the library that powers Node.js APIs) will be the most straight-forward implementation option.
+
+(**TODO:** research individual APIs on remaining targets)
 
  - cpp
  - cs
- - eval
- - hl
- - java + jvm
+ - eval - [libuv bindings for OCaml](https://github.com/fdopen/uwt) ?
+ - hl - libuv bindings already started
+ - java, jvm
  - js (with `hxnodejs`) - mostly trivial mapping since it is the Node.js API
- - lua
+ - lua - [luvit](https://github.com/luvit/luvit)
  - neko
  - php
  - python

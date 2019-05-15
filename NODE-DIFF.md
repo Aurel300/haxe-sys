@@ -21,7 +21,9 @@ The difference between `Callback` and `Listener` is that `Callback<T>` takes an 
 
 ### Flags, modes, constants
 
-Several methods in the API accept constants or a combination of flags. Constants (where the argument is *exactly one of* a set of options) have been converted to an `enum` or `enum abstract`:
+See [explanation in README](README.md#flags-modes-constants).
+
+Constants (`enum` or `enum abstract`):
 
  - **`sys.FileOpenFlags`**
  - **`sys.net.Net.IPFamily`**
@@ -29,7 +31,7 @@ Several methods in the API accept constants or a combination of flags. Constants
    - `IPv6` (Node: `6`)
  - **`sys.net.Net.NetFamily`**
 
-Flags (where the argument is *zero or more of* a set of options) have been converted to an `abstract` over `Int`, with an overloaded `|` operator:
+Flags (`abstract` with an overloaded `|` operator):
 
  - **`sys.FileAccessMode`**
  - **`sys.FileCopyFlags`**

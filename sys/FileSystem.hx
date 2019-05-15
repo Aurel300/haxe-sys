@@ -2,6 +2,8 @@ package sys;
 
 import haxe.Error;
 import haxe.io.Bytes;
+import sys.io.FileReadStream;
+import sys.io.FileWriteStream;
 
 extern class FileSystem {
   // sys.FileSystem-like functions
