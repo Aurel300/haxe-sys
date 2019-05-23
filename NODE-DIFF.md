@@ -68,15 +68,7 @@ Node methods which accept `fd` in an `options` argument have either been removed
    - `sys.net.Dns.DnsLookupOptions`
      - `family` - Haxe: enum type `sys.net.Net.IPFamily` (see [flags](#flags-modes-constants))
      - `hints` - Haxe: abstract type `sys.net.Dns.DnsHints` (see [flags](#flags-modes-constants))
-   - `resolve*` (`resolve`, `resolve4`, `resolve6`, `resolveAny`, `resolveCname`, `resolveMx`, `resolveNaptr`, `resolveNs`, `resolvePtr`, `resolveSoa`, `resolveSrv`, `resolveTxt`)
-     - Haxe: all callbacks have the same type, `Callback<sys.net.Dns.DnsRecord>`, which is an `enum` which also stores the data relevant to each DNS record type
-     - Node: callbacks have different types in different `resolve` functions
-   - `resolve4`, `resolve6`
-     - Haxe: `?ttl:Bool` as an optional argument
-     - Node: `?options:{ttl:Bool}` as an optional argument
- - **`sys.net.Dns.DnsResolver`** (Node: `dns.Resolver`)
-   - (`resolve*` comments from `sys.net.Dns` also apply here)
- - **`sys.net.Dns.DnsRecord`** (Node: `<string>`, `<string[]>`, or `<Object>`)
+ - **removed** Node: `resolve*`, `getServers`, `setServers`, `Resolver` - these functions are implemented using [c-ares](https://github.com/c-ares/c-ares)
 
 ### Fs
 
