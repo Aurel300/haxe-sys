@@ -2,11 +2,6 @@
 
 This is the working draft for the new `sys` package interfaces (not concrete implementations). Eventually a PR will be submitted into `haxe-evolution`.
 
-## TODO
-
- - Haxe compatibility: Dns (Host), Socket
- - Https - mostly a copy of the Http APIs, some extra SSL-specific options
-
 ---
 
 # New `sys` APIs
@@ -70,6 +65,7 @@ Added modules:
  - [`haxe.async.Event`](haxe/async/Event.hx) - see [events](#events)
  - [`haxe.async.Listener`](haxe/async/Listener.hx) - event listener
  - [`haxe.io.Duplex`](haxe/io/Duplex.hx) - see [streams](#streams)
+ - [`haxe.io.FilePath`](haxe/io/FilePath.hx) - see [non-unicode filepaths](#non-unicode-filepaths)
  - [`haxe.io.IReadable`](haxe/io/IReadable.hx)
  - [`haxe.io.IStream`](haxe/io/IStream.hx)
  - [`haxe.io.IWritable`](haxe/io/IWritable.hx)
@@ -216,7 +212,7 @@ sys.async.FileSystem.open("file.txt", Read, (err, file) -> {
 
 In Node.js, wherever a path is expected as an argument, a `Buffer` can be provided, equivalent to `haxe.io.Bytes`. Similarly, whenever paths are to be returned, either a `String` or a `Buffer` is returned, depending on the `encoding` option (`"utf8"` or `"buffer"`).
 
-It would be awkward to mirror this behaviour in Haxe, so instead, the assumption is made that filepaths will be Unicode most of the time, and `String` is used consistently in the API. In the rare cases that non-Unicode paths are returned, they are escaped into a Unicode string. The original `Bytes` can be obtained with `sys.FileSystem.bytesOfPath(path)`. There is also the inverse `sys.FileSystem.pathOfBytes(bytes)`.
+It would be awkward to mirror this behaviour in Haxe, so instead, the assumption is made that filepaths will be Unicode most of the time, and `haxe.io.FilePath` (an `abstract` over `String`) is used consistently in the new API. In the rare cases that non-Unicode paths are returned, they are escaped into a Unicode string. The original `Bytes` can be obtained with `FilePath.decode(path)`. There is also the inverse `FilePath.encode(bytes)`.
 
 See https://github.com/HaxeFoundation/haxe/issues/8134
 
@@ -278,3 +274,5 @@ To be determined before implementation (in PR discussions):
    - should we use `haxe.Int64`?
    - is the support of `haxe.Int64` good enough on sys targets
    - Node.js uses the `Number` type, which has at least 53 bits of integer precision
+ - Haxe compatibility - Dns (Host), Socket
+ - Https - mostly a copy of the Http APIs, some extra SSL-specific options

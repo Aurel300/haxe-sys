@@ -1,7 +1,9 @@
 package sys;
 
+import haxe.io.FilePath;
+
 extern class DirectoryEntry {
-  final name:String;
+  final name:FilePath;
   
   function isBlockDevice():Bool;
   function isCharacterDevice():Bool;

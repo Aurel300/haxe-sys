@@ -3,10 +3,11 @@ package sys;
 import haxe.Error;
 import haxe.NoData;
 import haxe.async.Event;
+import haxe.io.FilePath;
 
 enum FileWatcherEvent {
-  Rename(newPath:String);
-  Change(path:String);
+  Rename(newPath:FilePath);
+  Change(path:FilePath);
 }
 
 extern class FileWatcher {
