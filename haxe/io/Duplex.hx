@@ -5,17 +5,17 @@ import haxe.NoData;
 import haxe.async.*;
 
 extern class Duplex implements IReadable implements IWritable {
-  final eventClose:Event<NoData>;
-  final eventData:Event<Bytes>;
-  final eventDrain:Event<NoData>;
-  final eventEnd:Event<NoData>;
-  final eventError:Event<Error>;
-  final eventFinish:Event<NoData>;
-  final eventPause:Event<NoData>;
-  final eventPipe:Event<IReadable>;
-  final eventReadable:Event<NoData>;
-  final eventResume:Event<NoData>;
-  final eventUnpipe:Event<IReadable>;
+  final closeSignal:Signal<NoData>;
+  final dataSignal:Signal<Bytes>;
+  final drainSignal:Signal<NoData>;
+  final endSignal:Signal<NoData>;
+  final errorSignal:Signal<Error>;
+  final finishSignal:Signal<NoData>;
+  final pauseSignal:Signal<NoData>;
+  final pipeSignal:Signal<IReadable>;
+  final readableSignal:Signal<NoData>;
+  final resumeSignal:Signal<NoData>;
+  final unpipeSignal:Signal<IReadable>;
   
   var readable(default, null):Bool;
   var readableFlowing(default, null):ReadableState;

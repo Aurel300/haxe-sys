@@ -3,7 +3,7 @@ package sys.net;
 import haxe.Error;
 import haxe.NoData;
 import haxe.async.Callback;
-import haxe.async.Event;
+import haxe.async.Signal;
 import haxe.async.Listener;
 import haxe.io.Bytes;
 import sys.net.Dns.DnsLookupFunction;
@@ -19,11 +19,11 @@ extern class UdpSocket {
   // node compatibility (dgram.Socket)
   static function createSocket(type:IPFamily, options:{?reuseAddr:Bool, ?ipv6Only:Bool, ?recvBufferSize:Int, ?sendBufferSize:Int, ?lookup:DnsLookupFunction}, ?listener:Listener<UdpMessage>):UdpSocket;
   
-  final eventClose:Event<NoData>;
-  final eventConnect:Event<NoData>;
-  final eventError:Event<Error>;
-  final eventListening:Event<NoData>;
-  final eventMessage:Event<UdpMessage>;
+  final closeSignal:Signal<NoData>;
+  final connectSignal:Signal<NoData>;
+  final errorSignal:Signal<Error>;
+  final listeningSignal:Signal<NoData>;
+  final messageSignal:Signal<UdpMessage>;
   
   function new();
   function addMembership(multicastAddress:String, ?multicastInterface:String):Void;

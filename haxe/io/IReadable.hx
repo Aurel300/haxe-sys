@@ -2,16 +2,16 @@ package haxe.io;
 
 import haxe.Error;
 import haxe.NoData;
-import haxe.async.Event;
+import haxe.async.Signal;
 
 interface IReadable extends IStream {
-  // final eventClose:Event<NoData>;
-  final eventData:Event<Bytes>;
-  final eventEnd:Event<NoData>;
-  // final eventError:Event<Error>;
-  final eventPause:Event<NoData>;
-  final eventReadable:Event<NoData>;
-  final eventResume:Event<NoData>;
+  // final closeSignal:Signal<NoData>;
+  final dataSignal:Signal<Bytes>;
+  final endSignal:Signal<NoData>;
+  // final errorSignal:Signal<Error>;
+  final pauseSignal:Signal<NoData>;
+  final readableSignal:Signal<NoData>;
+  final resumeSignal:Signal<NoData>;
   
   var readable(default, null):Bool;
   var readableFlowing(default, null):ReadableState;

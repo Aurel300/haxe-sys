@@ -6,10 +6,10 @@ import haxe.async.*;
 import sys.net.Net.SocketAddress;
 
 extern class Server {
-  final eventClose:Event<NoData>;
-  final eventConnection:Event<sys.async.net.Socket>;
-  final eventError:Event<Error>;
-  final eventListening:Event<NoData>;
+  final closeSignal:Signal<NoData>;
+  final connectionSignal:Signal<sys.async.net.Socket>;
+  final errorSignal:Signal<Error>;
+  final listeningSignal:Signal<NoData>;
   
   var listening(default, null):Bool;
   var maxConnections:Int;

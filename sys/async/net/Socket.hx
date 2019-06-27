@@ -31,21 +31,21 @@ typedef SocketCreationOptions = sys.async.net.Socket.SocketOptions & sys.async.n
 
 extern class Socket extends haxe.io.Duplex {
   // node compatibility
-  //final eventClose:Event<NoData>;
-  final eventConnect:Event<NoData>;
-  //final eventData:Event<Bytes>;
-  //final eventDrain:Event<NoData>;
-  //final eventEnd:Event<NoData>;
-  //final eventError:Event<Error>;
-  //final eventFinish:Event<NoData>;
-  final eventLookup:Event<{?err:Error, address:String, ?family:String, host:String}>;
-  //final eventPause:Event<NoData>;
-  //final eventPipe:Event<IReadable>;
-  //final eventReadable:Event<NoData>;
-  final eventReady:Event<NoData>;
-  //final eventResume:Event<NoData>;
-  final eventTimeout:Event<NoData>;
-  //final eventUnpipe:Event<IReadable>;
+  //final closeSignal:Signal<NoData>;
+  final connectSignal:Signal<NoData>;
+  //final dataSignal:Signal<Bytes>;
+  //final drainSignal:Signal<NoData>;
+  //final endSignal:Signal<NoData>;
+  //final errorSignal:Signal<Error>;
+  //final finishSignal:Signal<NoData>;
+  final lookupSignal:Signal<{?err:Error, address:String, ?family:String, host:String}>;
+  //final pauseSignal:Signal<NoData>;
+  //final pipeSignal:Signal<IReadable>;
+  //final readableSignal:Signal<NoData>;
+  final readySignal:Signal<NoData>;
+  //final resumeSignal:Signal<NoData>;
+  final timeoutSignal:Signal<NoData>;
+  //final unpipeSignal:Signal<IReadable>;
   
   var bufferSize:Int;
   var bytesRead:Int;

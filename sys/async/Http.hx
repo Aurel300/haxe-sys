@@ -64,14 +64,14 @@ extern class Agent {
 }
 
 extern class ClientRequest extends haxe.io.Writable {
-  final eventAbort:Event<NoData>;
-  final eventConnect:Event<{response:IncomingMessage, socket:sys.async.net.Socket, head:Bytes}>;
-  final eventContinue:Event<NoData>;
-  final eventInformation:Event<{statusCode:Int}>;
-  final eventResponse:Event<IncomingMessage>;
-  final eventSocket:Event<sys.async.net.Socket>;
-  final eventTimeout:Event<NoData>;
-  final eventUpgrade:Event<{response:IncomingMessage, socket:sys.async.net.Socket, head:Bytes}>;
+  final abortSignal:Signal<NoData>;
+  final connectSignal:Signal<{response:IncomingMessage, socket:sys.async.net.Socket, head:Bytes}>;
+  final continueSignal:Signal<NoData>;
+  final informationSignal:Signal<{statusCode:Int}>;
+  final responseSignal:Signal<IncomingMessage>;
+  final socketSignal:Signal<sys.async.net.Socket>;
+  final timeoutSignal:Signal<NoData>;
+  final upgradeSignal:Signal<{response:IncomingMessage, socket:sys.async.net.Socket, head:Bytes}>;
   
   var aborted:Bool;
   var connection:sys.async.net.Socket; // alias to socket
@@ -98,14 +98,14 @@ extern class ServerClientError extends Error {
 }
 
 extern class Server extends sys.net.Server {
-  final eventCheckContinue:Event<{request:IncomingMessage, response:ServerResponse}>;
-  final eventCheckExpectation:Event<{request:IncomingMessage, response:ServerResponse}>;
-  final eventClientError:Event<{exception:ServerClientError, socket:sys.async.net.Socket}>;
-  // final eventClose (from Server)
-  final eventConnect:Event<{request:IncomingMessage, socket:sys.async.net.Socket, head:Bytes}>;
-  // final eventConnection (from Server)
-  final eventRequest:Event<{request:IncomingMessage, response:ServerResponse}>;
-  final eventUpgrade:Event<{request:IncomingMessage, socket:sys.async.net.Socket, head:Bytes}>;
+  final checkcontinueSignal:Signal<{request:IncomingMessage, response:ServerResponse}>;
+  final checkexpectationSignal:Signal<{request:IncomingMessage, response:ServerResponse}>;
+  final clienterrorSignal:Signal<{exception:ServerClientError, socket:sys.async.net.Socket}>;
+  // final close (from server)
+  final eventconnectSignal:Signal<{request:IncomingMessage, socket:sys.async.net.Socket, head:Bytes}>;
+  // final connection (from server)
+  final eventrequestSignal:Signal<{request:IncomingMessage, response:ServerResponse}>;
+  final upgradeSignal:Signal<{request:IncomingMessage, socket:sys.async.net.Socket, head:Bytes}>;
   
   var headersTimeout:Float;
   // var listening (from Server)
@@ -119,7 +119,7 @@ extern class Server extends sys.net.Server {
 }
 
 extern class IncomingMessage extends haxe.io.Readable {
-  final eventAborted:Event<NoData>;
+  final abortedSignal:Signal<NoData>;
   // final eventClose (from Readable)
   
   var aborted:Bool;

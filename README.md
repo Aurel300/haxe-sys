@@ -19,7 +19,7 @@ Improved API for both synchronous and asynchronous filesystem operations based o
 
 There is currently no good way to asynchronously perform many `sys`-related tasks (without manually creating `Thread`s). Two basic primitives are added to the library:
 
- - [events](#events) (and listeners)
+ - [signals](#signals) (and listeners)
  - [unified callback style](#callbacks)
 
 ### Streams
@@ -62,8 +62,8 @@ Added modules:
  - [`haxe.ErrorType`](haxe/ErrorType.hx)
  - [`haxe.NoData`](haxe/NoData.hx) - type to represent an absence of data in generics (e.g. `Callback<NoData>`)
  - [`haxe.async.Callback`](haxe/async/Callback.hx) - generic type to represent an error-first callback, see [callbacks](#callbacks)
- - [`haxe.async.Event`](haxe/async/Event.hx) - see [events](#events)
- - [`haxe.async.Listener`](haxe/async/Listener.hx) - event listener
+ - [`haxe.async.Signal`](haxe/async/Signal.hx) - see [signals](#signals)
+ - [`haxe.async.Listener`](haxe/async/Listener.hx) - signal listener
  - [`haxe.io.Duplex`](haxe/io/Duplex.hx) - see [streams](#streams)
  - [`haxe.io.FilePath`](haxe/io/FilePath.hx) - see [non-unicode filepaths](#non-unicode-filepaths)
  - [`haxe.io.IReadable`](haxe/io/IReadable.hx)
@@ -137,27 +137,27 @@ try {
 > 
 > The primary aim for any solution is to be able to catch specific types of errors without having to rely on string comparison.
 
-### Events
+### Signals
 
-A type-safe system for emitting events, similar to `tink_core` `Signal`s is added. An `Event<T>` is simply an abstract over an array of listeners (`Listener<T>`). An event-emitting object has a number of `final` events.
+A type-safe system for emitting signals (similar to events) is added, similar to `tink_core`. A `Signal<T>` is simply an abstract over an array of listeners (`Listener<T>`). A signal-emitting object has a number of `final` signal instances.
 
 ```haxe
 class Example {
-  public final eventFoo = new Event<NoData>();
-  public final eventBar = new Event<String>();
-  public function new() super();
-  public function emitEvents() {
-    eventFoo.emit(new NoData());
-    eventBar.emit("hello");
+  public final fooSignal = new Signal<NoData>();
+  public final barSignal = new Signal<String>();
+  public function new() {}
+  public function emit() {
+    fooSignal.emit(new NoData());
+    barSignal.emit("hello");
   }
 }
 
 class Main {
   static function main():Void {
     var example = new Example();
-    example.eventFoo.on(() -> trace("event foo"));
-    example.eventBar.on(str -> trace("event bar", str));
-    example.emitEvents();
+    example.fooSignal.on(() -> trace("signal foo"));
+    example.barSignal.on(str -> trace("signal bar", str));
+    example.emit();
   }
 }
 ```

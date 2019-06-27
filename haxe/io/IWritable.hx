@@ -5,12 +5,12 @@ import haxe.NoData;
 import haxe.async.*;
 
 interface IWritable extends IStream {
-  // final eventClose:Event<NoData>;
-  final eventDrain:Event<NoData>;
-  // final eventError:Event<haxe.Error>;
-  final eventFinish:Event<NoData>;
-  final eventPipe:Event<IReadable>;
-  final eventUnpipe:Event<IReadable>;
+  // final closeSignal:Signal<NoData>;
+  final drainSignal:Signal<NoData>;
+  // final errorSignal:Signal<haxe.Error>;
+  final finishSignal:Signal<NoData>;
+  final pipeSignal:Signal<IReadable>;
+  final unpipeSignal:Signal<IReadable>;
   
   var writable(default, null):Bool;
   var writableHighWaterMark(default, null):Int;

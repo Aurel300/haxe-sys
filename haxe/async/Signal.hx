@@ -1,6 +1,6 @@
 package haxe.async;
 
-abstract Event<T>(Array<Listener<T>>) {
+abstract Signal<T>(Array<Listener<T>>) {
   public inline function new() this = [];
   
   public inline function on(listener:Listener<T>):Void {

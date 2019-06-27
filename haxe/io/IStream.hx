@@ -2,11 +2,11 @@ package haxe.io;
 
 import haxe.Error;
 import haxe.NoData;
-import haxe.async.Event;
+import haxe.async.Signal;
 
 interface IStream {
-  final eventClose:Event<NoData>;
-  final eventError:Event<Error>;
+  final closeSignal:Signal<NoData>;
+  final errorSignal:Signal<Error>;
 
   function destroy(?error:Error):Void;
 }

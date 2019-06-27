@@ -1,11 +1,11 @@
 package sys.io;
 
 import haxe.NoData;
-import haxe.async.Event;
+import haxe.async.Signal;
 
 extern class FileWriteStream extends haxe.io.Writable {
-  final eventOpen:Event<sys.io.File>;
-  final eventReady:Event<NoData>;
+  final openSignal:Signal<sys.io.File>;
+  final readySignal:Signal<NoData>;
   
   var bytesWritten:Int;
   var path:String;

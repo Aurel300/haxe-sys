@@ -2,7 +2,7 @@ package sys;
 
 import haxe.Error;
 import haxe.NoData;
-import haxe.async.Event;
+import haxe.async.Signal;
 import haxe.io.FilePath;
 
 enum FileWatcherEvent {
@@ -11,9 +11,9 @@ enum FileWatcherEvent {
 }
 
 extern class FileWatcher {
-  final eventChange:Event<FileWatcherEvent>;
-  final eventClose:Event<NoData>;
-  final eventError:Event<Error>;
+  final changeSignal:Signal<FileWatcherEvent>;
+  final closeSignal:Signal<NoData>;
+  final errorSignal:Signal<Error>;
   
   function close():Void;
 }
