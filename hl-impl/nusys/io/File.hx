@@ -49,7 +49,7 @@ class File {
   public function close():Void UV.fs_close_sync(UV.loop, handle);
   public function datasync():Void UV.fs_fdatasync_sync(UV.loop, handle);
   public function read(buffer:Bytes, offset:Int, length:Int, position:Int):{bytesRead:Int, buffer:Bytes} {
-    if (length < 0 || offset < 0 || length + offset > buffer.length)
+    if (length <= 0 || offset < 0 || length + offset > buffer.length)
       throw "invalid call";
     var buf:UV.UVBuf = UV.buf_init(hl.Bytes.fromBytes(buffer).offset(offset), length);
     return {bytesRead: UV.fs_read_sync(UV.loop, handle, buf, position), buffer: buffer};
@@ -60,7 +60,7 @@ class File {
   public function truncate(?len:Int = 0):Void UV.fs_ftruncate_sync(UV.loop, handle, len);
   public function utimes(atime:Date, mtime:Date):Void UV.fs_futime_sync(UV.loop, handle, atime.getTime() / 1000, mtime.getTime() / 1000);
   public function write(buffer:Bytes, offset:Int, length:Int, position:Int):{bytesWritten:Int, buffer:Bytes} {
-    if (length < 0 || offset < 0 || length + offset > buffer.length)
+    if (length <= 0 || offset < 0 || length + offset > buffer.length)
       throw "invalid call";
     var buf:UV.UVBuf = UV.buf_init(hl.Bytes.fromBytes(buffer).offset(offset), length);
     return {bytesWritten: UV.fs_write_sync(UV.loop, handle, buf, position), buffer: buffer};

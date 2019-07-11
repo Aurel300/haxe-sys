@@ -175,13 +175,20 @@ class UVStat {
   }
 }
 
-class UVDirent {
+class UVDirent implements sys.DirectoryEntry {
   public final name:String;
   public final type:UVDirentType;
   public function new(name:hl.Bytes, type:UVDirentType) {
     this.name = @:privateAccess String.fromUTF8(name);
     this.type = type;
   }
+  public function isBlockDevice():Bool return type == DirentBlock;
+  public function isCharacterDevice():Bool return type == DirentChar;
+  public function isDirectory():Bool return type == DirentDir;
+  public function isFIFO():Bool return type == DirentFifo;
+  public function isFile():Bool return type == DirentFile;
+  public function isSocket():Bool return type == DirentSocket;
+  public function isSymbolicLink():Bool return type == DirentLink;
 }
 
 enum UVAddrinfo {
