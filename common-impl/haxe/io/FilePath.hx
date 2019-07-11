@@ -10,4 +10,11 @@ abstract FilePath(String) from String {
   public function decode():Bytes {
     return null;
   }
+  
+  private function decodeHl():hl.Bytes {
+    return @:privateAccess this.toUtf8();
+  }
+  private static function encodeHl(data:hl.Bytes):FilePath {
+    return ((@:privateAccess String.fromUCS2(data)):FilePath);
+  }
 }

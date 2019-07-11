@@ -1,3 +1,0 @@
-package haxe;
-
-enum ErrorType {}
