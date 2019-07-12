@@ -18,8 +18,8 @@ import sys.SymlinkType;
 @:access(nusys.io.File)
 class FileSystem {
 	// sys.FileSystem-like functions
-	public static function access(path:FilePath, ?mode:FileAccessMode):Void
-		UV.fs_access_sync(UV.loop, path.decodeHl(), (mode == null ? FileAccessMode.Ok : mode).get_raw());
+	public static function access(path:FilePath, ?mode:FileAccessMode = FileAccessMode.Ok):Void
+		UV.fs_access_sync(UV.loop, path.decodeHl(), mode.get_raw());
 
 	public static function chmod(path:FilePath, mode:FileMode, ?followSymLinks:Bool = true):Void {
 		if (followSymLinks)
@@ -43,7 +43,25 @@ class FileSystem {
 	public static function link(existingPath:FilePath, newPath:FilePath):Void
 		UV.fs_link_sync(UV.loop, existingPath.decodeHl(), newPath.decodeHl());
 
-	// static function mkdir(path:FilePath, ?recursive:Bool, ?mode:FileMode):Void;
+	public static function mkdir(path:FilePath, ?recursive:Bool = false, ?mode:FileMode = 511 /* 0777 */):Void {
+		if (!recursive)
+			return UV.fs_mkdir_sync(UV.loop, path.decodeHl(), mode.get_raw());
+		var pathBuffer:FilePath = null;
+		for (component in path.components) {
+			if (pathBuffer == null)
+				pathBuffer = component;
+			else
+				pathBuffer = pathBuffer / component;
+			try {
+				UV.fs_mkdir_sync(UV.loop, pathBuffer.decodeHl(), mode.get_raw());
+			} catch (e:Error) {
+				if (e.type.match(UVError(UV.UVErrorType.EEXIST)))
+					continue;
+				hl.Api.rethrow(e);
+			}
+		}
+	}
+
 	public static function mkdtemp(prefix:FilePath):FilePath return FilePath.encodeHl(UV.fs_mkdtemp_sync(UV.loop, prefix.decodeHl()));
 
 	public static function readdir(path:FilePath):Array<FilePath> return readdirTypes(path).map(entry -> entry.name);
@@ -70,8 +88,8 @@ class FileSystem {
 		return UV.fs_lstat_sync(UV.loop, path.decodeHl());
 	}
 
-	public static function symlink(target:FilePath, path:FilePath, ?type:SymlinkType):Void
-		UV.fs_symlink_sync(UV.loop, target.decodeHl(), path.decodeHl(), (type == null ? SymlinkType.SymlinkDir : type).get_raw());
+	public static function symlink(target:FilePath, path:FilePath, ?type:SymlinkType = SymlinkType.SymlinkDir):Void
+		UV.fs_symlink_sync(UV.loop, target.decodeHl(), path.decodeHl(), type.get_raw());
 
 	// public static function truncate(path:FilePath, ?len:Int = 0):Void UV.fs_truncate_sync(UV.loop, path.decodeHl(), len);
 	public static function unlink(path:FilePath):Void
@@ -82,13 +100,8 @@ class FileSystem {
 
 	// static function watch(filename:FilePath, ?persistent:Bool, ?recursive:Bool):FileWatcher;
 	// sys.io.File-like functions
-	public static function appendFile(path:FilePath, data:Bytes, ?flags:FileOpenFlags, ?mode:FileMode):Void {
-		if (flags == null)
-			flags = FileOpenFlags.Append;
-		if (mode == null)
-			mode = 438; // 0666
+	public static function appendFile(path:FilePath, data:Bytes, ?flags:FileOpenFlags = FileOpenFlags.Append, ?mode:FileMode = 438 /* 0666 */):Void
 		writeFile(path, data, flags, mode);
-	}
 
 	public static function open(path:FilePath, ?flags:FileOpenFlags, ?mode:FileMode, ?binary:Bool = true):nusys.io.File {
 		var handle = UV.fs_open_sync(UV.loop, path.decodeHl(), flags == FileOpenFlags.WriteTruncate ? (UV.O_WRONLY | UV.O_CREAT | UV.O_TRUNC) : UV.O_RDWR,
@@ -96,9 +109,7 @@ class FileSystem {
 		return new nusys.io.File(handle);
 	}
 
-	public static function readFile(path:FilePath, ?flags:FileOpenFlags):Bytes {
-		if (flags == null)
-			flags = FileOpenFlags.Read;
+	public static function readFile(path:FilePath, ?flags:FileOpenFlags = FileOpenFlags.Read):Bytes {
 		var file = open(path, flags);
 		var buffer:haxe.io.Bytes;
 		try {
@@ -113,11 +124,7 @@ class FileSystem {
 		return buffer;
 	}
 
-	public static function writeFile(path:FilePath, data:Bytes, ?flags:FileOpenFlags, ?mode:FileMode):Void {
-		if (flags == null)
-			flags = FileOpenFlags.WriteTruncate;
-		if (mode == null)
-			mode = 438; // 0666
+	public static function writeFile(path:FilePath, data:Bytes, ?flags:FileOpenFlags = FileOpenFlags.WriteTruncate, ?mode:FileMode = 438 /* 0666 */):Void {
 		var file = open(path, flags, mode);
 		var offset = 0;
 		var length = data.length;
@@ -141,9 +148,14 @@ class FileSystem {
 
 	// compatibility sys.FileSystem functions
 	////static inline function absolutePath(path:String):String; // should be in haxe.io.Path?
-	// static inline function createDirectory(path:String):Void return mkdir(path, true);
-	// static inline function deleteDirectory(path:String):Void return rmdir(path);
-	// static inline function deleteFile(path:String):Void return unlink(path);
+	public static inline function createDirectory(path:String):Void return mkdir(path, true);
+
+	public static inline function deleteDirectory(path:String):Void
+		rmdir(path);
+
+	public static inline function deleteFile(path:String):Void
+		unlink(path);
+
 	public static inline function exists(path:String):Bool
 		return try {
 			access(path);
@@ -151,8 +163,10 @@ class FileSystem {
 		} catch (e:Dynamic) false;
 
 	// static inline function fullPath(path:String):FilePath return realpath(path);
-	// static inline function isDirectory(path:String):Bool return stat(path).isDirectory();
-	// static inline function readDirectory(path:String):Array<FilePath> return readdir(path);
-	////static function rename(path:String, newPath:String) return rename(path, newPath); // matching interface
-	////static function stat(path:String) return stat(path); // matching interface (more or less)
+	// public static inline function isDirectory(path:String):Bool return stat(path).isDirectory();
+
+	public static inline function readDirectory(path:String):Array<FilePath> return readdir(path);
+
+	// static function rename(path:String, newPath:String) return rename(path, newPath); // matching interface
+	// static function stat(path:String) return stat(path); // matching interface (more or less)
 }

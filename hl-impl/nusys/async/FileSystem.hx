@@ -16,8 +16,8 @@ import sys.*;
 @:access(nusys.io.File)
 class FileSystem {
 	// sys.FileSystem-like functions
-	public static function access(path:FilePath, ?mode:FileAccessMode, callback:Callback<NoData>):Void
-		UV.fs_access(UV.loop, path.decodeHl(), (mode == null ? FileAccessMode.Ok : mode).get_raw(), callback.toUVNoData());
+	public static function access(path:FilePath, ?mode:FileAccessMode = FileAccessMode.Ok, callback:Callback<NoData>):Void
+		UV.fs_access(UV.loop, path.decodeHl(), mode.get_raw(), callback.toUVNoData());
 
 	public static function chmod(path:FilePath, mode:FileMode, ?followSymLinks:Bool = true, callback:Callback<NoData>):Void {
 		if (followSymLinks)
@@ -42,7 +42,20 @@ class FileSystem {
 	public static function link(existingPath:FilePath, newPath:FilePath, callback:Callback<NoData>):Void
 		UV.fs_link(UV.loop, existingPath.decodeHl(), newPath.decodeHl(), callback.toUVNoData());
 
-	// static function mkdir(path:FilePath, ?recursive:Bool, ?mode:FileMode, callback:Callback<NoData>):Void;
+	public static function mkdir(path:FilePath, ?recursive:Bool = false, ?mode:FileMode = 511 /* 0777 */, callback:Callback<NoData>):Void {
+		if (!recursive)
+			return UV.fs_mkdir(UV.loop, path.decodeHl(), mode.get_raw(), callback.toUVNoData());
+		var components = path.components;
+		var pathBuffer = components.shift();
+		function step(error:Error):Void {
+			if ((error != null && !error.type.match(UVError(UV.UVErrorType.EEXIST))) || components.length == 0)
+				return callback(error, null);
+			pathBuffer = pathBuffer / components.shift();
+			UV.fs_mkdir(UV.loop, pathBuffer.decodeHl(), mode.get_raw(), step);
+		}
+		UV.fs_mkdir(UV.loop, pathBuffer.decodeHl(), mode.get_raw(), step);
+	}
+
 	public static function mkdtemp(prefix:FilePath, callback:Callback<FilePath>):Void
 		UV.fs_mkdtemp(UV.loop, prefix.decodeHl(), (error, path) -> callback(error, error == null ? FilePath.encodeHl(path) : null));
 
@@ -72,8 +85,8 @@ class FileSystem {
 			UV.fs_lstat(UV.loop, path.decodeHl(), (error, stat) -> callback(error, stat));
 	}
 
-	public static function symlink(target:FilePath, path:FilePath, ?type:SymlinkType, callback:Callback<NoData>):Void
-		UV.fs_symlink(UV.loop, target.decodeHl(), path.decodeHl(), (type == null ? SymlinkType.SymlinkDir : type).get_raw(), callback.toUVNoData());
+	public static function symlink(target:FilePath, path:FilePath, ?type:SymlinkType = SymlinkType.SymlinkDir, callback:Callback<NoData>):Void
+		UV.fs_symlink(UV.loop, target.decodeHl(), path.decodeHl(), type.get_raw(), callback.toUVNoData());
 
 	// static function truncate(path:FilePath, len:Int, callback:Callback<NoData>):Void;
 	public static function unlink(path:FilePath, callback:Callback<NoData>):Void

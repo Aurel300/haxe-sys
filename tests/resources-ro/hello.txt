@@ -1,2 +1,3 @@
-Héľľô wöřlď
-some symbols ◊†¶•¬
+hello world
+symbols ◊†¶•¬
+non-BMP 🐄
