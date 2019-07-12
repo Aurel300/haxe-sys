@@ -1,4 +1,4 @@
 -p ../../common-impl
 -p ../../hl-impl
 --main Main
---hl out.hl
+--hl bin/out.hl

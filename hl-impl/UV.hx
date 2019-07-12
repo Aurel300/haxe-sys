@@ -211,6 +211,15 @@ enum abstract UVErrorType(Int) {
 // wrapped types
 
 class UVStat {
+	static inline final S_IFMT = 0xF000;
+	static inline final S_IFBLK = 0x6000;
+	static inline final S_IFCHR = 0x2000;
+	static inline final S_IFDIR = 0x4000;
+	static inline final S_IFIFO = 0x1000;
+	static inline final S_IFLNK = 0xA000;
+	static inline final S_IFREG = 0x8000;
+	static inline final S_IFSOCK = 0xC000;
+
   public final dev:Int;
   public final mode:Int;
   public final nlink:Int;
@@ -253,6 +262,13 @@ class UVStat {
       + ' gen: ${gen},\n'
       + '}';
   }
+  public function isBlockDevice():Bool return (mode & S_IFMT) == S_IFBLK;
+  public function isCharacterDevice():Bool return (mode & S_IFMT) == S_IFCHR;
+  public function isDirectory():Bool return (mode & S_IFMT) == S_IFDIR;
+  public function isFIFO():Bool return (mode & S_IFMT) == S_IFIFO;
+  public function isFile():Bool return (mode & S_IFMT) == S_IFREG;
+  public function isSocket():Bool return (mode & S_IFMT) == S_IFSOCK;
+  public function isSymbolicLink():Bool return (mode & S_IFMT) == S_IFLNK;
 }
 
 class UVDirent implements sys.DirectoryEntry {
@@ -299,6 +315,11 @@ class UV {
   public static inline final O_SYNC = 0x101000;
   public static inline final O_TRUNC = 0x200;
   public static inline final O_WRONLY = 0x1;
+
+	public static inline final RENAME = 1;
+	public static inline final CHANGE = 2;
+
+	public static inline final FS_EVENT_RECURSIVE = 4;
   
   public static var loop:UVLoop;
   
@@ -397,6 +418,11 @@ class UV {
   @:hlNative("uv", "w_fs_realpath_sync") public static function fs_realpath_sync(loop:UVLoop, _:hl.Bytes):hl.Bytes return null;
   @:hlNative("uv", "w_fs_chown_sync") public static function fs_chown_sync(loop:UVLoop, _:hl.Bytes, _:Int, _:Int):Void {}
   @:hlNative("uv", "w_fs_fchown_sync") public static function fs_fchown_sync(loop:UVLoop, file:UVFile, _:Int, _:Int):Void {}
+  
+  // Filesystem events
+  @:hlNative("uv", "w_fs_event_init") public static function fs_event_init(loop:UVLoop):UVFsEvent return null;
+  @:hlNative("uv", "w_fs_event_start") public static function fs_event_start(handle:UVFsEvent, _:hl.Bytes, _:Int, cb:(Dynamic, hl.Bytes, Int)->Void):Void {}
+  @:hlNative("uv", "w_fs_event_stop") public static function fs_event_stop(handle:UVFsEvent):Void {}
   
   // TCP
   @:hlNative("uv", "w_tcp_init") public static function tcp_init(loop:UVLoop):UVTcp return null;

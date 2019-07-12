@@ -98,7 +98,23 @@ class FileSystem {
 	public static function utimes(path:FilePath, atime:Date, mtime:Date):Void
 		UV.fs_utime_sync(UV.loop, path.decodeHl(), atime.getTime() / 1000, mtime.getTime() / 1000);
 
-	// static function watch(filename:FilePath, ?persistent:Bool, ?recursive:Bool):FileWatcher;
+	public static function watch(filename:FilePath, ?persistent:Bool = true, ?recursive:Bool = false):nusys.FileWatcher {
+		// TODO: persistent -> uv_ref() ?
+		var handle = UV.fs_event_init(UV.loop);
+		var watcher = @:privateAccess new nusys.FileWatcher(handle);
+		UV.fs_event_start(handle, filename.decodeHl(), recursive ? UV.FS_EVENT_RECURSIVE : 0, (error, path, event) -> {
+			if (error != null)
+				watcher.errorSignal.emit(error);
+			else
+				watcher.changeSignal.emit(switch (event) {
+					case UV.RENAME: sys.FileWatcherEvent.Rename(FilePath.encodeHl(path));
+					case _ /* UV.CHANGE */:
+						sys.FileWatcherEvent.Change(FilePath.encodeHl(path));
+				});
+		});
+		return watcher;
+	}
+
 	// sys.io.File-like functions
 	public static function appendFile(path:FilePath, data:Bytes, ?flags:FileOpenFlags = FileOpenFlags.Append, ?mode:FileMode = 438 /* 0666 */):Void
 		writeFile(path, data, flags, mode);
@@ -147,7 +163,7 @@ class FileSystem {
 	}
 
 	// compatibility sys.FileSystem functions
-	////static inline function absolutePath(path:String):String; // should be in haxe.io.Path?
+	////static inline function absolutePath(path:String):String; // should be implemented in haxe.io.Path?
 	public static inline function createDirectory(path:String):Void return mkdir(path, true);
 
 	public static inline function deleteDirectory(path:String):Void
@@ -162,8 +178,9 @@ class FileSystem {
 			true;
 		} catch (e:Dynamic) false;
 
-	// static inline function fullPath(path:String):FilePath return realpath(path);
-	// public static inline function isDirectory(path:String):Bool return stat(path).isDirectory();
+	public static inline function fullPath(path:String):FilePath return realpath(path);
+
+	public static inline function isDirectory(path:String):Bool return stat(path).isDirectory();
 
 	public static inline function readDirectory(path:String):Array<FilePath> return readdir(path);
 
