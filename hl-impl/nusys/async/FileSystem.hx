@@ -62,7 +62,6 @@ class FileSystem {
 	public static function readdir(path:FilePath, callback:Callback<Array<FilePath>>):Void
 		readdirTypes(path, (error, entries) -> callback(error, error == null ? entries.map(entry -> entry.name) : null));
 
-	// TODO: flags?
 	public static function readdirTypes(path:FilePath, callback:Callback<Array<DirectoryEntry>>):Void
 		UV.fs_scandir(UV.loop, path.decodeHl(), 0, (error, native) -> callback(error, error == null ? [for (i in 0...native.length) native[i]] : null));
 

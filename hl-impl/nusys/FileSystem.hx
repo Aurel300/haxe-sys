@@ -67,7 +67,6 @@ class FileSystem {
 	public static function readdir(path:FilePath):Array<FilePath> return readdirTypes(path).map(entry -> entry.name);
 
 	public static function readdirTypes(path:FilePath):Array<sys.DirectoryEntry> {
-		// TODO: flags?
 		var native = UV.fs_scandir_sync(UV.loop, path.decodeHl(), 0);
 		return [for (i in 0...native.length) native[i]];
 	}
