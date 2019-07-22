@@ -1,5 +1,8 @@
 package sys;
 
+/**
+	Wrapper for file access modes. See `sys.FileSystem.access`.
+**/
 enum abstract FileAccessMode(Int) {
   var Ok = 0;
   var Execute = 1 << 0;
