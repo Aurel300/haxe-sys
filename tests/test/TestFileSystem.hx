@@ -12,11 +12,11 @@ non-BMP 🐄";
 	public static var helloBytes = Bytes.ofString(helloString);
 
 	function setup():Void {
-		UV.init();
+		TestBase.uvSetup();
 	}
 
 	function teardown():Void {
-		UV.loop_close(UV.loop);
+		TestBase.uvTeardown();
 	}
 
 	function testMkdir():Void {

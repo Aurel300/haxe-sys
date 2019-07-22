@@ -2,11 +2,11 @@ package test;
 
 class TestAsyncFileSystem extends Test {
 	function setup() {
-		UV.init();
+		TestBase.uvSetup();
 	}
 
 	function teardown() {
-		UV.loop_close(UV.loop);
+		TestBase.uvTeardown();
 	}
 
 	@:timeout(2000)
@@ -30,7 +30,7 @@ class TestAsyncFileSystem extends Test {
 		nusys.async.FileSystem.readdir("resources-ro", callOnce((error, names) -> aeq(names, ["hello.txt"])));
 
 		eq(calls, 0);
-		UV.run(UV.loop, UV.UVRunMode.RunDefault);
+		TestBase.uvRun();
 		eq(calls, callsExpected);
 	}
 }

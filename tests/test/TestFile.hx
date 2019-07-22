@@ -4,12 +4,12 @@ import haxe.io.Bytes;
 import utest.Assert;
 
 class TestFile extends Test {
-	function setup():Void {
-		UV.init();
+	function setup() {
+		TestBase.uvSetup();
 	}
 
-	function teardown():Void {
-		UV.loop_close(UV.loop);
+	function teardown() {
+		TestBase.uvTeardown();
 	}
 
 	/**
