@@ -22,8 +22,8 @@ extern class File {
   final async:AsyncFile;
   
   // node compatibility (file descriptors)
-  function appendFile(data:Bytes, ?flags:FileOpenFlags, ?mode:FileMode):Void;
-  function chmod(mode:FileMode):Void;
+  function appendFile(data:Bytes, ?flags:FileOpenFlags, ?mode:FilePermissions):Void;
+  function chmod(mode:FilePermissions):Void;
   function chown(uid:Int, gid:Int):Void;
   function close():Void;
   function datasync():Void;
@@ -35,5 +35,5 @@ extern class File {
   function utimes(atime:Date, mtime:Date):Void;
   function write(buffer:Bytes, offset:Int, length:Int, position:Int):{bytesWritten:Int, buffer:Bytes};
   function writeString(str:String, ?position:Int, ?encoding:Encoding):{bytesWritten:Int, buffer:Bytes};
-  function writeFile(data:Bytes, ?flags:FileOpenFlags, ?mode:FileMode):Void;
+  function writeFile(data:Bytes, ?flags:FileOpenFlags, ?mode:FilePermissions):Void;
 }

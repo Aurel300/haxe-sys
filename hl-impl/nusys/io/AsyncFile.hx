@@ -16,8 +16,8 @@ class AsyncFile {
   }
   
   // node compatibility (file descriptors)
-  //public function appendFile(data:Bytes, ?flags:FileOpenFlags, ?mode:FileMode, callback:Callback<NoData>):Void;
-  //public function chmod(mode:FileMode, callback:Callback<NoData>):Void;
+  //public function appendFile(data:Bytes, ?flags:FileOpenFlags, ?mode:FilePermissions, callback:Callback<NoData>):Void;
+  //public function chmod(mode:FilePermissions, callback:Callback<NoData>):Void;
   //public function chown(uid:Int, gid:Int, callback:Callback<NoData>):Void;
   public function close(callback:Callback<NoData>):Void UV.fs_close(UV.loop, handle, (error) -> callback(error, null));
   //public function datasync(callback:Callback<NoData>):Void;
@@ -29,5 +29,5 @@ class AsyncFile {
   //public function utimes(atime:Date, mtime:Date, callback:Callback<NoData>):Void;
   //public function write(buffer:Bytes, offset:Int, length:Int, position:Int, callback:Callback<{bytesWritten:Int, buffer:Bytes}>):Void;
   //public function writeString(str:String, ?position:Int, ?encoding:Encoding, callback:Callback<{bytesWritten:Int, buffer:Bytes}>):Void;
-  //public function writeFile(data:Bytes, ?flags:FileOpenFlags, ?mode:FileMode, callback:Callback<NoData>):Void;
+  //public function writeFile(data:Bytes, ?flags:FileOpenFlags, ?mode:FilePermissions, callback:Callback<NoData>):Void;
 }

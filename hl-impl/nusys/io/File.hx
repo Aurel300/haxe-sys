@@ -7,7 +7,7 @@ import sys.FileStat;
 
 import haxe.io.FilePath;
 import sys.FileOpenFlags;
-import sys.FileMode;
+import sys.FilePermissions;
 
 typedef FileHandle = hl.Abstract<"uv_file">;
 
@@ -16,7 +16,7 @@ typedef FileInput = String;
 
 @:access(haxe.io.FilePath)
 @:access(sys.FileOpenFlags)
-@:access(sys.FileMode)
+@:access(sys.FilePermissions)
 class File {
   // sys.io.File compatibility
   //static inline function append(path:String, ?binary:Bool = true):FileOutput return sys.FileSystem.open(path, AppendCreate, binary).output;
@@ -43,8 +43,8 @@ class File {
   }
   
   // node compatibility (file descriptors)
-  //function appendFile(data:Bytes, ?flags:FileOpenFlags, ?mode:FileMode):Void;
-  public function chmod(mode:FileMode):Void UV.fs_fchmod_sync(UV.loop, handle, @:privateAccess mode.get_raw());
+  //function appendFile(data:Bytes, ?flags:FileOpenFlags, ?mode:FilePermissions):Void;
+  public function chmod(mode:FilePermissions):Void UV.fs_fchmod_sync(UV.loop, handle, @:privateAccess mode.get_raw());
   public function chown(uid:Int, gid:Int):Void UV.fs_fchown_sync(UV.loop, handle, uid, gid);
   public function close():Void UV.fs_close_sync(UV.loop, handle);
   public function datasync():Void UV.fs_fdatasync_sync(UV.loop, handle);
@@ -55,7 +55,7 @@ class File {
     return {bytesRead: UV.fs_read_sync(UV.loop, handle, buf, position), buffer: buffer};
   }
   //function readFile(?flags:FileOpenFlags):Bytes;
-  public function stat():UV.UVStat/*FileStat*/ return UV.fs_fstat_sync(UV.loop, handle);
+  public function stat():sys.uv.UVStat return UV.fs_fstat_sync(UV.loop, handle);
   public function sync():Void UV.fs_fsync_sync(UV.loop, handle);
   public function truncate(?len:Int = 0):Void UV.fs_ftruncate_sync(UV.loop, handle, len);
   public function utimes(atime:Date, mtime:Date):Void UV.fs_futime_sync(UV.loop, handle, atime.getTime() / 1000, mtime.getTime() / 1000);
@@ -66,5 +66,5 @@ class File {
     return {bytesWritten: UV.fs_write_sync(UV.loop, handle, buf, position), buffer: buffer};
   }
   //public function writeString(str:String, ?position:Int, ?encoding:Encoding):{bytesWritten:Int, buffer:Bytes};
-  //function writeFile(data:Bytes, ?flags:FileOpenFlags, ?mode:FileMode):Void;
+  //function writeFile(data:Bytes, ?flags:FileOpenFlags, ?mode:FilePermissions):Void;
 }

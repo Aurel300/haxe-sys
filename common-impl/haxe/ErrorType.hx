@@ -1,5 +1,5 @@
 package haxe;
 
 enum ErrorType {
-  UVError(errno:UV.UVErrorType);
+	UVError(errno:sys.uv.UVErrorType);
 }

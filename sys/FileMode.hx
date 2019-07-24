@@ -1,6 +1,6 @@
 package sys;
 
-enum abstract FileMode(Int) {
+enum abstract FilePermissions(Int) {
   var ExecuteOthers = 1 << 0;
   var WriteOthers = 1 << 1;
   var ReadOthers = 1 << 2;
@@ -14,6 +14,6 @@ enum abstract FileMode(Int) {
   inline function get_raw():Int return this;
   
   @:op(A | B)
-  inline function join(other:FileMode) return this | other.get_raw();
+  inline function join(other:FilePermissions) return this | other.get_raw();
 }
 

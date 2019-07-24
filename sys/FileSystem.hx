@@ -40,7 +40,7 @@ extern class FileSystem {
 
 		TODO: `followSymLinks == false` is not implemented and will throw.
 	**/
-	static function chmod(path:FilePath, mode:FileMode, ?followSymLinks:Bool = true):Void;
+	static function chmod(path:FilePath, mode:FilePermissions, ?followSymLinks:Bool = true):Void;
 
 	/**
 		Changes the owner and group of the file specific by `path` to `uid` and
@@ -54,10 +54,10 @@ extern class FileSystem {
 	**/
 	static function chown(path:FilePath, uid:Int, gid:Int, ?followSymLinks:Bool = true):Void;
 
-	static function copyFile(src:FilePath, dest:FilePath, ?flags:FileCopyFlags):Void;
+	// static function copyFile(src:FilePath, dest:FilePath, ?flags:FileCopyFlags):Void;
 	// static function exists(path:FilePath):Bool; // deprecated in node.js
-	// static function createReadStream(path:FilePath, ?options:{?flags:FileOpenFlags, ?mode:FileMode, ?autoClose:Bool, ?start:Int, ?end:Int, ?highWaterMark:Int}):FileReadStream;
-	// static function createWriteStream(path:FilePath, ?options:{?flags:FileOpenFlags, ?mode:FileMode, ?autoClose:Bool, ?start:Int}):FileWriteStream;
+	// static function createReadStream(path:FilePath, ?options:{?flags:FileOpenFlags, ?mode:FilePermissions, ?autoClose:Bool, ?start:Int, ?end:Int, ?highWaterMark:Int}):FileReadStream;
+	// static function createWriteStream(path:FilePath, ?options:{?flags:FileOpenFlags, ?mode:FilePermissions, ?autoClose:Bool, ?start:Int}):FileWriteStream;
 	static function link(existingPath:FilePath, newPath:FilePath):Void;
 
 	/**
@@ -67,7 +67,7 @@ extern class FileSystem {
 		directory at a time, the last component of `path`. If `recursive` is `true`,
 		intermediate directories will be created as needed.
 	**/
-	static function mkdir(path:FilePath, ?recursive:Bool = false, ?mode:FileMode = 511 /* 0777 */):Void;
+	static function mkdir(path:FilePath, ?recursive:Bool = false, ?mode:FilePermissions = 511 /* 0777 */):Void;
 
 	/**
 		Creates a unique temporary directory. `prefix` should be a path template
@@ -163,12 +163,12 @@ extern class FileSystem {
 	/**
 		Appends `data` at the end of the file located at `path`.
 	**/
-	static function appendFile(path:FilePath, data:Bytes, ?flags:FileOpenFlags = FileOpenFlags.Append, ?mode:FileMode = 438 /* 0666 */):Void;
+	static function appendFile(path:FilePath, data:Bytes, ?flags:FileOpenFlags = FileOpenFlags.Append, ?mode:FilePermissions = 438 /* 0666 */):Void;
 
 	/**
 		Opens the file located at `path`.
 	**/
-	static function open(path:FilePath, ?flags:FileOpenFlags = FileOpenFlags.Read, ?mode:FileMode = 438 /* 0666 */, ?binary:Bool = true):sys.io.File;
+	static function open(path:FilePath, ?flags:FileOpenFlags = FileOpenFlags.Read, ?mode:FilePermissions = 438 /* 0666 */, ?binary:Bool = true):sys.io.File;
 
 	/**
 		Reads all the bytes of the file located at `path`.
@@ -178,7 +178,7 @@ extern class FileSystem {
 	/**
 		Writes `data` to the file located at `path`.
 	**/
-	static function writeFile(path:FilePath, data:Bytes, ?flags:FileOpenFlags = FileOpenFlags.WriteTruncate, ?mode:FileMode = 438 /* 0666 */):Void;
+	static function writeFile(path:FilePath, data:Bytes, ?flags:FileOpenFlags = FileOpenFlags.WriteTruncate, ?mode:FilePermissions = 438 /* 0666 */):Void;
 
 	// compatibility sys.FileSystem functions
 	static function absolutePath(path:String):String; // should be implemented in haxe.io.Path

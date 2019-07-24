@@ -1,0 +1,6 @@
+package sys.uv;
+
+enum abstract UVFsEventType(Int) {
+	var Rename = 1;
+	var Change = 2;
+}

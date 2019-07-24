@@ -3,7 +3,7 @@ package sys;
 import haxe.io.FilePath;
 
 interface DirectoryEntry {
-	final name:FilePath;
+	var name(get, never):FilePath;
 	function isBlockDevice():Bool;
 	function isCharacterDevice():Bool;
 	function isDirectory():Bool;

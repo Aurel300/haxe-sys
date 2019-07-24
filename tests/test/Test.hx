@@ -1,8 +1,10 @@
 package test;
 
 import utest.Assert;
+import haxe.io.Bytes;
 
 // copy of Test from Haxe unit test sources
+// + beq
 class Test implements utest.ITest {
 	public function new() {}
 
@@ -16,6 +18,10 @@ class Test implements utest.ITest {
 
 	function aeq<T>(expected:Array<T>, actual:Array<T>, ?pos:haxe.PosInfos) {
 		Assert.same(expected, actual, pos);
+	}
+
+	function beq(a:Bytes, b:Bytes, ?pos:haxe.PosInfos) {
+		Assert.isTrue(a.compare(b) == 0, pos);
 	}
 
 	function t(v, ?pos:haxe.PosInfos) {
@@ -32,6 +38,13 @@ class Test implements utest.ITest {
 
 	function exc(f:Void->Void, ?pos:haxe.PosInfos) {
 		Assert.raises(f, pos);
+	}
+
+	function noExc(f:Void->Void, ?pos:haxe.PosInfos) {
+		Assert.isTrue(try {
+			f();
+			true;
+		} catch (e:Dynamic) false, pos);
 	}
 
 	function unspec(f:Void->Void, ?pos) {

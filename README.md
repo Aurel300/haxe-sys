@@ -6,7 +6,9 @@ This is the working draft for the new `sys` package interfaces.
 
 Current WIP is the eval implementation.
 
-# Overall status
+# Status
+
+## Target TODO
 
 | Target | Build | Binds | FS | T | Net | T | Note |
 | ------ | ----- | ----- | -- | - | --- | - | ---- |
@@ -23,6 +25,16 @@ Current WIP is the eval implementation.
  - "T" - are the tests for the previous column done?
  - "Y", ".", " ", "n/a" - yes, partially, no, not applicable
 
+ - [ ] hl, eval, cpp - use GC a bit better; automatically close `uv_file` (and others?) once collected
+ - [ ] eval - figure out instance variables (`final` in particular) on eval types, would allow unifying e.g. `sys.uv.Stat`
+
+## Common TODO
+
+These should be implementable in pure Haxe.
+
+ - [ ] streams - based on `streams3` of Node.js
+ - [ ] HTTP - built on top of raw sockets
+
 ## Per function notes
 
 | Category | Function | Notes |
@@ -33,6 +45,7 @@ Current WIP is the eval implementation.
 | FS | `truncate` | emulated with `open("r+")`, `ftruncate` (see [node](https://github.com/nodejs/node/blob/e71a0f4d5faa4ad77887fbb3fff0ddb7bca6942e/lib/fs.js#L638-L657)) |
 | FS | `mkdir` with `recursive == true` | emulated |
 | FS | `rmdir` | ??? should we have a `recursive` mode for `rmdir` |
+| loop | `run` | implement `haxe.Timer` with UV? tick UV in RunOnce mode only? |
 
 # Project structure
 
@@ -59,7 +72,7 @@ make install
 
 ## Eval setup
 
-To test the Eval implementations, please use the [`feature/eval-libuv`](https://github.com/Aurel300/haxe/tree/feature/libuv) branch of Aurel300/haxe, which includes libuv FFI and OCaml implementations.
+To test the Eval implementations, please use the [`feature/eval-libuv`](https://github.com/Aurel300/haxe/tree/feature/eval-libuv) branch of Aurel300/haxe, which includes libuv FFI and OCaml implementations.
 
 ## Running tests
 

@@ -11,7 +11,7 @@ import sys.*;
 @:access(haxe.io.FilePath)
 @:access(sys.FileAccessMode)
 @:access(sys.FileOpenFlags)
-@:access(sys.FileMode)
+@:access(sys.FilePermissions)
 @:access(sys.SymlinkType)
 @:access(nusys.io.File)
 class FileSystem {
@@ -19,7 +19,7 @@ class FileSystem {
 	public static function access(path:FilePath, ?mode:FileAccessMode = FileAccessMode.Ok, callback:Callback<NoData>):Void
 		UV.fs_access(UV.loop, path.decodeHl(), mode.get_raw(), callback.toUVNoData());
 
-	public static function chmod(path:FilePath, mode:FileMode, ?followSymLinks:Bool = true, callback:Callback<NoData>):Void {
+	public static function chmod(path:FilePath, mode:FilePermissions, ?followSymLinks:Bool = true, callback:Callback<NoData>):Void {
 		if (followSymLinks)
 			UV.fs_chmod(UV.loop, path.decodeHl(), mode.get_raw(), callback.toUVNoData());
 		else
@@ -42,13 +42,13 @@ class FileSystem {
 	public static function link(existingPath:FilePath, newPath:FilePath, callback:Callback<NoData>):Void
 		UV.fs_link(UV.loop, existingPath.decodeHl(), newPath.decodeHl(), callback.toUVNoData());
 
-	public static function mkdir(path:FilePath, ?recursive:Bool = false, ?mode:FileMode = 511 /* 0777 */, callback:Callback<NoData>):Void {
+	public static function mkdir(path:FilePath, ?recursive:Bool = false, ?mode:FilePermissions = 511 /* 0777 */, callback:Callback<NoData>):Void {
 		if (!recursive)
 			return UV.fs_mkdir(UV.loop, path.decodeHl(), mode.get_raw(), callback.toUVNoData());
 		var components = path.components;
 		var pathBuffer = components.shift();
 		function step(error:Error):Void {
-			if ((error != null && !error.type.match(UVError(UV.UVErrorType.EEXIST))) || components.length == 0)
+			if ((error != null && !error.type.match(UVError(sys.uv.UVErrorType.EEXIST))) || components.length == 0)
 				return callback(error, null);
 			pathBuffer = pathBuffer / components.shift();
 			UV.fs_mkdir(UV.loop, pathBuffer.decodeHl(), mode.get_raw(), step);
@@ -77,7 +77,7 @@ class FileSystem {
 	public static function rmdir(path:FilePath, callback:Callback<NoData>):Void
 		UV.fs_rmdir(UV.loop, path.decodeHl(), callback.toUVNoData());
 
-	public static function stat(path:FilePath, ?followSymLinks:Bool = true, callback:Callback<UV.UVStat /*FileStat*/>):Void {
+	public static function stat(path:FilePath, ?followSymLinks:Bool = true, callback:Callback<sys.uv.UVStat>):Void {
 		if (followSymLinks)
 			UV.fs_stat(UV.loop, path.decodeHl(), (error, stat) -> callback(error, stat));
 		else
@@ -95,8 +95,8 @@ class FileSystem {
 		UV.fs_utime(UV.loop, path.decodeHl(), atime.getTime() / 1000, mtime.getTime() / 1000, callback.toUVNoData());
 
 	//// sys.io.File-like functions
-	// static function appendFile(path:FilePath, data:Bytes, ?flags:FileOpenFlags, ?mode:FileMode, callback:Callback<NoData>):Void;
-	// static function open(path:FilePath, ?flags:FileOpenFlags, ?mode:FileMode, ?binary:Bool = true, callback:Callback<sys.io.File>):Void;
+	// static function appendFile(path:FilePath, data:Bytes, ?flags:FileOpenFlags, ?mode:FilePermissions, callback:Callback<NoData>):Void;
+	// static function open(path:FilePath, ?flags:FileOpenFlags, ?mode:FilePermissions, ?binary:Bool = true, callback:Callback<sys.io.File>):Void;
 	// static function readFile(path:FilePath, ?flags:FileOpenFlags, callback:Callback<Bytes>):Void;
-	// static function writeFile(path:FilePath, data:Bytes, ?flags:FileOpenFlags, ?mode:FileMode, callback:Callback<NoData>):Void;
+	// static function writeFile(path:FilePath, data:Bytes, ?flags:FileOpenFlags, ?mode:FilePermissions, callback:Callback<NoData>):Void;
 }

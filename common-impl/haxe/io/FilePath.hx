@@ -25,6 +25,7 @@ abstract FilePath(String) from String {
 	private function get_raw():String
 		return this;
 
+	#if hl
 	private function decodeHl():hl.Bytes {
 		return @:privateAccess this.toUtf8();
 	}
@@ -32,4 +33,5 @@ abstract FilePath(String) from String {
 	private static function encodeHl(data:hl.Bytes):FilePath {
 		return ((@:privateAccess String.fromUCS2(data)) : FilePath);
 	}
+	#end
 }
