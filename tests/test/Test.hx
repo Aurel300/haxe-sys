@@ -4,7 +4,7 @@ import utest.Assert;
 import haxe.io.Bytes;
 
 // copy of Test from Haxe unit test sources
-// + beq
+// + beq, noExc
 class Test implements utest.ITest {
 	public function new() {}
 

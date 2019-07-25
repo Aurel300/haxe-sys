@@ -40,7 +40,6 @@ typedef UVInterfaceAddress = hl.Abstract<"uv_interface_address_t">;
 typedef UVPasswd = hl.Abstract<"uv_passwd_t">;
 typedef UVUtsname = hl.Abstract<"uv_utsname_t">;
 typedef UVFile = hl.Abstract<"uv_file">;
-typedef UVBuf = hl.Abstract<"uv_buf_t">;
 
 // Non-UV types
 
@@ -51,12 +50,6 @@ typedef UVSockaddr = hl.Abstract<"uv_sockaddr">;
 typedef UVTimespec = hl.Abstract<"uv_timespec_t">;
 
 // Enums
-
-enum abstract UVRunMode(Int) {
-  var RunDefault = 0;
-  var RunOnce;
-  var RunNoWait;
-}
 
 enum abstract UVHandleType(Int) {
   var UnknownHandle = 0;
@@ -156,8 +149,7 @@ class UV {
   
   public static function init():Void {
     glue_register(
-      (msgBytes, errno) -> {
-        var msg = @:privateAccess String.fromUTF8(msgBytes);
+      (errno) -> {
         return new Error(haxe.ErrorType.UVError(cast errno));
       },
       sys.uv.UVStat.new,
@@ -171,7 +163,7 @@ class UV {
   
   // Glue
   public static function glue_register(
-    c_error:hl.Bytes->Int->Dynamic,
+    c_error:Int->Dynamic,
     c_fs_stat:(Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int)->Dynamic,
     c_fs_dirent:(hl.Bytes, sys.uv.UVDirentType)->Dynamic,
     c_addrinfo_ipv4:Int->Dynamic,
@@ -183,20 +175,17 @@ class UV {
   
   // Loop
   @:hlNative("uv", "w_loop_init") public static function loop_init():UVLoop return null;
-  @:hlNative("uv", "w_loop_close") public static function loop_close(loop:UVLoop):Bool return false;
-  @:hlNative("uv", "w_run") public static function run(loop:UVLoop, mode:UVRunMode):Bool return false;
+  @:hlNative("uv", "w_loop_close") public static function loop_close(loop:UVLoop):Void {}
+  @:hlNative("uv", "w_run") public static function run(loop:UVLoop, mode:sys.uv.UVRunMode):Bool return false;
   @:hlNative("uv", "w_loop_alive") public static function loop_alive(loop:UVLoop):Bool return false;
   public static function stop(loop:UVLoop):Void {}
-  
-  // Misc
-  @:hlNative("uv", "w_buf_init") public static function buf_init(bytes:hl.Bytes, len:Int):UVBuf return null;
   
   // Filesystem
   @:hlNative("uv", "w_fs_close") public static function fs_close(loop:UVLoop, file:UVFile, cb:Dynamic->Void):Void {}
   @:hlNative("uv", "w_fs_open") public static function fs_open(loop:UVLoop, _:hl.Bytes, _:Int, _:Int, cb:Dynamic->UVFile->Void):Void {}
-  @:hlNative("uv", "w_fs_read") public static function fs_read(loop:UVLoop, file:UVFile, _:UVBuf, _:Int, cb:Dynamic->Int->Void):Void {}
+  @:hlNative("uv", "w_fs_read") public static function fs_read(loop:UVLoop, file:UVFile, _:hl.Bytes, _:Int, _:Int, _:Int, cb:Dynamic->Int->Void):Void {}
   @:hlNative("uv", "w_fs_unlink") public static function fs_unlink(loop:UVLoop, _:hl.Bytes, cb:Dynamic->Void):Void {}
-  @:hlNative("uv", "w_fs_write") public static function fs_write(loop:UVLoop, file:UVFile, _:UVBuf, _:Int, cb:Dynamic->Int->Void):Void {}
+  @:hlNative("uv", "w_fs_write") public static function fs_write(loop:UVLoop, file:UVFile, _:hl.Bytes, _:Int, _:Int, _:Int, cb:Dynamic->Int->Void):Void {}
   @:hlNative("uv", "w_fs_mkdir") public static function fs_mkdir(loop:UVLoop, _:hl.Bytes, _:Int, cb:Dynamic->Void):Void {}
   @:hlNative("uv", "w_fs_mkdtemp") public static function fs_mkdtemp(loop:UVLoop, _:hl.Bytes, cb:Dynamic->hl.Bytes->Void):Void {}
   @:hlNative("uv", "w_fs_rmdir") public static function fs_rmdir(loop:UVLoop, _:hl.Bytes, cb:Dynamic->Void):Void {}
@@ -223,9 +212,9 @@ class UV {
   
   @:hlNative("uv", "w_fs_close_sync") public static function fs_close_sync(loop:UVLoop, file:UVFile):Void {}
   @:hlNative("uv", "w_fs_open_sync") public static function fs_open_sync(loop:UVLoop, _:hl.Bytes, _:Int, _:Int):UVFile return null;
-  @:hlNative("uv", "w_fs_read_sync") public static function fs_read_sync(loop:UVLoop, file:UVFile, _:UVBuf, _:Int):Int return 0;
+  @:hlNative("uv", "w_fs_read_sync") public static function fs_read_sync(loop:UVLoop, file:UVFile, _:hl.Bytes, _:Int, _:Int, _:Int):Int return 0;
   @:hlNative("uv", "w_fs_unlink_sync") public static function fs_unlink_sync(loop:UVLoop, _:hl.Bytes):Void {}
-  @:hlNative("uv", "w_fs_write_sync") public static function fs_write_sync(loop:UVLoop, file:UVFile, _:UVBuf, _:Int):Int return 0;
+  @:hlNative("uv", "w_fs_write_sync") public static function fs_write_sync(loop:UVLoop, file:UVFile, _:hl.Bytes, _:Int, _:Int, _:Int):Int return 0;
   @:hlNative("uv", "w_fs_mkdir_sync") public static function fs_mkdir_sync(loop:UVLoop, _:hl.Bytes, _:Int):Void {}
   @:hlNative("uv", "w_fs_mkdtemp_sync") public static function fs_mkdtemp_sync(loop:UVLoop, _:hl.Bytes):hl.Bytes return null;
   @:hlNative("uv", "w_fs_rmdir_sync") public static function fs_rmdir_sync(loop:UVLoop, _:hl.Bytes):Void {}
@@ -251,9 +240,8 @@ class UV {
   @:hlNative("uv", "w_fs_fchown_sync") public static function fs_fchown_sync(loop:UVLoop, file:UVFile, _:Int, _:Int):Void {}
   
   // Filesystem events
-  @:hlNative("uv", "w_fs_event_init") public static function fs_event_init(loop:UVLoop):UVFsEvent return null;
-  @:hlNative("uv", "w_fs_event_start") public static function fs_event_start(handle:UVFsEvent, _:hl.Bytes, _:Int, cb:(Dynamic, hl.Bytes, Int)->Void):Void {}
-  @:hlNative("uv", "w_fs_event_stop") public static function fs_event_stop(handle:UVFsEvent):Void {}
+  @:hlNative("uv", "w_fs_event_start") public static function fs_event_start(loop:UVLoop, _:hl.Bytes, persistent:Bool, recursive:Bool, cb:(Dynamic, hl.Bytes, Int)->Void):UVFsEvent return null;
+  @:hlNative("uv", "w_fs_event_stop") public static function fs_event_stop(handle:UVFsEvent, cb:Dynamic->Void):Void {}
   
   // TCP
   @:hlNative("uv", "w_tcp_init") public static function tcp_init(loop:UVLoop):UVTcp return null;
@@ -264,7 +252,7 @@ class UV {
   @:hlNative("uv", "w_tcp_connect_ipv4") public static function tcp_connect_ipv4(handle:UVTcp, host:Int, port:Int, cb:Dynamic->Void):Void {}
   @:hlNative("uv", "w_tcp_connect_ipv6") public static function tcp_connect_ipv6(handle:UVTcp, host:hl.Bytes, port:Int, cb:Dynamic->Void):Void {}
   @:hlNative("uv", "w_tcp_listen") public static function tcp_listen(handle:UVTcp, backlog:Int, cb:Dynamic->Void):Void {}
-  @:hlNative("uv", "w_tcp_write") public static function tcp_write(handle:UVTcp, buf:UVBuf, cb:Dynamic->Void):Void {}
+  //@:hlNative("uv", "w_tcp_write") public static function tcp_write(handle:UVTcp, buf:hl.Bytes, length:Int, cb:Dynamic->Void):Void {}
   @:hlNative("uv", "w_tcp_shutdown") public static function tcp_shutdown(handle:UVTcp, cb:Dynamic->Void):Void {}
   @:hlNative("uv", "w_tcp_close") public static function tcp_close(handle:UVTcp, cb:Dynamic->Void):Void {}
   @:hlNative("uv", "w_tcp_accept") public static function tcp_accept(loop:UVLoop, handle:UVTcp):UVTcp return null;
@@ -275,8 +263,8 @@ class UV {
   @:hlNative("uv", "w_udp_init") public static function udp_init(loop:UVLoop):UVUdp return null;
   @:hlNative("uv", "w_udp_bind_ipv4") public static function udp_bind_ipv4(handle:UVUdp, host:Int, port:Int):Void {}
   @:hlNative("uv", "w_udp_bind_ipv6") public static function udp_bind_ipv6(handle:UVUdp, host:hl.Bytes, port:Int):Void {}
-  @:hlNative("uv", "w_udp_send_ipv4") public static function udp_send_ipv4(handle:UVUdp, buf:UVBuf, host:Int, port:Int, cb:Dynamic->Void):Void {}  
-  @:hlNative("uv", "w_udp_send_ipv6") public static function udp_send_ipv6(handle:UVUdp, buf:UVBuf, host:hl.Bytes, port:Int, cb:Dynamic->Void):Void {}  
+  @:hlNative("uv", "w_udp_send_ipv4") public static function udp_send_ipv4(handle:UVUdp, buf:hl.Bytes, length:Int, host:Int, port:Int, cb:Dynamic->Void):Void {}  
+  @:hlNative("uv", "w_udp_send_ipv6") public static function udp_send_ipv6(handle:UVUdp, buf:hl.Bytes, length:Int, host:hl.Bytes, port:Int, cb:Dynamic->Void):Void {}  
   @:hlNative("uv", "w_udp_recv_start") public static function udp_recv_start(handle:UVUdp, cb:(Dynamic, hl.Bytes, Int, Dynamic)->Void):Void {}  
   @:hlNative("uv", "w_udp_recv_stop") public static function udp_recv_stop(handle:UVUdp):Void {}  
   

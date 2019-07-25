@@ -1,5 +1,7 @@
 package test;
 
+import utest.Async;
+
 class TestAsyncFileSystem extends Test {
 	function setup() {
 		TestBase.uvSetup();
@@ -9,7 +11,7 @@ class TestAsyncFileSystem extends Test {
 		TestBase.uvTeardown();
 	}
 
-	function testAsync(async:utest.Async) {
+	function testAsync(async:Async) {
 		var calls = 0;
 		var callsExpected = 0;
 		function callOnce<T>(cb:haxe.async.Callback<T>):haxe.async.Callback<T> {
@@ -33,21 +35,19 @@ class TestAsyncFileSystem extends Test {
 		eq(calls, callsExpected);
 	}
 
-	@:timeout(1000)
-	#if hl
-	// TODO
-	@Ignored
-	#end
-	function testWatcher() {
+	@:timeout(3000)
+	function testWatcher(async:Async) {
 		var events = [];
 
 		var watcher = nusys.FileSystem.watch("resources-rw", true, true);
+		watcher.closeSignal.on(_ -> async.done());
+		watcher.errorSignal.on(e -> trace(e));
 		watcher.changeSignal.on(events.push);
 
 		nusys.FileSystem.mkdir("resources-rw/foo");
 
 		TestBase.uvRun(true);
-		t(events.length == 1 && events[0].match(Change("foo")));
+		t(events.length == 1 && events[0].match(Rename("foo")));
 		events.resize(0);
 
 		var file = nusys.FileSystem.open("resources-rw/foo/hello.txt", "w");
@@ -58,10 +58,11 @@ class TestAsyncFileSystem extends Test {
 		nusys.FileSystem.rmdir("resources-rw/foo");
 
 		TestBase.uvRun(true);
-		t(events.length == 2 && events[0].match(Change("foo/hello.txt")));
-		t(events.length == 2 && events[1].match(Change("foo")));
+		t(events.length == 2 && events[0].match(Rename("foo/hello.txt")));
+		t(events.length == 2 && events[1].match(Rename("foo")));
 		events.resize(0);
 
 		watcher.close();
+		TestBase.uvRun(true);
 	}
 }

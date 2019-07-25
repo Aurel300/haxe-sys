@@ -6,13 +6,13 @@ import haxe.async.Signal;
 import sys.FileWatcherEvent;
 
 typedef FileWatcherNative =
-#if hl
+	#if hl
 	UV.UVFsEvent;
-#elseif eval
+	#elseif eval
 	eval.uv.FileWatcher;
-#else
+	#else
 	#error "file watcher not supported on this platform"
-#end
+	#end
 
 class FileWatcher {
 	public final changeSignal = new Signal<FileWatcherEvent>();
@@ -27,10 +27,13 @@ class FileWatcher {
 
 	public function close():Void {
 		#if hl
-		UV.fs_event_stop(handle);
+		UV.fs_event_stop(handle, (err) -> {
 		#elseif eval
-		handle.close();
+		handle.close((err, _) -> {
 		#end
-		closeSignal.emit(null);
+			if (err != null)
+				errorSignal.emit(err);
+			closeSignal.emit(new NoData());
+		});
 	}
 }

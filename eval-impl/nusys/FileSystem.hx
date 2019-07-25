@@ -88,8 +88,10 @@ class FileSystem {
 				watcher.changeSignal.emit(switch (event) {
 					case sys.uv.UVFsEventType.Rename:
 						sys.FileWatcherEvent.Rename(path);
-					case _ /* Change */:
+					case sys.uv.UVFsEventType.Change:
 						sys.FileWatcherEvent.Change(path);
+					case _:
+						sys.FileWatcherEvent.RenameChange(path);
 				});
 		});
 		watcher = @:privateAccess new sys.FileWatcher(handle);

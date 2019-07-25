@@ -3,6 +3,7 @@ package sys;
 import haxe.io.FilePath;
 
 enum FileWatcherEvent {
-  Rename(newPath:FilePath);
-  Change(path:FilePath);
+	Rename(newPath:FilePath);
+	Change(path:FilePath);
+	RenameChange(path:FilePath);
 }

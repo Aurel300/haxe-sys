@@ -108,19 +108,21 @@ class FileSystem {
 		UV.fs_utime_sync(UV.loop, path.decodeHl(), atime.getTime() / 1000, mtime.getTime() / 1000);
 
 	public static function watch(filename:FilePath, ?persistent:Bool = true, ?recursive:Bool = false):sys.FileWatcher {
-		var handle = UV.fs_event_init(UV.loop);
-		var watcher = @:privateAccess new sys.FileWatcher(handle);
-		UV.fs_event_start(handle, filename.decodeHl(), recursive ? UV.FS_EVENT_RECURSIVE : 0, (error, path, event) -> {
+		var watcher:sys.FileWatcher = null;
+		var handle = UV.fs_event_start(UV.loop, filename.decodeHl(), persistent, recursive, (error, path, event) -> {
 			if (error != null)
 				watcher.errorSignal.emit(error);
 			else
 				watcher.changeSignal.emit(switch (event) {
 					case sys.uv.UVFsEventType.Rename:
 						sys.FileWatcherEvent.Rename(FilePath.encodeHl(path));
-					case _ /* Change */:
+					case sys.uv.UVFsEventType.Change:
 						sys.FileWatcherEvent.Change(FilePath.encodeHl(path));
+					case _:
+						sys.FileWatcherEvent.RenameChange(FilePath.encodeHl(path));
 				});
 		});
+		watcher = @:privateAccess new sys.FileWatcher(handle);
 		return watcher;
 	}
 

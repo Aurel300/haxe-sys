@@ -21,15 +21,20 @@ non-BMP 🐄";
 
 	public static function uvTeardown():Void {
 		#if hl
+		UV.stop(UV.loop);
+		UV.run(UV.loop, RunDefault);
 		UV.loop_close(UV.loop);
 		#elseif eval
-		eval.Uv.init();
+		eval.Uv.stop();
+		eval.Uv.run(false);
+		eval.Uv.close();
 		#end
 	}
 
-	public static function uvRun(?singleTick:Bool = false):Void {
+	public static function uvRun(?singleTick:Bool = false):Bool {
+		return
 		#if hl
-		UV.run(UV.loop, singleTick ? UV.UVRunMode.RunOnce : UV.UVRunMode.RunDefault);
+		UV.run(UV.loop, singleTick ? RunOnce : RunDefault);
 		#elseif eval
 		eval.Uv.run(singleTick);
 		#end

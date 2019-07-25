@@ -51,8 +51,7 @@ class File {
   public function read(buffer:Bytes, offset:Int, length:Int, position:Int):{bytesRead:Int, buffer:Bytes} {
     if (length <= 0 || offset < 0 || length + offset > buffer.length)
       throw "invalid call";
-    var buf:UV.UVBuf = UV.buf_init(hl.Bytes.fromBytes(buffer).offset(offset), length);
-    return {bytesRead: UV.fs_read_sync(UV.loop, handle, buf, position), buffer: buffer};
+    return {bytesRead: UV.fs_read_sync(UV.loop, handle, hl.Bytes.fromBytes(buffer), offset, length, position), buffer: buffer};
   }
   //function readFile(?flags:FileOpenFlags):Bytes;
   public function stat():sys.uv.UVStat return UV.fs_fstat_sync(UV.loop, handle);
@@ -62,8 +61,7 @@ class File {
   public function write(buffer:Bytes, offset:Int, length:Int, position:Int):{bytesWritten:Int, buffer:Bytes} {
     if (length <= 0 || offset < 0 || length + offset > buffer.length)
       throw "invalid call";
-    var buf:UV.UVBuf = UV.buf_init(hl.Bytes.fromBytes(buffer).offset(offset), length);
-    return {bytesWritten: UV.fs_write_sync(UV.loop, handle, buf, position), buffer: buffer};
+    return {bytesWritten: UV.fs_write_sync(UV.loop, handle, hl.Bytes.fromBytes(buffer), offset, length, position), buffer: buffer};
   }
   //public function writeString(str:String, ?position:Int, ?encoding:Encoding):{bytesWritten:Int, buffer:Bytes};
   //function writeFile(data:Bytes, ?flags:FileOpenFlags, ?mode:FilePermissions):Void;
