@@ -3,11 +3,11 @@ package test;
 import haxe.io.Bytes;
 
 class TestFile extends Test {
-	function setup():Void {
+	override function setup():Void {
 		TestBase.uvSetup();
 	}
 
-	function teardown():Void {
+	override function teardown():Void {
 		TestBase.uvTeardown();
 	}
 

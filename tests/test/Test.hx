@@ -1,12 +1,37 @@
 package test;
 
 import utest.Assert;
+import utest.Async;
 import haxe.io.Bytes;
 
 // copy of Test from Haxe unit test sources
 // + beq, noExc
 class Test implements utest.ITest {
 	public function new() {}
+
+	var asyncDone = 0;
+	var asyncExpect = 0;
+
+	function setup() {
+		asyncDone = 0;
+		asyncExpect = 0;
+	}
+
+	function sub(async:Async, f:(done:() -> Void) -> Void):Void {
+		asyncExpect++;
+		f(() -> {
+			asyncDone++;
+			if (asyncDone > asyncExpect)
+				assert("too many done calls");
+			if (asyncDone == asyncExpect)
+				async.done();
+		});
+	}
+
+	function teardown() {
+		if (asyncDone < asyncExpect)
+			assert("not enough done calls");
+	}
 
 	function eq<T>(v:T, v2:T, ?pos:haxe.PosInfos) {
 		Assert.equals(v, v2, pos);

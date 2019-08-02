@@ -2,7 +2,7 @@ package sys;
 
 import haxe.Error;
 import haxe.NoData;
-import haxe.async.Signal;
+import haxe.async.*;
 import sys.FileWatcherEvent;
 
 typedef FileWatcherNative =
@@ -15,9 +15,9 @@ typedef FileWatcherNative =
 	#end
 
 class FileWatcher {
-	public final changeSignal = new Signal<FileWatcherEvent>();
-	public final closeSignal = new Signal<NoData>();
-	public final errorSignal = new Signal<Error>();
+	public final changeSignal:Signal<FileWatcherEvent> = new ArraySignal<FileWatcherEvent>();
+	public final closeSignal:Signal<NoData> = new ArraySignal<NoData>();
+	public final errorSignal:Signal<Error> = new ArraySignal<Error>();
 
 	private var handle:FileWatcherNative;
 

@@ -5,11 +5,11 @@ import haxe.io.Bytes;
 using StringTools;
 
 class TestFileSystem extends Test {
-	function setup():Void {
+	override function setup():Void {
 		TestBase.uvSetup();
 	}
 
-	function teardown():Void {
+	override function teardown():Void {
 		TestBase.uvTeardown();
 	}
 
@@ -180,5 +180,11 @@ class TestFileSystem extends Test {
 		t(nusys.FileSystem.isDirectory("resources-ro"));
 		f(nusys.FileSystem.isDirectory("resources-ro/hello.txt"));
 		aeq(nusys.FileSystem.readDirectory("resources-ro"), ["hello.txt", "binary.bin"]);
+
+		nusys.FileSystem.createDirectory("resources-rw/foo");
+		t(sys.FileSystem.exists("resources-rw/foo"));
+		t(sys.FileSystem.isDirectory("resources-rw/foo"));
+		nusys.FileSystem.deleteDirectory("resources-rw/foo");
+		f(sys.FileSystem.exists("resources-rw/foo"));
 	}
 }

@@ -3,11 +3,11 @@ package test;
 import utest.Async;
 
 class TestAsyncFileSystem extends Test {
-	function setup() {
+	override function setup() {
 		TestBase.uvSetup();
 	}
 
-	function teardown() {
+	override function teardown() {
 		TestBase.uvTeardown();
 	}
 
@@ -37,25 +37,31 @@ class TestAsyncFileSystem extends Test {
 
 	@:timeout(3000)
 	function testWatcher(async:Async) {
+		var dir = "resources-rw/watch";
+		sys.FileSystem.createDirectory(dir);
 		var events = [];
 
-		var watcher = nusys.FileSystem.watch("resources-rw", true, true);
-		watcher.closeSignal.on(_ -> async.done());
+		var watcher = nusys.FileSystem.watch(dir, true, true);
+		watcher.closeSignal.on(_ -> {
+			async.done();
+			sys.FileSystem.deleteDirectory(dir);
+		});
 		watcher.errorSignal.on(e -> trace(e));
 		watcher.changeSignal.on(events.push);
 
-		nusys.FileSystem.mkdir("resources-rw/foo");
+		nusys.FileSystem.mkdir('$dir/foo');
 
 		TestBase.uvRun(true);
+		trace(events);
 		t(events.length == 1 && events[0].match(Rename("foo")));
 		events.resize(0);
 
-		var file = nusys.FileSystem.open("resources-rw/foo/hello.txt", "w");
+		var file = nusys.FileSystem.open('$dir/foo/hello.txt', "w");
 		file.truncate(10);
 		file.close();
-		nusys.FileSystem.unlink("resources-rw/foo/hello.txt");
+		nusys.FileSystem.unlink('$dir/foo/hello.txt');
 
-		nusys.FileSystem.rmdir("resources-rw/foo");
+		nusys.FileSystem.rmdir('$dir/foo');
 
 		TestBase.uvRun(true);
 		t(events.length == 2 && events[0].match(Rename("foo/hello.txt")));
