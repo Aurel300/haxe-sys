@@ -3,14 +3,6 @@ package test;
 import haxe.io.Bytes;
 
 class TestFile extends Test {
-	override function setup():Void {
-		TestBase.uvSetup();
-	}
-
-	override function teardown():Void {
-		TestBase.uvTeardown();
-	}
-
 	/**
 		Tests read functions.
 	**/
@@ -19,7 +11,6 @@ class TestFile extends Test {
 		var file = nusys.FileSystem.open("resources-ro/hello.txt");
 		var buffer = Bytes.alloc(5);
 
-		// FIXME: `read` can probably return a smaller number
 		eq(file.read(buffer, 0, 5, 0).bytesRead, 5);
 		beq(buffer, Bytes.ofString("hello"));
 
@@ -44,6 +35,12 @@ class TestFile extends Test {
 		var buffer = Bytes.alloc(TestBase.binaryBytes.length);
 		eq(file.read(buffer, 0, buffer.length, 0).bytesRead, buffer.length);
 		beq(buffer, TestBase.binaryBytes);
+		file.close();
+
+		// readFile
+		var file = nusys.FileSystem.open("resources-ro/hello.txt");
+		beq(file.readFile(), TestBase.helloBytes);
+		file.close();
 	}
 
 	/**
@@ -57,15 +54,22 @@ class TestFile extends Test {
 
 		beq(sys.io.File.getBytes("resources-rw/hello.txt"), buffer);
 
-		file = nusys.FileSystem.open("resources-rw/unicode.txt", "w");
+		var file = nusys.FileSystem.open("resources-rw/unicode.txt", "w");
 		var buffer = TestBase.helloBytes;
 		eq(file.write(buffer, 0, buffer.length, 0).bytesWritten, buffer.length);
 		file.close();
 
 		beq(sys.io.File.getBytes("resources-rw/unicode.txt"), buffer);
 
+		var file = nusys.FileSystem.open("resources-rw/unicode2.txt", "w");
+		eq(file.writeString(TestBase.helloString, 0).bytesWritten, TestBase.helloBytes.length);
+		file.close();
+
+		beq(sys.io.File.getBytes("resources-rw/unicode2.txt"), TestBase.helloBytes);
+
 		// cleanup
 		sys.FileSystem.deleteFile("resources-rw/hello.txt");
 		sys.FileSystem.deleteFile("resources-rw/unicode.txt");
+		sys.FileSystem.deleteFile("resources-rw/unicode2.txt");
 	}
 }

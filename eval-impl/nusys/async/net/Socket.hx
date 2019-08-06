@@ -3,12 +3,13 @@ package nusys.async.net;
 import haxe.Error;
 import haxe.NoData;
 import haxe.async.*;
-import haxe.io.Bytes;
+import haxe.io.*;
+import haxe.io.Readable.ReadResult;
 // import sys.net.Dns.DnsHints;
 // import sys.net.Dns.DnsLookupFunction;
-import sys.net.Net.IPFamily;
-import sys.net.Net.NetFamily;
-import sys.net.Net.SocketAddress;
+import sys.Net.IPFamily;
+import sys.Net.NetFamily;
+import sys.Net.SocketAddress;
 
 typedef SocketOptions = {
 	// ?file:sys.io.File, // fd in Node
@@ -17,25 +18,75 @@ typedef SocketOptions = {
 	?writable:Bool
 };
 
-typedef SocketConnectOptions = {
-	?port:Int,
+typedef SocketConnectTcpOptions = {
+	port:Int,
 	?host:String,
 	?localAddress:String,
 	?localPort:Int,
-	?family:IPFamily,
-	// ?hints:DnsHints,
-	// ?lookup:DnsLookupFunction,
-	?path:String
+	?family:IPFamily
 };
 
-typedef SocketCreationOptions = SocketOptions & SocketConnectOptions;
+typedef SocketConnectIpcOptions = {
+	path:String
+};
 
-extern class Socket {
-	function new(); // ?options:SocketOptions);
+class Socket extends Duplex {
+	public static function create(?options:SocketOptions):Socket {
+		var native = new eval.uv.Socket();
+		// TODO: use options
+		return new Socket(native);
+	}
+
+	final native:eval.uv.Socket;
+	var readStarted = false;
+
+	function new(native) {
+		super();
+		this.native = native;
+	}
+
+	override function internalRead(remaining):ReadResult {
+		if (readStarted)
+			return None;
+		readStarted = true;
+
+		native.startRead((err, chunk) -> {
+			if (err != null) {
+				switch (err.type) {
+					case UVError(EOF):
+						asyncRead([], true);
+					case _:
+						errorSignal.emit(err);
+				}
+			} else {
+				asyncRead([chunk], false);
+			}
+		});
+
+		return None;
+	}
+
+	override function internalWrite():Void {
+		while (inputBuffer.length > 0) {
+			// TODO: keep track of pending writes for finish event emission
+			native.write(pop(), (err) -> {
+				if (err != null)
+					errorSignal.emit(err);
+				// TODO: destroy stream and socket
+			});
+		}
+	}
+
 	// function address():SocketAddress;
-	// function connect(?options:SocketConnectOptions, ?connectListener:Listener<NoData>):Void;
-	function connectTCP(port:Int,
-		cb:Callback<NoData>):Void; // , ?options:{?host:String, ?localAddress:String, ?localPort:Int, ?family:IPFamily, ?hints:DnsHints, ?lookup:DnsLookupFunction}, ?connectListener:Listener<NoData>):Void;
+	public function connectTcp(options:SocketConnectTcpOptions, ?cb:Callback<NoData>):Void {
+		native.connectTCP(options.port, cb);
+	}
+
+	public function destroy(?cb:Callback<NoData>):Void {
+		native.stopRead();
+		native.close(Callback.nonNull(cb));
+	}
+
 	// function connectIPC(path:String, ?connectListener:Listener<NoData>):Void;
 	// function destroy from Duplex
 	// function end from Duplex
@@ -47,16 +98,4 @@ extern class Socket {
 	// function setTimeout(timeout:Float, ?listener:Listener<NoData>):Void;
 	// function unref():Void;
 	// function write from Duplex
-	function write(data:Bytes, cb:Callback<NoData>):Void;
-	function end(cb:Callback<NoData>):Void;
-
-	// streams:
-	function startRead(cb:Callback<Bytes>):Void;
-	function stopRead():Void;
-
-	// server:
-	function bindTCP(port:Int):Void;
-	function listen(backlog:Int, cb:Callback<NoData>):Void;
-	function accept():Socket;
-	function close(cb:Callback<NoData>):Void;
 }

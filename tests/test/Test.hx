@@ -13,15 +13,18 @@ class Test implements utest.ITest {
 	var asyncExpect = 0;
 
 	function setup() {
+		TestBase.uvSetup();
 		asyncDone = 0;
 		asyncExpect = 0;
 	}
 
-	function sub(async:Async, f:(done:() -> Void) -> Void):Void {
-		asyncExpect++;
+	function sub(async:Async, f:(done:() -> Void) -> Void, ?localExpect:Int = 1):Void {
+		asyncExpect += localExpect;
+		var localDone = 0;
 		f(() -> {
+			localDone++;
 			asyncDone++;
-			if (asyncDone > asyncExpect)
+			if (asyncDone > asyncExpect || localDone > localExpect)
 				assert("too many done calls");
 			if (asyncDone == asyncExpect)
 				async.done();
@@ -31,6 +34,7 @@ class Test implements utest.ITest {
 	function teardown() {
 		if (asyncDone < asyncExpect)
 			assert("not enough done calls");
+		TestBase.uvTeardown();
 	}
 
 	function eq<T>(v:T, v2:T, ?pos:haxe.PosInfos) {

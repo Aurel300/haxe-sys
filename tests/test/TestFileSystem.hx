@@ -5,14 +5,6 @@ import haxe.io.Bytes;
 using StringTools;
 
 class TestFileSystem extends Test {
-	override function setup():Void {
-		TestBase.uvSetup();
-	}
-
-	override function teardown():Void {
-		TestBase.uvTeardown();
-	}
-
 	/**
 		Tests `FileSystem.access`, `perm` from `FileSystem.stat`, and
 		`FileSystem.chmod`.

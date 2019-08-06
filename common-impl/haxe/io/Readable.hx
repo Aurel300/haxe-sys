@@ -18,7 +18,7 @@ class Readable implements IReadable {
 	public var done(default, null) = false;
 
 	var buffer = new List<Bytes>();
-	var deferred:haxe.Timer;
+	var deferred:nusys.Timer;
 	var willEof = false;
 
 	function new(?highWaterMark:Int = 8192) {
@@ -49,6 +49,8 @@ class Readable implements IReadable {
 		if (!flowing)
 			return;
 
+		var reschedule = false;
+
 		// pre-emptive read until HWM
 		if (!willEof && !done)
 			while (bufferLength < highWaterMark) {
@@ -56,6 +58,7 @@ class Readable implements IReadable {
 					case None:
 						break;
 					case Data(chunks, eof):
+						reschedule = true;
 						for (chunk in chunks)
 							push(chunk);
 						if (eof) {
@@ -66,8 +69,10 @@ class Readable implements IReadable {
 			}
 
 		// emit data
-		while (buffer.length > 0 && flowing && shouldFlow())
+		while (buffer.length > 0 && flowing && shouldFlow()) {
+			reschedule = true;
 			dataSignal.emit(pop());
+		}
 
 		if (willEof) {
 			endSignal.emit(new NoData());
@@ -78,7 +83,7 @@ class Readable implements IReadable {
 
 		if (!shouldFlow())
 			flowing = false;
-		else
+		else if (reschedule)
 			scheduleProcess();
 	}
 

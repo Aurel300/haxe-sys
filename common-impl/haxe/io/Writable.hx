@@ -17,7 +17,7 @@ class Writable implements IWritable {
 
 	var willDrain = false;
 	var willFinish = false;
-	var deferred:haxe.Timer;
+	var deferred:nusys.Timer;
 	var buffer = new List<Bytes>();
 
 	function new() {}
