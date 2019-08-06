@@ -70,17 +70,21 @@ class Server {
 			listening = true;
 			if (options.ipv6only == null)
 				options.ipv6only = false;
-			native.bindTCP(address, options.port == null ? 0 : options.port, options.ipv6only);
-			native.listen(options.backlog == null ? 511 : options.backlog, (err) -> {
-				if (err != null)
-					return errorSignal.emit(err);
-				try {
-					var client = @:privateAccess new Socket(native.accept());
-					connectionSignal.emit(client);
-				} catch (e:haxe.Error) {
-					errorSignal.emit(e);
-				}
-			});
+			try {
+				native.bindTcp(address, options.port == null ? 0 : options.port, options.ipv6only);
+				native.listen(options.backlog == null ? 511 : options.backlog, (err) -> {
+					if (err != null)
+						return errorSignal.emit(err);
+					try {
+						var client = @:privateAccess new Socket(native.accept());
+						connectionSignal.emit(client);
+					} catch (e:haxe.Error) {
+						errorSignal.emit(e);
+					}
+				});
+			} catch (e:haxe.Error) {
+				errorSignal.emit(e);
+			}
 		}
 
 		if (options.address != null) {

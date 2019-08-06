@@ -2,6 +2,7 @@ package sys;
 
 import haxe.NoData;
 import haxe.async.*;
+import sys.net.Address;
 import nusys.async.net.Socket;
 import nusys.async.net.Socket.SocketOptions;
 import nusys.async.net.Socket.SocketConnectTcpOptions;
@@ -63,6 +64,6 @@ enum IPFamily {
 }
 
 enum SocketAddress {
-	Network(port:Int, family:String, address:String);
+	Network(port:Int, address:Address);
 	Unix(name:String);
 }
