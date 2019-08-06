@@ -46,6 +46,7 @@ class Socket extends Duplex {
 	var readStarted = false;
 	var connectStarted = false;
 	var connected = false;
+	public var serverSpawn:Bool = false;
 
 	function new(native) {
 		super();
@@ -94,7 +95,7 @@ class Socket extends Duplex {
 	// function address():SocketAddress;
 
 	public function connectTcp(options:SocketConnectTcpOptions, ?cb:Callback<NoData>):Void {
-		if (connectStarted)
+		if (connectStarted || connected)
 			throw "already connected";
 
 		if (options.host != null && options.address != null)
@@ -116,8 +117,10 @@ class Socket extends Duplex {
 			try {
 				native.connectTcp(address, options.port, (err, nd) -> {
 					cb(err, nd);
-					if (err != null)
+					if (err == null) {
+						connected = true;
 						connectSignal.emit(new NoData());
+					}
 				});
 			} catch (err:haxe.Error) {
 				cb(err, new NoData());

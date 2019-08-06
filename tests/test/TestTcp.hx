@@ -22,6 +22,7 @@ class TestTcp extends Test {
 					done();
 				});
 			}));
+			server.errorSignal.on(err -> assert());
 		});
 
 		TestBase.uvRun(true);
@@ -35,6 +36,7 @@ class TestTcp extends Test {
 				})
 			}, (err) -> {
 				eq(err, null);
+				client.errorSignal.on(err -> assert());
 				client.write(TestBase.helloBytes);
 				client.dataSignal.on(chunk -> {
 					beq(chunk, TestBase.helloBytes);
