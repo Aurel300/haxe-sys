@@ -12,8 +12,8 @@ Current WIP is the eval implementation.
 
 | Target | Build | Binds | FS | T | Net | T | Note |
 | ------ | ----- | ----- | -- | - | --- | - | ---- |
+| eval   | Y     | .     | .  | . | .   | . | [ffi](https://github.com/Aurel300/haxe/tree/feature/eval-libuv/libs/uv), [impl](https://github.com/Aurel300/haxe/blob/feature/eval-libuv/src/macro/eval/evalString.ml) |
 | hl     | Y     | Y     | Y  | . |     |   | [ffi](https://github.com/Aurel300/hashlink/tree/feature/libuv), [impl](hl-impl) |
-| eval   | Y     | .     | .  |   |     |   | [ffi](https://github.com/Aurel300/haxe/tree/feature/eval-libuv/libs/uv), [impl](https://github.com/Aurel300/haxe/blob/feature/eval-libuv/src/macro/eval/evalString.ml) |
 | cpp    |       |       |    |   |     |   |      |
 | js     | n/a   | n/a   |    |   |     |   | hxnodejs only, most APIs forwarded directly |
 | rest   | n/a   |       |    |   |     |   |      |
@@ -32,7 +32,7 @@ Current WIP is the eval implementation.
 
 These should be implementable in pure Haxe.
 
- - [ ] streams - based on `streams3` of Node.js
+ - [ ] streams - based on `streams3` of Node.js - simplified interface (dropped legacy APIs)
  - [ ] HTTP - built on top of raw sockets
 
 ## Per function notes
