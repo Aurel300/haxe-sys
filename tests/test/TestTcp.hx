@@ -3,6 +3,8 @@ package test;
 import haxe.io.Bytes;
 import utest.Async;
 
+using sys.net.AddressTools;
+
 class TestTcp extends Test {
 	#if eval
 	function testEcho(async:Async) {
@@ -45,6 +47,32 @@ class TestTcp extends Test {
 						done();
 					});
 				});
+			});
+		});
+
+		TestBase.uvRun();
+	}
+
+	function testSignals(async:Async) {
+		sub(async, done -> {
+			var client = nusys.async.net.Socket.create();
+			client.errorSignal.on(err -> assert());
+			sub(async, done -> client.lookupSignal.on(address -> {
+				t(address.equals("127.0.0.1".toIP(), true));
+				done();
+			}));
+			client.connectTcp({
+				port: 10123,
+				host: "localhost",
+				family: IPv4
+			}, (err:haxe.Error) -> {
+				switch (err.type) {
+					case UVError(sys.uv.UVErrorType.ECONNREFUSED):
+						client.destroy();
+						done();
+					case _:
+						assert();
+				}
 			});
 		});
 

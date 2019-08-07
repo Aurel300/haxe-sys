@@ -10,7 +10,7 @@ class TestMisc extends Test {
 		Tests `sys.FilePermissions`. No actual system calls are tested here; see
 		e.g. `TestFileSystem.testAccess`.
 	**/
-	function testFilePermissions():Void {
+	function testFilePermissions() {
 		eq(("---------" : FilePermissions), None);
 		eq(("r--------" : FilePermissions), ReadOwner);
 		eq(("-w-------" : FilePermissions), WriteOwner);
@@ -31,7 +31,7 @@ class TestMisc extends Test {
 		eq(ReadOwner | WriteOwner | ReadGroup | WriteGroup | ReadOthers | WriteOthers, FilePermissions.fromOctal("666"));
 	}
 
-	function testAddressTools():Void {
+	function testAddressTools() {
 		f("127.256.0.1".isIPv4());
 		f("127.0.1".isIPv4());
 

@@ -40,9 +40,19 @@ class Socket extends Duplex {
 		return new Socket(native);
 	}
 
+	// dataSignal (in Duplex)
+	// drainSignal (in Duplex)
+	// errorSignal (in Duplex)
+
+	// closeSignal
 	public final connectSignal:Signal<NoData> = new ArraySignal<NoData>();
+	// endSignal
+	public final lookupSignal:Signal<Address> = new ArraySignal<Address>();
+	public final timeoutSignal:Signal<NoData> = new ArraySignal<NoData>();
+
 	var connectDefer:nusys.Timer;
 	final native:eval.uv.Socket;
+	var internalReadCalled = false;
 	var readStarted = false;
 	var connectStarted = false;
 	var connected = false;
@@ -54,12 +64,14 @@ class Socket extends Duplex {
 	}
 
 	override function internalRead(remaining):ReadResult {
-		if (readStarted)
+		if (internalReadCalled)
 			return None;
-		readStarted = true;
+		internalReadCalled = true;
 
 		function start():Void {
+			readStarted = true;
 			native.startRead((err, chunk) -> {
+				timeoutReset();
 				if (err != null) {
 					switch (err.type) {
 						case UVError(EOF):
@@ -85,6 +97,7 @@ class Socket extends Duplex {
 		while (inputBuffer.length > 0) {
 			// TODO: keep track of pending writes for finish event emission
 			native.write(pop(), (err) -> {
+				timeoutReset();
 				if (err != null)
 					errorSignal.emit(err);
 				// TODO: destroy stream and socket
@@ -92,7 +105,11 @@ class Socket extends Duplex {
 		}
 	}
 
-	// function address():SocketAddress;
+	public function address():Null<SocketAddress> {
+		if (!connected)
+			return null;
+		return null;
+	}
 
 	public function connectTcp(options:SocketConnectTcpOptions, ?cb:Callback<NoData>):Void {
 		if (connectStarted || connected)
@@ -116,6 +133,7 @@ class Socket extends Duplex {
 			// TODO: bindTcp for localAddress and localPort, if specified
 			try {
 				native.connectTcp(address, options.port, (err, nd) -> {
+					timeoutReset();
 					cb(err, nd);
 					if (err == null) {
 						connected = true;
@@ -134,16 +152,19 @@ class Socket extends Duplex {
 		if (options.host == null)
 			options.host = "localhost";
 		Dns.lookup(options.host, {family: options.family}, (err, entries) -> {
+			timeoutReset();
 			if (err != null)
 				return errorSignal.emit(err);
 			if (entries.length == 0)
 				throw "!";
+			lookupSignal.emit(entries[0]);
 			connect(entries[0]);
 		});
 	}
 
 	public function destroy(?cb:Callback<NoData>):Void {
-		native.stopRead();
+		if (readStarted)
+			native.stopRead();
 		native.close(Callback.nonNull(cb));
 	}
 
@@ -155,8 +176,28 @@ class Socket extends Duplex {
 		native.setNoDelay(noDelay);
 	}
 
-	// TODO: implement via Timer
-	// public function setTimeout(timeout:Float, ?listener:Listener<NoData>):Void;
+	var timeoutTime:Int = 0;
+	var timeoutTimer:nusys.Timer;
+
+	function timeoutTrigger():Void {
+		timeoutTimer = null;
+		timeoutSignal.emit(new NoData());
+	}
+
+	function timeoutReset():Void {
+		if (timeoutTimer != null)
+			timeoutTimer.stop();
+		timeoutTimer = null;
+		if (timeoutTime != 0)
+			timeoutTimer = nusys.Timer.delay(timeoutTrigger, timeoutTime, false);
+	}
+
+	public function setTimeout(timeout:Int, ?listener:Listener<NoData>):Void {
+		timeoutTime = timeout;
+		timeoutReset();
+		if (listener != null)
+			timeoutSignal.once(listener);
+	}
 
 	// function connectIPC(path:String, ?connectListener:Listener<NoData>):Void;
 	// function destroy from Duplex
