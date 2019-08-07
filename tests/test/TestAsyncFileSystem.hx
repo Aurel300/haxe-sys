@@ -13,7 +13,7 @@ class TestAsyncFileSystem extends Test {
 			done();
 		}));
 		sub(async, done -> nusys.async.FileSystem.readdir("resources-ro", (error, names) -> {
-			aeq(names, ["hello.txt", "binary.bin"]);
+			aeq(names, ["binary.bin", "hello.txt"]);
 			done();
 		}));
 

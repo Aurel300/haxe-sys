@@ -83,10 +83,10 @@ class TestFileSystem extends Test {
 	function testReaddir():Void {
 		aeq(nusys.FileSystem.readdir("resources-rw"), []);
 		aeq(nusys.FileSystem.readdirTypes("resources-rw"), []);
-		aeq(nusys.FileSystem.readdir("resources-ro"), ["hello.txt", "binary.bin"]);
+		aeq(nusys.FileSystem.readdir("resources-ro"), ["binary.bin", "hello.txt"]);
 		var res = nusys.FileSystem.readdirTypes("resources-ro");
 		eq(res.length, 2);
-		eq(res[0].name, "hello.txt");
+		eq(res[0].name, "binary.bin");
 		eq(res[0].isBlockDevice(), false);
 		eq(res[0].isCharacterDevice(), false);
 		eq(res[0].isDirectory(), false);
@@ -171,7 +171,7 @@ class TestFileSystem extends Test {
 		beq(nusys.FileSystem.readFile("resources-ro/binary.bin"), TestBase.binaryBytes);
 		t(nusys.FileSystem.isDirectory("resources-ro"));
 		f(nusys.FileSystem.isDirectory("resources-ro/hello.txt"));
-		aeq(nusys.FileSystem.readDirectory("resources-ro"), ["hello.txt", "binary.bin"]);
+		aeq(nusys.FileSystem.readDirectory("resources-ro"), ["binary.bin", "hello.txt"]);
 
 		nusys.FileSystem.createDirectory("resources-rw/foo");
 		t(sys.FileSystem.exists("resources-rw/foo"));
