@@ -65,7 +65,7 @@ class Stat {
 
 	public function isSymbolicLink():Bool return (mode & sys.uv.UVConstants.S_IFMT) == sys.uv.UVConstants.S_IFLNK;
 
-	function get_permissions():FilePermissions return mode & sys.uv.UVConstants.S_PERM;
+	function get_permissions():FilePermissions return @:privateAccess new FilePermissions(mode & sys.uv.UVConstants.S_PERM);
 
 	public var permissions(get, never):FilePermissions;
 }

@@ -1,4 +1,4 @@
-package sys;
+package nusys;
 
 typedef FileStatData = {
     // sys.FileStat compatibility

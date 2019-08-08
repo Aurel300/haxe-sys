@@ -10,7 +10,6 @@ import haxe.io.Readable.ReadResult;
 import sys.net.Address;
 import nusys.net.Dns;
 import sys.Net.IPFamily;
-import sys.Net.NetFamily;
 import sys.Net.SocketAddress;
 
 typedef SocketOptions = {

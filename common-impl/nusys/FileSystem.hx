@@ -1,14 +1,20 @@
-package sys;
+package nusys;
 
 import haxe.Error;
 import haxe.io.Bytes;
 import haxe.io.FilePath;
-import sys.io.FileReadStream;
-import sys.io.FileWriteStream;
+import nusys.io.FileReadStream;
+import nusys.io.FileWriteStream;
+import sys.*;
 
+/**
+	This class provides methods for synchronous operations on files and
+	directories. For asynchronous operations, see `nusys.async.FileSystem`.
+
+	Passing `null` as a path to any of the functions in this class will result
+	in unspecified behaviour.
+**/
 extern class FileSystem {
-	// sys.FileSystem-like functions
-
 	/**
 		Tests specific user permissions for the file specified by `path`. If the
 		check fails, throws an exception. `mode` is one or more `FileAccessMode`
@@ -19,9 +25,14 @@ extern class FileSystem {
 		- `FileAccessMode.Write` - file can be written to by the calling proces
 		- `FileAccessMode.Read` - file can be read from by the calling proces
 
-		Mode values can be combined with the `|` operator, e.g. calling `access`
-		with `mode` `FileAccessMode.Execute | FileAccessMode.Read` will check that
-		the file is both readable and executable.
+		Mode values can be combined with the bitwise or operator, e.g. calling
+		`access` with the `mode`:
+
+		```haxe
+		FileAccessMode.Execute | FileAccessMode.Read
+		```
+
+		will check that the file is both readable and executable.
 
 		The result of this call should not be used in a condition before a call to
 		e.g. `open`, because this would introduce a race condition (the file could
@@ -67,7 +78,7 @@ extern class FileSystem {
 		directory at a time, the last component of `path`. If `recursive` is `true`,
 		intermediate directories will be created as needed.
 	**/
-	static function mkdir(path:FilePath, ?recursive:Bool = false, ?mode:FilePermissions = 511 /* 0777 */):Void;
+	static function mkdir(path:FilePath, ?recursive:Bool = false, ?mode:FilePermissions /* 0777 */):Void;
 
 	/**
 		Creates a unique temporary directory. `prefix` should be a path template
@@ -121,7 +132,7 @@ extern class FileSystem {
 		about the target file, not the symbolic link itself, unless `followSymLinks`
 		is set to `false`.
 	**/
-	static function stat(path:FilePath, ?followSymLinks:Bool = true):FileStat;
+	static function stat(path:FilePath, ?followSymLinks:Bool = true):nusys.FileStat;
 
 	/**
 		Creates a symbolic link at `path`, pointing to `target`.
@@ -158,41 +169,55 @@ extern class FileSystem {
 	**/
 	static function watch(path:FilePath, ?persistent:Bool = true, ?recursive:Bool = false):FileWatcher;
 
-	// sys.io.File-like functions
-
 	/**
 		Appends `data` at the end of the file located at `path`.
 	**/
-	static function appendFile(path:FilePath, data:Bytes, ?flags:FileOpenFlags = FileOpenFlags.Append, ?mode:FilePermissions = 438 /* 0666 */):Void;
+	static function appendFile(path:FilePath, data:Bytes, ?flags:FileOpenFlags /* a */, ?mode:FilePermissions /* 0666 */):Void;
 
 	/**
 		Opens the file located at `path`.
 	**/
-	static function open(path:FilePath, ?flags:FileOpenFlags = FileOpenFlags.Read, ?mode:FilePermissions = 438 /* 0666 */, ?binary:Bool = true):sys.io.File;
+	static function open(path:FilePath, ?flags:FileOpenFlags /* a */, ?mode:FilePermissions /* 0666 */, ?binary:Bool = true):sys.io.File;
 
 	/**
 		Reads all the bytes of the file located at `path`.
 	**/
-	static function readFile(path:FilePath, ?flags:FileOpenFlags = FileOpenFlags.Read):Bytes;
+	static function readFile(path:FilePath, ?flags:FileOpenFlags /* r */):Bytes;
 
 	/**
 		Writes `data` to the file located at `path`.
 	**/
-	static function writeFile(path:FilePath, data:Bytes, ?flags:FileOpenFlags = FileOpenFlags.WriteTruncate, ?mode:FilePermissions = 438 /* 0666 */):Void;
+	static function writeFile(path:FilePath, data:Bytes, ?flags:FileOpenFlags /* w */, ?mode:FilePermissions /* 0666 */):Void;
 
-	// compatibility sys.FileSystem functions
+	@:deprecated
 	static function absolutePath(path:String):String; // should be implemented in haxe.io.Path
+
+	@:deprecated("use mkdir instead")
 	static inline function createDirectory(path:String):Void return mkdir(path, true);
+
+	@:deprecated("use rmdir instead")
 	static inline function deleteDirectory(path:String):Void return rmdir(path);
+
+	@:deprecated("use unlink instead")
 	static inline function deleteFile(path:String):Void return unlink(path);
-	static inline function exists(path:String):Bool
-		return try {
-			access(path);
-			true;
-		} catch (e:Dynamic) false;
+
+	/**
+		Returns `true` if the file or directory specified by `path` exists.
+
+		The result of this call should not be used in a condition before a call to
+		e.g. `open`, because this would introduce a race condition (the file could
+		be deleted after the `exists` call, but before the `open` call). Instead,
+		the latter function should be called immediately and errors should be
+		handled with a `try ... catch` block.
+	**/
+	static function exists(path:String):Bool;
+
+	@:deprecated("use realpath instead")
 	static inline function fullPath(path:String):FilePath return realpath(path);
+
+	@:deprecated("use stat(...).isDirectory() instead")
 	static inline function isDirectory(path:String):Bool return stat(path).isDirectory();
+
+	@:deprecated("use readdir instead")
 	static inline function readDirectory(path:String):Array<FilePath> return readdir(path);
-	// static function rename(path:String, newPath:String) return rename(path, newPath); // matching interface
-	// static function stat(path:String) return stat(path); // matching interface (more or less)
 }

@@ -9,7 +9,8 @@ import nusys.io.FileReadStream;
 typedef FileReadStreamCreationOptions = {
 	?flags:FileOpenFlags,
 	?mode:FilePermissions
-} & nusys.io.FileReadStream.FileReadStreamOptions;
+} &
+	nusys.io.FileReadStream.FileReadStreamOptions;
 
 class FileSystem {
 	public static final async = nusys.async.FileSystem;
@@ -34,7 +35,9 @@ class FileSystem {
 
 	extern static function mkdir_native(path:FilePath, mode:FilePermissions):Void;
 
-	public static function mkdir(path:FilePath, ?recursive:Bool = false, ?mode:FilePermissions = 511 /* 0777 */):Void {
+	public static function mkdir(path:FilePath, ?recursive:Bool = false, ?mode:FilePermissions):Void {
+		if (mode == null)
+			mode = FilePermissions.fromOctal("777");
 		if (!recursive)
 			return mkdir_native(path, mode);
 		var pathBuffer:FilePath = null;
@@ -114,8 +117,13 @@ class FileSystem {
 		return watcher;
 	}
 
-	extern public static function open(path:FilePath, ?flags:FileOpenFlags = FileOpenFlags.ReadOnly, ?mode:FilePermissions = 438 /* 0666 */,
-		?binary:Bool = true):nusys.io.File;
+	extern static function open_native(path:FilePath, flags:FileOpenFlags, mode:FilePermissions, binary:Bool):nusys.io.File;
+
+	public static function open(path:FilePath, ?flags:FileOpenFlags = FileOpenFlags.ReadOnly, ?mode:FilePermissions, ?binary:Bool = true):nusys.io.File {
+		if (mode == null)
+			mode = @:privateAccess new FilePermissions(438) /* 0666 */;
+		return open_native(path, flags, mode, binary);
+	}
 
 	public static function readFile(path:FilePath, ?flags:FileOpenFlags = FileOpenFlags.ReadOnly):Bytes {
 		var file = open(path, flags);

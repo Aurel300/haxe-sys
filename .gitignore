@@ -1,2 +1,4 @@
 tests/bin/*
 samples/*/bin/*
+docs/docs-html/*
+docs/docs-xml/*

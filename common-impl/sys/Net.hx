@@ -24,10 +24,22 @@ typedef SocketCreationOptions = SocketOptions & {?connect:SocketConnect};
 
 typedef ServerCreationOptions = ServerOptions & {?listen:ServerListen};
 
+/**
+	Network utilities.
+**/
 class Net {
+	/**
+		Constructs a socket with the given `options`. If `options.connect` is
+		given, an appropriate `connect` method is called on the socket. If `cb` is
+		given, it is passed to the `connect` method, so it will be called once the
+		socket successfully connects or an error occurs during connecting.
+
+		The `options` object is given both to the `Socket` constructor and to the
+		`connect` method.
+	**/
 	public static function createConnection(options:SocketCreationOptions, ?cb:Callback<NoData>):Socket {
 		var socket = Socket.create(options);
-		if (options != null && options.connect != null)
+		if (options.connect != null)
 			switch (options.connect) {
 				case Tcp(options):
 					socket.connectTcp(options, cb);
@@ -37,25 +49,24 @@ class Net {
 		return socket;
 	}
 
+	/**
+		Constructs a server with the given `options`. If `options.listen` is
+		given, an appropriate `listen` method is called on the server. If `cb` is
+		given, it is passed to the `listen` method, so it will be called for each
+		client that connects to the server.
+
+		The `options` object is given both to the `Server` constructor and to the
+		`listen` method.
+	**/
 	public static function createServer(?options:ServerCreationOptions, ?listener:Listener<Socket>):Server {
 		var server = new Server(options);
-		if (options != null && options.listen != null)
+		if (options.listen != null)
 			switch (options.listen) {
 				case Tcp(options):
 					server.listenTcp(options, listener);
 			}
 		return server;
 	}
-
-	/*static function isIP(input:String):Null<IPFamily>;
-		static function isIPv4(input:String):Bool;
-		static function isIPv6(input:String):Bool; */
-}
-
-enum NetFamily {
-	IP(sub:IPFamily);
-	UDP;
-	Unix;
 }
 
 enum IPFamily {

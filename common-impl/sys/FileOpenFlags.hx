@@ -1,5 +1,26 @@
 package sys;
 
+/**
+	Flags used when opening a file with `nusys.FileSystem.open` or other file
+	functions. Specify whether the opened file:
+
+	- will be readable
+	- will be writable
+	- will be truncated (all data lost) first
+	- will be in append mode
+	- will be opened exclusively by this process
+
+	Instances of this type can be created by combining flags with the `|`
+	operator:
+
+	```haxe
+	Truncate | Create | WriteOnly
+	```
+
+	Well-known combinations of flags can be specified with a string. The
+	supported modes are: `r`, `r+`, `rs+`, `sr+`, `w`, `w+`, `a`, `a+`, `wx`,
+	`xw`, `wx+`, `xw+`, `ax`, `xa`, `as`, `sa`, `ax+`, `xa+`, `as+`, `sa+`.
+**/
 enum abstract FileOpenFlags(Int) {
 	@:from public static function fromString(flags:String):FileOpenFlags {
 		return (switch (flags) {

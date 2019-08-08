@@ -2,6 +2,9 @@ package sys;
 
 import haxe.io.FilePath;
 
+/**
+	An entry returned from `nusys.FileSystem.readdirTypes`.
+**/
 interface DirectoryEntry {
 	var name(get, never):FilePath;
 	function isBlockDevice():Bool;

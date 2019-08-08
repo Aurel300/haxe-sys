@@ -1,0 +1,12 @@
+--no-output
+-D doc-gen
+-cp ../common-impl
+--macro include("haxe.async")
+--macro include("haxe.io")
+haxe.Error
+haxe.ErrorType
+haxe.NoData
+--macro include("nusys")
+--macro include("sys")
+--hl dummy.hl
+-xml docs-xml/hl.xml

@@ -1,4 +1,4 @@
-package sys.net;
+package nusys.net;
 
 import haxe.io.Bytes;
 

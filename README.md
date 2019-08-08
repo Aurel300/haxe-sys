@@ -1,39 +1,54 @@
 # **Work in progress!**
 
-This is the working draft for the new `sys` package interfaces.
+This is the working draft for the new `sys` package APIs.
 
  - [Haxe Evolution proposal](https://github.com/HaxeFoundation/haxe-evolution/pull/59)
 
-Current WIP is the eval implementation.
+---
+
+ - [Status](#status)
+   - [Target TODO](#target-todo)
+   - [Common TODO](#common-todo)
+   - [Per function notes](#per-function-notes)
+ - [Project structure](#project-structure)
+   - [Documentation](#documentation)
+ - [Testing](#testing)
+   - [HashLink setup](#hashlink-setup)
+   - [Eval setup](#eval-setup)
+   - [Running tests](#running-tests)
 
 # Status
+
+**Current WIP is the eval implementation.**
 
 ## Target TODO
 
 | Target | Build | Binds | FS | T | Net | T | Note |
-| ------ | ----- | ----- | -- | - | --- | - | ---- |
-| eval   | Y     | .     | .  | . | .   | . | [ffi](https://github.com/Aurel300/haxe/tree/feature/eval-libuv/libs/uv), [impl](https://github.com/Aurel300/haxe/blob/feature/eval-libuv/src/macro/eval/evalString.ml) |
-| hl     | Y     | Y     | Y  | . |     |   | [ffi](https://github.com/Aurel300/hashlink/tree/feature/libuv), [impl](hl-impl) |
-| cpp    |       |       |    |   |     |   |      |
-| js     | n/a   | n/a   |    |   |     |   | hxnodejs only, most APIs forwarded directly |
-| rest   | n/a   |       |    |   |     |   |      |
+| ------ |:-----:|:-----:|:--:|:-:|:---:|:-:| ---- |
+| eval   | Y     | P     | P  | P | P   | P | [ffi](https://github.com/Aurel300/haxe/tree/feature/eval-libuv/libs/uv), [impl](https://github.com/Aurel300/haxe/blob/feature/eval-libuv/src/macro/eval/evalStdLib.ml) |
+| hl     | Y     | Y     | Y  | P | N   | N | [ffi](https://github.com/Aurel300/hashlink/tree/feature/libuv), [impl](hl-impl) |
+| cpp    | N     | N     | N  | N | N   | N |      |
+| js     | -     | -     | N  | N | N   | N | hxnodejs only, most APIs forwarded directly |
+| rest   | -     | N     | N  | N | N   | N |      |
 
- - "Build" - can we compile the interpreter (if any) with libuv?
- - "Binds" - is the FFI finished, or is there a good binding library available?
- - "FS" - are the filesystem functions implemented?
- - "Net" - are the networking (TCP, UDP, DNS) functions implemented?
- - "T" - are the tests for the previous column done?
- - "Y", ".", " ", "n/a" - yes, partially, no, not applicable
+ - `Build` - can we compile the interpreter (if any) with libuv?
+ - `Binds` - is the FFI finished, or is there a good binding library available?
+ - `FS` - are the filesystem functions implemented?
+ - `Net` - are the networking (TCP, UDP, DNS) functions implemented?
+ - `T` - are the tests for the previous column done?
+ - `Y`, `P`, `N`, `-` - yes, partially, no, not applicable
 
  - [ ] hl, eval, cpp - use GC a bit better; automatically close `uv_file` (and others?) once collected
  - [ ] eval - figure out instance variables (`final` in particular) on eval types, would allow unifying e.g. `sys.uv.Stat`
 
 ## Common TODO
 
-These should be implementable in pure Haxe.
+These should be implemented in pure Haxe, with minimal `#if <target>` parts where necessary.
 
- - [ ] streams - based on `streams3` of Node.js - simplified interface (dropped legacy APIs)
- - [ ] HTTP - built on top of raw sockets
+| Feature | Impl   | T | Notes |
+| ------- | ------ |:-:| ----- |
+| streams | P      | P | based on `streams3` of Node.js; simplified interface (dropped legacy APIs) |
+| HTTP    | N      | N | built on top of raw sockets |
 
 ## Per function notes
 
@@ -55,7 +70,20 @@ These should be implementable in pure Haxe.
  - [`sys`](sys) - not-yet-implemented externs for all targets
  - [`tests`](tests) - unit tests
 
-Note that `nusys` is used as a temporary package for the classes that will eventually become `sys`.
+Note that `nusys` is used as a temporary package for the classes that will eventually become `sys`. This allows the tests to rely on old APIs for verifying the behaviour of the new ones.
+
+The classes in `<target>-impl` are expected to shadow those in `common-impl`, just like the existing standard library in Haxe.
+
+Once the new APIs are ready to be merged into the standard library:
+
+ - `common-impl` will be added to `std`
+ - for each `<target>`
+   - `<target>-impl/<target>` will be added to `std/<target>`
+   - all other directories in `<target>-impl` will be added to `std/<target>/_std`
+
+## Documentation
+
+The documentation for the new APIs is available in the externs and classes in `common-impl`. `dox` can be run in the `docs` folder with the `generate.sh` script.
 
 # Testing
 
