@@ -1,14 +1,18 @@
 package test;
 
 import haxe.io.Bytes;
+import nusys.FileSystem as NewFS;
+import nusys.io.File as NewFile;
+import sys.FileSystem as OldFS;
+import sys.io.File as OldFile;
 
 class TestFile extends Test {
 	/**
 		Tests read functions.
 	**/
-	function testRead():Void {
+	function testRead() {
 		// ASCII
-		var file = nusys.FileSystem.open("resources-ro/hello.txt");
+		var file = NewFS.open("resources-ro/hello.txt");
 		var buffer = Bytes.alloc(5);
 
 		eq(file.read(buffer, 0, 5, 0).bytesRead, 5);
@@ -31,14 +35,14 @@ class TestFile extends Test {
 		file.close();
 
 		// binary (+ invalid UTF-8)
-		var file = nusys.FileSystem.open("resources-ro/binary.bin");
+		var file = NewFS.open("resources-ro/binary.bin");
 		var buffer = Bytes.alloc(TestBase.binaryBytes.length);
 		eq(file.read(buffer, 0, buffer.length, 0).bytesRead, buffer.length);
 		beq(buffer, TestBase.binaryBytes);
 		file.close();
 
 		// readFile
-		var file = nusys.FileSystem.open("resources-ro/hello.txt");
+		var file = NewFS.open("resources-ro/hello.txt");
 		beq(file.readFile(), TestBase.helloBytes);
 		file.close();
 	}
@@ -46,30 +50,30 @@ class TestFile extends Test {
 	/**
 		Tests write functions.
 	**/
-	function testWrite():Void {
-		var file = nusys.FileSystem.open("resources-rw/hello.txt", "w");
+	function testWrite() {
+		var file = NewFS.open("resources-rw/hello.txt", "w");
 		var buffer = Bytes.ofString("hello");
 		eq(file.write(buffer, 0, 5, 0).bytesWritten, 5);
 		file.close();
 
-		beq(sys.io.File.getBytes("resources-rw/hello.txt"), buffer);
+		beq(OldFile.getBytes("resources-rw/hello.txt"), buffer);
 
-		var file = nusys.FileSystem.open("resources-rw/unicode.txt", "w");
+		var file = NewFS.open("resources-rw/unicode.txt", "w");
 		var buffer = TestBase.helloBytes;
 		eq(file.write(buffer, 0, buffer.length, 0).bytesWritten, buffer.length);
 		file.close();
 
-		beq(sys.io.File.getBytes("resources-rw/unicode.txt"), buffer);
+		beq(OldFile.getBytes("resources-rw/unicode.txt"), buffer);
 
-		var file = nusys.FileSystem.open("resources-rw/unicode2.txt", "w");
+		var file = NewFS.open("resources-rw/unicode2.txt", "w");
 		eq(file.writeString(TestBase.helloString, 0).bytesWritten, TestBase.helloBytes.length);
 		file.close();
 
-		beq(sys.io.File.getBytes("resources-rw/unicode2.txt"), TestBase.helloBytes);
+		beq(OldFile.getBytes("resources-rw/unicode2.txt"), TestBase.helloBytes);
 
 		// cleanup
-		sys.FileSystem.deleteFile("resources-rw/hello.txt");
-		sys.FileSystem.deleteFile("resources-rw/unicode.txt");
-		sys.FileSystem.deleteFile("resources-rw/unicode2.txt");
+		OldFS.deleteFile("resources-rw/hello.txt");
+		OldFS.deleteFile("resources-rw/unicode.txt");
+		OldFS.deleteFile("resources-rw/unicode2.txt");
 	}
 }

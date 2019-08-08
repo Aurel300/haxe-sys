@@ -4,8 +4,16 @@ import haxe.Error;
 import haxe.io.Bytes;
 import haxe.io.FilePath;
 import sys.*;
+import nusys.io.FileReadStream;
+
+typedef FileReadStreamCreationOptions = {
+	?flags:FileOpenFlags,
+	?mode:FilePermissions
+} & nusys.io.FileReadStream.FileReadStreamOptions;
 
 class FileSystem {
+	public static final async = nusys.async.FileSystem;
+
 	extern public static function access(path:FilePath, ?mode:FileAccessMode = FileAccessMode.Ok):Void;
 
 	extern public static function chmod(path:FilePath, mode:FilePermissions, ?followSymLinks:Bool = true):Void;
@@ -13,6 +21,14 @@ class FileSystem {
 	extern public static function chown(path:FilePath, uid:Int, gid:Int, ?followSymLinks:Bool = true):Void;
 
 	extern public static function exists(path:FilePath):Bool;
+
+	public static function createReadStream(path:FilePath, ?options:FileReadStreamCreationOptions):FileReadStream {
+		if (options == null)
+			options = {};
+		return new FileReadStream(open(path, options.flags, options.mode), options);
+	}
+
+	// static function createWriteStream(path:FilePath, ?options:{?flags:FileOpenFlags, ?mode:FilePermissions, ?autoClose:Bool, ?start:Int}):FileWriteStream;
 
 	extern public static function link(existingPath:FilePath, newPath:FilePath):Void;
 

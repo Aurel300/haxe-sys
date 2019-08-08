@@ -1,6 +1,10 @@
 package test;
 
 import haxe.io.Bytes;
+import nusys.FileSystem as NewFS;
+import nusys.io.File as NewFile;
+import sys.FileSystem as OldFS;
+import sys.io.File as OldFile;
 
 using StringTools;
 
@@ -11,80 +15,80 @@ class TestFileSystem extends Test {
 	**/
 	function testAccess():Void {
 		// create a file
-		sys.io.File.saveContent("resources-rw/access.txt", "");
+		OldFile.saveContent("resources-rw/access.txt", "");
 
-		nusys.FileSystem.chmod("resources-rw/access.txt", None);
-		eq(nusys.FileSystem.stat("resources-rw/access.txt").permissions, None);
-		noExc(() -> nusys.FileSystem.access("resources-rw/access.txt"));
-		exc(() -> nusys.FileSystem.access("resources-rw/access.txt", Read));
+		NewFS.chmod("resources-rw/access.txt", None);
+		eq(NewFS.stat("resources-rw/access.txt").permissions, None);
+		noExc(() -> NewFS.access("resources-rw/access.txt"));
+		exc(() -> NewFS.access("resources-rw/access.txt", Read));
 
-		nusys.FileSystem.chmod("resources-rw/access.txt", "r-------x");
-		eq(nusys.FileSystem.stat("resources-rw/access.txt").permissions, "r-------x");
-		noExc(() -> nusys.FileSystem.access("resources-rw/access.txt", Read));
-		exc(() -> nusys.FileSystem.access("resources-rw/access.txt", Write));
-		exc(() -> nusys.FileSystem.access("resources-rw/access.txt", Execute));
+		NewFS.chmod("resources-rw/access.txt", "r-------x");
+		eq(NewFS.stat("resources-rw/access.txt").permissions, "r-------x");
+		noExc(() -> NewFS.access("resources-rw/access.txt", Read));
+		exc(() -> NewFS.access("resources-rw/access.txt", Write));
+		exc(() -> NewFS.access("resources-rw/access.txt", Execute));
 
 		// cleanup
-		sys.FileSystem.deleteFile("resources-rw/access.txt");
+		OldFS.deleteFile("resources-rw/access.txt");
 	}
 
 	function testExists():Void {
-		t(nusys.FileSystem.exists("resources-ro/hello.txt"));
-		t(nusys.FileSystem.exists("resources-ro/binary.bin"));
-		f(nusys.FileSystem.exists("resources-ro/non-existent-file"));
+		t(NewFS.exists("resources-ro/hello.txt"));
+		t(NewFS.exists("resources-ro/binary.bin"));
+		f(NewFS.exists("resources-ro/non-existent-file"));
 	}
 
 	function testMkdir():Void {
 		// initially these directories don't exist
-		f(sys.FileSystem.exists("resources-rw/mkdir"));
-		f(sys.FileSystem.exists("resources-rw/mkdir/nested/dir"));
+		f(OldFS.exists("resources-rw/mkdir"));
+		f(OldFS.exists("resources-rw/mkdir/nested/dir"));
 
 		// without `recursive`, this should not succeed
-		exc(() -> nusys.FileSystem.mkdir("resources-rw/mkdir/nested/dir"));
+		exc(() -> NewFS.mkdir("resources-rw/mkdir/nested/dir"));
 
 		// create a single directory
-		nusys.FileSystem.mkdir("resources-rw/mkdir");
+		NewFS.mkdir("resources-rw/mkdir");
 
 		// create a directory recursively
-		nusys.FileSystem.mkdir("resources-rw/mkdir/nested/dir", true);
+		NewFS.mkdir("resources-rw/mkdir/nested/dir", true);
 
-		t(sys.FileSystem.exists("resources-rw/mkdir"));
-		t(sys.FileSystem.exists("resources-rw/mkdir/nested/dir"));
-		f(sys.FileSystem.exists("resources-rw/mkdir/dir"));
+		t(OldFS.exists("resources-rw/mkdir"));
+		t(OldFS.exists("resources-rw/mkdir/nested/dir"));
+		f(OldFS.exists("resources-rw/mkdir/dir"));
 
 		// raise if target already exists if not `recursive`
-		exc(() -> nusys.FileSystem.mkdir("resources-rw/mkdir/nested/dir"));
+		exc(() -> NewFS.mkdir("resources-rw/mkdir/nested/dir"));
 
 		// cleanup
-		sys.FileSystem.deleteDirectory("resources-rw/mkdir/nested/dir");
-		sys.FileSystem.deleteDirectory("resources-rw/mkdir/nested");
-		sys.FileSystem.deleteDirectory("resources-rw/mkdir");
+		OldFS.deleteDirectory("resources-rw/mkdir/nested/dir");
+		OldFS.deleteDirectory("resources-rw/mkdir/nested");
+		OldFS.deleteDirectory("resources-rw/mkdir");
 	}
 
 	function testMkdtemp():Void {
 		// empty `resources-rw` to begin with
-		aeq(sys.FileSystem.readDirectory("resources-rw"), []);
+		aeq(OldFS.readDirectory("resources-rw"), []);
 
 		// create some temporary directories
-		var dirs = [ for (i in 0...3) nusys.FileSystem.mkdtemp("resources-rw/helloXXXXXX") ];
+		var dirs = [ for (i in 0...3) NewFS.mkdtemp("resources-rw/helloXXXXXX") ];
 
-		for (f in sys.FileSystem.readDirectory("resources-rw")) {
+		for (f in OldFS.readDirectory("resources-rw")) {
 			t(f.startsWith("hello"));
-			t(sys.FileSystem.isDirectory('resources-rw/$f'));
-			sys.FileSystem.deleteDirectory('resources-rw/$f');
+			t(OldFS.isDirectory('resources-rw/$f'));
+			OldFS.deleteDirectory('resources-rw/$f');
 		}
 
 		// cleanup
-		for (f in sys.FileSystem.readDirectory("resources-rw")) {
-			sys.FileSystem.deleteDirectory('resources-rw/$f');
+		for (f in OldFS.readDirectory("resources-rw")) {
+			OldFS.deleteDirectory('resources-rw/$f');
 		}
 	}
 
 	function testReaddir():Void {
-		aeq(nusys.FileSystem.readdir("resources-rw"), []);
-		aeq(nusys.FileSystem.readdirTypes("resources-rw"), []);
-		aeq(nusys.FileSystem.readdir("resources-ro"), ["binary.bin", "hello.txt"]);
-		var res = nusys.FileSystem.readdirTypes("resources-ro");
+		aeq(NewFS.readdir("resources-rw"), []);
+		aeq(NewFS.readdirTypes("resources-rw"), []);
+		aeq(NewFS.readdir("resources-ro"), ["binary.bin", "hello.txt"]);
+		var res = NewFS.readdirTypes("resources-ro");
 		eq(res.length, 2);
 		eq(res[0].name, "binary.bin");
 		eq(res[0].isBlockDevice(), false);
@@ -96,69 +100,75 @@ class TestFileSystem extends Test {
 		eq(res[0].isSymbolicLink(), false);
 
 		// raises if target is not a directory or does not exist
-		exc(() -> nusys.FileSystem.readdir("resources-ro/hello.txt"));
-		exc(() -> nusys.FileSystem.readdir("resources-ro/non-existent-directory"));
+		exc(() -> NewFS.readdir("resources-ro/hello.txt"));
+		exc(() -> NewFS.readdir("resources-ro/non-existent-directory"));
 	}
 
 	function testRename():Void {
 		// setup
-		sys.io.File.saveContent("resources-rw/hello.txt", TestBase.helloString);
-		sys.io.File.saveContent("resources-rw/other.txt", "");
-		sys.FileSystem.createDirectory("resources-rw/sub");
-		sys.io.File.saveContent("resources-rw/sub/foo.txt", "");
+		OldFile.saveContent("resources-rw/hello.txt", TestBase.helloString);
+		OldFile.saveContent("resources-rw/other.txt", "");
+		OldFS.createDirectory("resources-rw/sub");
+		OldFile.saveContent("resources-rw/sub/foo.txt", "");
 
-		t(sys.FileSystem.exists("resources-rw/hello.txt"));
-		f(sys.FileSystem.exists("resources-rw/world.txt"));
+		t(OldFS.exists("resources-rw/hello.txt"));
+		f(OldFS.exists("resources-rw/world.txt"));
 
 		// rename a file
-		nusys.FileSystem.rename("resources-rw/hello.txt", "resources-rw/world.txt");
+		NewFS.rename("resources-rw/hello.txt", "resources-rw/world.txt");
 
-		f(sys.FileSystem.exists("resources-rw/hello.txt"));
-		t(sys.FileSystem.exists("resources-rw/world.txt"));
-		eq(sys.io.File.getContent("resources-rw/world.txt"), TestBase.helloString);
+		f(OldFS.exists("resources-rw/hello.txt"));
+		t(OldFS.exists("resources-rw/world.txt"));
+		eq(OldFile.getContent("resources-rw/world.txt"), TestBase.helloString);
 
 		// raises if the old path is non-existent
-		exc(() -> nusys.FileSystem.rename("resources-rw/non-existent", "resources-rw/foobar"));
+		exc(() -> NewFS.rename("resources-rw/non-existent", "resources-rw/foobar"));
 
 		// raises if renaming file to directory
-		exc(() -> nusys.FileSystem.rename("resources-rw/world.txt", "resources-rw/sub"));
+		exc(() -> NewFS.rename("resources-rw/world.txt", "resources-rw/sub"));
 
 		// raises if renaming directory to file
-		exc(() -> nusys.FileSystem.rename("resources-rw/sub", "resources-rw/world.txt"));
+		exc(() -> NewFS.rename("resources-rw/sub", "resources-rw/world.txt"));
 
 		// rename a directory
-		nusys.FileSystem.rename("resources-rw/sub", "resources-rw/resub");
+		NewFS.rename("resources-rw/sub", "resources-rw/resub");
 
-		f(sys.FileSystem.exists("resources-rw/sub"));
-		t(sys.FileSystem.exists("resources-rw/resub"));
-		aeq(sys.FileSystem.readDirectory("resources-rw/resub"), ["foo.txt"]);
+		f(OldFS.exists("resources-rw/sub"));
+		t(OldFS.exists("resources-rw/resub"));
+		aeq(OldFS.readDirectory("resources-rw/resub"), ["foo.txt"]);
 
 		// renaming to existing file overrides it
-		nusys.FileSystem.rename("resources-rw/world.txt", "resources-rw/other.txt");
+		NewFS.rename("resources-rw/world.txt", "resources-rw/other.txt");
 
-		f(sys.FileSystem.exists("resources-rw/world.txt"));
-		t(sys.FileSystem.exists("resources-rw/other.txt"));
-		eq(sys.io.File.getContent("resources-rw/other.txt"), TestBase.helloString);
+		f(OldFS.exists("resources-rw/world.txt"));
+		t(OldFS.exists("resources-rw/other.txt"));
+		eq(OldFile.getContent("resources-rw/other.txt"), TestBase.helloString);
 
 		// cleanup
-		sys.FileSystem.deleteFile("resources-rw/other.txt");
-		sys.FileSystem.deleteFile("resources-rw/resub/foo.txt");
-		sys.FileSystem.deleteDirectory("resources-rw/resub");
+		OldFS.deleteFile("resources-rw/other.txt");
+		OldFS.deleteFile("resources-rw/resub/foo.txt");
+		OldFS.deleteDirectory("resources-rw/resub");
 	}
 
 	function testStat():Void {
-		var stat = nusys.FileSystem.stat("resources-ro");
+		var stat = NewFS.stat("resources-ro");
 		t(stat.isDirectory());
 
-		var stat = nusys.FileSystem.stat("resources-ro/hello.txt");
+		var stat = NewFS.stat("resources-ro/hello.txt");
 		eq(stat.size, TestBase.helloBytes.length);
 		t(stat.isFile());
 
-		var stat = nusys.FileSystem.stat("resources-ro/binary.bin");
+		var stat = NewFS.stat("resources-ro/binary.bin");
 		eq(stat.size, TestBase.binaryBytes.length);
 		t(stat.isFile());
 
-		exc(() -> nusys.FileSystem.stat("resources-ro/non-existent-file"));
+		var file = NewFS.open("resources-ro/binary.bin");
+		var stat = file.stat();
+		eq(stat.size, TestBase.binaryBytes.length);
+		t(stat.isFile());
+		file.close();
+
+		exc(() -> NewFS.stat("resources-ro/non-existent-file"));
 	}
 
 	/**
@@ -166,17 +176,17 @@ class TestFileSystem extends Test {
 		`exists` is tested in `testExists`.
 	**/
 	function testCompat():Void {
-		eq(nusys.FileSystem.readFile("resources-ro/hello.txt").toString(), TestBase.helloString);
-		beq(nusys.FileSystem.readFile("resources-ro/hello.txt"), TestBase.helloBytes);
-		beq(nusys.FileSystem.readFile("resources-ro/binary.bin"), TestBase.binaryBytes);
-		t(nusys.FileSystem.isDirectory("resources-ro"));
-		f(nusys.FileSystem.isDirectory("resources-ro/hello.txt"));
-		aeq(nusys.FileSystem.readDirectory("resources-ro"), ["binary.bin", "hello.txt"]);
+		eq(NewFS.readFile("resources-ro/hello.txt").toString(), TestBase.helloString);
+		beq(NewFS.readFile("resources-ro/hello.txt"), TestBase.helloBytes);
+		beq(NewFS.readFile("resources-ro/binary.bin"), TestBase.binaryBytes);
+		t(NewFS.isDirectory("resources-ro"));
+		f(NewFS.isDirectory("resources-ro/hello.txt"));
+		aeq(NewFS.readDirectory("resources-ro"), ["binary.bin", "hello.txt"]);
 
-		nusys.FileSystem.createDirectory("resources-rw/foo");
-		t(sys.FileSystem.exists("resources-rw/foo"));
-		t(sys.FileSystem.isDirectory("resources-rw/foo"));
-		nusys.FileSystem.deleteDirectory("resources-rw/foo");
-		f(sys.FileSystem.exists("resources-rw/foo"));
+		NewFS.createDirectory("resources-rw/foo");
+		t(OldFS.exists("resources-rw/foo"));
+		t(OldFS.isDirectory("resources-rw/foo"));
+		NewFS.deleteDirectory("resources-rw/foo");
+		f(OldFS.exists("resources-rw/foo"));
 	}
 }
