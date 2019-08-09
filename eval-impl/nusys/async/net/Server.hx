@@ -3,7 +3,7 @@ package nusys.async.net;
 import haxe.Error;
 import haxe.NoData;
 import haxe.async.*;
-import sys.net.Address;
+import nusys.net.Address;
 import nusys.net.Dns;
 import sys.Net.SocketAddress;
 

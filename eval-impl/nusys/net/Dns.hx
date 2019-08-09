@@ -1,10 +1,10 @@
 package nusys.net;
 
-import sys.net.Address;
+import nusys.net.Address;
 import sys.net.DnsLookupOptions;
 import haxe.async.Callback;
 
-using sys.net.AddressTools;
+using nusys.net.AddressTools;
 
 class Dns {
 	static extern function lookup_native(hostname:String, ?lookupOptions:DnsLookupOptions, callback:Callback<Array<Address>>);

@@ -3,7 +3,7 @@ package eval.uv;
 import haxe.NoData;
 import haxe.async.Callback;
 import haxe.io.Bytes;
-import sys.net.Address;
+import nusys.net.Address;
 
 extern class Socket {
 	function new();

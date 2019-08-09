@@ -3,7 +3,7 @@ package test;
 import haxe.io.Bytes;
 import utest.Async;
 
-using sys.net.AddressTools;
+using nusys.net.AddressTools;
 
 class TestTcp extends Test {
 	#if eval

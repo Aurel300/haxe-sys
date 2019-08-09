@@ -7,7 +7,7 @@ import haxe.io.*;
 import haxe.io.Readable.ReadResult;
 // import sys.net.Dns.DnsHints;
 // import sys.net.Dns.DnsLookupFunction;
-import sys.net.Address;
+import nusys.net.Address;
 import nusys.net.Dns;
 import sys.Net.IPFamily;
 import sys.Net.SocketAddress;

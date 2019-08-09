@@ -3,7 +3,7 @@ package test;
 import haxe.io.Bytes;
 import sys.FilePermissions;
 
-using sys.net.AddressTools;
+using nusys.net.AddressTools;
 
 class TestMisc extends Test {
 	/**
