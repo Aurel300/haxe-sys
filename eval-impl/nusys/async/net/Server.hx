@@ -3,9 +3,7 @@ package nusys.async.net;
 import haxe.Error;
 import haxe.NoData;
 import haxe.async.*;
-import nusys.net.Address;
-import nusys.net.Dns;
-import sys.Net.SocketAddress;
+import nusys.net.*;
 
 typedef ServerOptions = {
 	?allowHalfOpen:Bool,
@@ -22,22 +20,27 @@ typedef ServerListenTcpOptions = {
 };
 
 class Server {
-	var native:eval.uv.Socket;
-
 	public final closeSignal:Signal<NoData> = new ArraySignal<NoData>();
 	public final connectionSignal:Signal<Socket> = new ArraySignal<Socket>();
 	public final errorSignal:Signal<Error> = new ArraySignal<Error>();
 	public final listeningSignal:Signal<NoData> = new ArraySignal<NoData>();
 
+	final native:eval.uv.Socket;
 	var listenDefer:nusys.Timer;
 	public var listening(default, null):Bool;
 	public var maxConnections:Int;
+	public var localAddress(get, never):Null<SocketAddress>;
 
 	public function new(?options:ServerOptions) {
 		native = new eval.uv.Socket();
 	}
 
-	// function address():SocketAddress;
+	function get_localAddress():Null<SocketAddress> {
+		if (!listening)
+			return null;
+		return native.getSockName();
+	}
+
 	public function close(?callback:Callback<NoData>):Void {
 		native.close(Callback.nonNull(callback));
 	}
@@ -84,6 +87,7 @@ class Server {
 						errorSignal.emit(e);
 					}
 				});
+				listeningSignal.emit(new NoData());
 			} catch (e:haxe.Error) {
 				errorSignal.emit(e);
 			}

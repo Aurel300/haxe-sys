@@ -7,10 +7,8 @@ import haxe.io.*;
 import haxe.io.Readable.ReadResult;
 // import sys.net.Dns.DnsHints;
 // import sys.net.Dns.DnsLookupFunction;
-import nusys.net.Address;
-import nusys.net.Dns;
+import nusys.net.*;
 import sys.Net.IPFamily;
-import sys.Net.SocketAddress;
 
 typedef SocketOptions = {
 	// ?file:sys.io.File, // fd in Node
@@ -56,6 +54,8 @@ class Socket extends Duplex {
 	var connectStarted = false;
 	var connected = false;
 	public var serverSpawn:Bool = false;
+	public var localAddress(get, never):Null<SocketAddress>;
+	public var remoteAddress(get, never):Null<SocketAddress>;
 
 	function new(native) {
 		super();
@@ -104,10 +104,16 @@ class Socket extends Duplex {
 		}
 	}
 
-	public function address():Null<SocketAddress> {
+	function get_localAddress():Null<SocketAddress> {
 		if (!connected)
 			return null;
-		return null;
+		return native.getSockName();
+	}
+
+	function get_remoteAddress():Null<SocketAddress> {
+		if (!connected)
+			return null;
+		return native.getPeerName();
 	}
 
 	public function connectTcp(options:SocketConnectTcpOptions, ?cb:Callback<NoData>):Void {
@@ -133,11 +139,11 @@ class Socket extends Duplex {
 			try {
 				native.connectTcp(address, options.port, (err, nd) -> {
 					timeoutReset();
-					cb(err, nd);
-					if (err == null) {
+					if (err == null)
 						connected = true;
+					cb(err, nd);
+					if (err == null)
 						connectSignal.emit(new NoData());
-					}
 				});
 			} catch (err:haxe.Error) {
 				cb(err, new NoData());

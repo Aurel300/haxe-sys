@@ -73,8 +73,3 @@ enum IPFamily {
 	IPv4;
 	IPv6;
 }
-
-enum SocketAddress {
-	Network(port:Int, address:Address);
-	Unix(name:String);
-}
