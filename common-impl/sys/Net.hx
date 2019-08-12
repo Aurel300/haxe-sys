@@ -2,12 +2,10 @@ package sys;
 
 import haxe.NoData;
 import haxe.async.*;
-import sys.net.Address;
-import nusys.async.net.Socket;
-import nusys.async.net.Socket.SocketOptions;
-import nusys.async.net.Socket.SocketConnectTcpOptions;
-import nusys.async.net.Socket.SocketConnectIpcOptions;
-import nusys.async.net.Server;
+import sys.net.*;
+import nusys.async.net.*;
+import nusys.async.net.SocketOptions.SocketConnectTcpOptions;
+import nusys.async.net.SocketOptions.SocketConnectIpcOptions;
 import nusys.async.net.Server.ServerOptions;
 import nusys.async.net.Server.ServerListenTcpOptions;
 
@@ -67,9 +65,4 @@ class Net {
 			}
 		return server;
 	}
-}
-
-enum IPFamily {
-	IPv4;
-	IPv6;
 }

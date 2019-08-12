@@ -15,21 +15,21 @@ class TestFile extends Test {
 		var file = NewFS.open("resources-ro/hello.txt");
 		var buffer = Bytes.alloc(5);
 
-		eq(file.read(buffer, 0, 5, 0).bytesRead, 5);
+		eq(file.readBuffer(buffer, 0, 5, 0).bytesRead, 5);
 		beq(buffer, Bytes.ofString("hello"));
 
-		eq(file.read(buffer, 0, 5, 6).buffer, buffer);
+		eq(file.readBuffer(buffer, 0, 5, 6).buffer, buffer);
 		beq(buffer, Bytes.ofString("world"));
 
-		exc(() -> file.read(buffer, 0, 6, 0));
-		exc(() -> file.read(buffer, -1, 5, 0));
-		exc(() -> file.read(buffer, 0, 0, 0));
-		exc(() -> file.read(buffer, 0, 0, -1));
+		exc(() -> file.readBuffer(buffer, 0, 6, 0));
+		exc(() -> file.readBuffer(buffer, -1, 5, 0));
+		exc(() -> file.readBuffer(buffer, 0, 0, 0));
+		exc(() -> file.readBuffer(buffer, 0, 0, -1));
 
 		buffer = Bytes.alloc(15);
-		eq(file.read(buffer, 0, 5, 0).bytesRead, 5);
-		eq(file.read(buffer, 5, 5, 0).bytesRead, 5);
-		eq(file.read(buffer, 10, 5, 0).bytesRead, 5);
+		eq(file.readBuffer(buffer, 0, 5, 0).bytesRead, 5);
+		eq(file.readBuffer(buffer, 5, 5, 0).bytesRead, 5);
+		eq(file.readBuffer(buffer, 10, 5, 0).bytesRead, 5);
 		beq(buffer, Bytes.ofString("hellohellohello"));
 
 		file.close();
@@ -37,7 +37,7 @@ class TestFile extends Test {
 		// binary (+ invalid UTF-8)
 		var file = NewFS.open("resources-ro/binary.bin");
 		var buffer = Bytes.alloc(TestBase.binaryBytes.length);
-		eq(file.read(buffer, 0, buffer.length, 0).bytesRead, buffer.length);
+		eq(file.readBuffer(buffer, 0, buffer.length, 0).bytesRead, buffer.length);
 		beq(buffer, TestBase.binaryBytes);
 		file.close();
 
@@ -53,14 +53,14 @@ class TestFile extends Test {
 	function testWrite() {
 		var file = NewFS.open("resources-rw/hello.txt", "w");
 		var buffer = Bytes.ofString("hello");
-		eq(file.write(buffer, 0, 5, 0).bytesWritten, 5);
+		eq(file.writeBuffer(buffer, 0, 5, 0).bytesWritten, 5);
 		file.close();
 
 		beq(OldFile.getBytes("resources-rw/hello.txt"), buffer);
 
 		var file = NewFS.open("resources-rw/unicode.txt", "w");
 		var buffer = TestBase.helloBytes;
-		eq(file.write(buffer, 0, buffer.length, 0).bytesWritten, buffer.length);
+		eq(file.writeBuffer(buffer, 0, buffer.length, 0).bytesWritten, buffer.length);
 		file.close();
 
 		beq(OldFile.getBytes("resources-rw/unicode.txt"), buffer);

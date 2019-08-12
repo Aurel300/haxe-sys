@@ -1,36 +1,12 @@
 package nusys.async.net;
 
-import haxe.Error;
 import haxe.NoData;
 import haxe.async.*;
 import haxe.io.*;
-import haxe.io.Readable.ReadResult;
-// import sys.net.Dns.DnsHints;
-// import sys.net.Dns.DnsLookupFunction;
-import sys.net.Address;
-import nusys.net.Dns;
-import sys.Net.IPFamily;
-import sys.Net.SocketAddress;
-
-typedef SocketOptions = {
-	// ?file:sys.io.File, // fd in Node
-	?allowHalfOpen:Bool,
-	?readable:Bool,
-	?writable:Bool
-};
-
-typedef SocketConnectTcpOptions = {
-	port:Int,
-	?host:String,
-	?address:Address,
-	?localAddress:String,
-	?localPort:Int,
-	?family:IPFamily
-};
-
-typedef SocketConnectIpcOptions = {
-	path:String
-};
+import nusys.net.*;
+import nusys.async.net.SocketOptions.SocketConnectTcpOptions;
+import nusys.async.net.SocketOptions.SocketConnectIpcOptions;
+import sys.net.*;
 
 extern class Socket extends Duplex {
 	static function create(?options:SocketOptions):Socket;
@@ -44,10 +20,8 @@ extern class Socket extends Duplex {
 	// endSignal
 	final lookupSignal:Signal<Address>;
 	final timeoutSignal:Signal<NoData>;
-
-	var serverSpawn:Bool;
-
-	function address():Null<SocketAddress>;
+	var localAddress(get, never):Null<SocketAddress>;
+	var remoteAddress(get, never):Null<SocketAddress>;
 
 	function connectTcp(options:SocketConnectTcpOptions, ?cb:Callback<NoData>):Void;
 

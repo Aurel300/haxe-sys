@@ -1,9 +1,7 @@
 package sys.net;
 
-import sys.Net.IPFamily;
-
 typedef DnsLookupOptions = {
-	?family:IPFamily,
+	?family:IpFamily,
 	?hints:DnsHints
 };
 

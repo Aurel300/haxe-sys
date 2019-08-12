@@ -81,7 +81,7 @@ class Server {
 					try {
 						var client = @:privateAccess new Socket(native.accept());
 						@:privateAccess client.connected = true;
-						client.serverSpawn = true;
+						@:privateAccess client.serverSpawn = true;
 						connectionSignal.emit(client);
 					} catch (e:haxe.Error) {
 						errorSignal.emit(e);

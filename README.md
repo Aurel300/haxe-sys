@@ -48,7 +48,6 @@ These should be implemented in pure Haxe, with minimal `#if <target>` parts wher
 | Feature | Impl   | T | Notes |
 | ------- | ------ |:-:| ----- |
 | streams | P      | P | based on `streams3` of Node.js; simplified interface (dropped legacy APIs) |
-| HTTP    | N      | N | built on top of raw sockets |
 
 ## Per function notes
 
@@ -67,7 +66,6 @@ These should be implemented in pure Haxe, with minimal `#if <target>` parts wher
  - [`common-impl`](common-impl) - implementations common to all targets
  - [`eval-impl`](eval-impl) - externs for eval
  - [`hl-impl`](hl-impl) - implementations for HashLink
- - [`sys`](sys) - not-yet-implemented externs for all targets
  - [`tests`](tests) - unit tests
 
 Note that `nusys` is used as a temporary package for the classes that will eventually become `sys`. This allows the tests to rely on old APIs for verifying the behaviour of the new ones.

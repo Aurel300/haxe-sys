@@ -16,7 +16,7 @@ class TestAsyncFile extends Test {
 		sub(async, done -> {
 			var file = NewFS.open("resources-ro/hello.txt");
 			var buffer = Bytes.alloc(5);
-			file.async.read(buffer, 0, 5, 0, (err, res) -> {
+			file.async.readBuffer(buffer, 0, 5, 0, (err, res) -> {
 				eq(err, null);
 				eq(res.buffer, buffer);
 				eq(res.bytesRead, 5);
@@ -29,7 +29,7 @@ class TestAsyncFile extends Test {
 		sub(async, done -> {
 			var file = NewFS.open("resources-ro/hello.txt");
 			var buffer = Bytes.alloc(5);
-			file.async.read(buffer, 0, 5, 6, (err, res) -> {
+			file.async.readBuffer(buffer, 0, 5, 6, (err, res) -> {
 				eq(err, null);
 				eq(res.buffer, buffer);
 				eq(res.bytesRead, 5);
@@ -42,22 +42,22 @@ class TestAsyncFile extends Test {
 		// invalid arguments throw synchronous errors
 		var file = NewFS.open("resources-ro/hello.txt");
 		var buffer = Bytes.alloc(5);
-		exc(() -> file.async.read(buffer, 0, 6, 0, (_, _) -> assert()));
-		exc(() -> file.async.read(buffer, -1, 5, 0, (_, _) -> assert()));
-		exc(() -> file.async.read(buffer, 0, 0, 0, (_, _) -> assert()));
-		exc(() -> file.async.read(buffer, 0, 0, -1, (_, _) -> assert()));
+		exc(() -> file.async.readBuffer(buffer, 0, 6, 0, (_, _) -> assert()));
+		exc(() -> file.async.readBuffer(buffer, -1, 5, 0, (_, _) -> assert()));
+		exc(() -> file.async.readBuffer(buffer, 0, 0, 0, (_, _) -> assert()));
+		exc(() -> file.async.readBuffer(buffer, 0, 0, -1, (_, _) -> assert()));
 		file.close();
 
 		sub(async, done -> {
 			var file = NewFS.open("resources-ro/hello.txt");
 			var buffer = Bytes.alloc(15);
-			file.async.read(buffer, 0, 5, 0, (err, res) -> {
+			file.async.readBuffer(buffer, 0, 5, 0, (err, res) -> {
 				eq(err, null);
 				eq(res.bytesRead, 5);
-				file.async.read(buffer, 5, 5, 0, (err, res) -> {
+				file.async.readBuffer(buffer, 5, 5, 0, (err, res) -> {
 					eq(err, null);
 					eq(res.bytesRead, 5);
-					file.async.read(buffer, 10, 5, 0, (err, res) -> {
+					file.async.readBuffer(buffer, 10, 5, 0, (err, res) -> {
 						eq(err, null);
 						beq(buffer, Bytes.ofString("hellohellohello"));
 						file.close();
@@ -71,7 +71,7 @@ class TestAsyncFile extends Test {
 		sub(async, done -> {
 			var file = NewFS.open("resources-ro/binary.bin");
 			var buffer = Bytes.alloc(TestBase.binaryBytes.length);
-			file.async.read(buffer, 0, buffer.length, 0, (err, res) -> {
+			file.async.readBuffer(buffer, 0, buffer.length, 0, (err, res) -> {
 				eq(err, null);
 				eq(res.bytesRead, buffer.length);
 				beq(buffer, TestBase.binaryBytes);
@@ -91,7 +91,7 @@ class TestAsyncFile extends Test {
 		sub(async, done -> {
 			var file = NewFS.open("resources-rw/hello.txt", "w");
 			var buffer = Bytes.ofString("hello");
-			file.async.write(buffer, 0, 5, 0, (err, res) -> {
+			file.async.writeBuffer(buffer, 0, 5, 0, (err, res) -> {
 				eq(err, null);
 				eq(res.bytesWritten, 5);
 				file.close();
@@ -104,7 +104,7 @@ class TestAsyncFile extends Test {
 		sub(async, done -> {
 			var file = NewFS.open("resources-rw/unicode.txt", "w");
 			var buffer = TestBase.helloBytes;
-			file.async.write(buffer, 0, buffer.length, 0, (err, res) -> {
+			file.async.writeBuffer(buffer, 0, buffer.length, 0, (err, res) -> {
 				eq(err, null);
 				eq(res.bytesWritten, buffer.length);
 				file.close();

@@ -7,7 +7,6 @@ import haxe.io.Encoding;
 import sys.*;
 
 class AsyncFile {
-	// function appendFile(data:Bytes, ?flags:FileOpenFlags, ?mode:FilePermissions):Void;
 	extern public function chmod(mode:FilePermissions, callback:Callback<NoData>):Void;
 
 	extern public function chown(uid:Int, gid:Int, callback:Callback<NoData>):Void;
@@ -16,14 +15,14 @@ class AsyncFile {
 
 	extern public function datasync(callback:Callback<NoData>):Void;
 
-	extern public function read(buffer:Bytes, offset:Int, length:Int, position:Int, callback:Callback<{bytesRead:Int, buffer:Bytes}>):Void;
+	extern public function readBuffer(buffer:Bytes, offset:Int, length:Int, position:Int, callback:Callback<{bytesRead:Int, buffer:Bytes}>):Void;
 
 	public function readFile(callback:Callback<Bytes>):Void {
 		stat((err, stat) -> {
 			if (err != null)
 				return callback(err, null);
 			var buffer = Bytes.alloc(stat.size);
-			read(buffer, 0, buffer.length, 0, (err, res) -> {
+			readBuffer(buffer, 0, buffer.length, 0, (err, res) -> {
 				if (err != null)
 					return callback(err, null);
 				callback(null, buffer);
@@ -43,12 +42,10 @@ class AsyncFile {
 		utimes_native(atime.getTime() / 1000, mtime.getTime() / 1000, callback);
 	}
 
-	extern public function write(buffer:Bytes, offset:Int, length:Int, position:Int, callback:Callback<{bytesWritten:Int, buffer:Bytes}>):Void;
+	extern public function writeBuffer(buffer:Bytes, offset:Int, length:Int, position:Int, callback:Callback<{bytesWritten:Int, buffer:Bytes}>):Void;
 
 	public function writeString(str:String, ?position:Int, ?encoding:Encoding, callback:Callback<{bytesWritten:Int, buffer:Bytes}>):Void {
 		var buffer = Bytes.ofString(str, encoding);
-		write(buffer, 0, buffer.length, position, callback);
+		writeBuffer(buffer, 0, buffer.length, position, callback);
 	}
-
-	// function writeFile(data:Bytes, ?flags:FileOpenFlags, ?mode:FilePermissions):Void;
 }

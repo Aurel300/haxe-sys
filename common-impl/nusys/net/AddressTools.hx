@@ -2,6 +2,9 @@ package nusys.net;
 
 import haxe.io.Bytes;
 
+/**
+	Methods for converting to and from `Address` instances.
+**/
 class AddressTools {
 	static final v4re = {
 		final v4seg = "(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])";
@@ -26,11 +29,19 @@ class AddressTools {
 			"");
 	};
 
-	public static function format(address:Address):String {
+	/**
+		Converts an `Address` to a `String`.
+
+		- IPv4 addresses are represented with the dotted quad format, e.g.
+			`192.168.0.1`.
+		- IPv6 addresses are represented with the standard lowercased hexadecimal
+			representation, with `::` used to mark a long stretch of zeros.
+	**/
+	public static function toString(address:Address):String {
 		return (switch (address) {
-			case IPv4(ip):
+			case Ipv4(ip):
 				'${ip >>> 24}.${(ip >> 16) & 0xFF}.${(ip >> 8) & 0xFF}.${ip & 0xFF}';
-			case IPv6(ip):
+			case Ipv6(ip):
 				var groups = [for (i in 0...8) (ip.get(i * 2) << 8) | ip.get(i * 2 + 1)];
 				var longestRun = -1;
 				var longestPos = -1;
@@ -60,32 +71,56 @@ class AddressTools {
 		});
 	}
 
-	public static function isIP(address:String):Bool {
-		return isIPv4(address) || isIPv6(address);
+	/**
+		Returns `true` if `address` represents a valid IPv4 or IPv6 address.
+	**/
+	public static function isIp(address:String):Bool {
+		return isIpv4(address) || isIpv6(address);
 	}
 
-	public static function isIPv4(address:String):Bool {
+	/**
+		Returns `true` if `address` represents a valid IPv4 address.
+	**/
+	public static function isIpv4(address:String):Bool {
 		return v4re.match(address);
 	}
 
-	public static function isIPv6(address:String):Bool {
+	/**
+		Returns `true` if `address` represents a valid IPv6 address.
+	**/
+	public static function isIpv6(address:String):Bool {
 		return v6re.match(address);
 	}
 
-	public static function toIP(address:String):Null<Address> {
-		var ipv4 = toIPv4(address);
-		return ipv4 != null ? ipv4 : toIPv6(address);
+	/**
+		Tries to convert the `String` `address` to an `Address` instance. Returns
+		the parsed `Address` or `null` if `address` does not represent a valid IP
+		address.
+	**/
+	public static function toIp(address:String):Null<Address> {
+		var ipv4 = toIpv4(address);
+		return ipv4 != null ? ipv4 : toIpv6(address);
 	}
 
-	public static function toIPv4(address:String):Null<Address> {
-		if (!isIPv4(address))
+	/**
+		Tries to convert the `String` `address` to an IPv4 `Address` instance.
+		Returns the parsed `Address` or `null` if `address` does not represent a
+		valid IPv4 address.
+	**/
+	public static function toIpv4(address:String):Null<Address> {
+		if (!isIpv4(address))
 			return null;
 		var components = address.split(".").map(Std.parseInt);
-		return IPv4((components[0] << 24) | (components[1] << 16) | (components[2] << 8) | components[3]);
+		return Ipv4((components[0] << 24) | (components[1] << 16) | (components[2] << 8) | components[3]);
 	}
 
-	public static function toIPv6(address:String):Null<Address> {
-		if (!isIPv6(address))
+	/**
+		Tries to convert the `String` `address` to an IPv6 `Address` instance.
+		Returns the parsed `Address` or `null` if `address` does not represent a
+		valid IPv6 address.
+	**/
+	public static function toIpv6(address:String):Null<Address> {
+		if (!isIpv6(address))
 			return null;
 		var buffer = Bytes.alloc(16);
 		buffer.fill(0, 16, 0);
@@ -101,7 +136,7 @@ class AddressTools {
 		if (stretch.length > 1) {
 			var end = 16;
 			components = stretch[1].split(":");
-			if (isIPv4(components[components.length - 1])) {
+			if (isIpv4(components[components.length - 1])) {
 				end -= 4;
 				var ip = components.pop().split(".").map(Std.parseInt);
 				for (i in 0...4)
@@ -111,12 +146,21 @@ class AddressTools {
 			for (i in 0...components.length)
 				parse(components[i], end + i);
 		}
-		return IPv6(buffer);
+		return Ipv6(buffer);
 	}
 
-	public static function mapToIPv6(address:Address):Address {
+	/**
+		Returns the IPv6 version of the given `address`. IPv6 addresses are
+		returned unmodified, IPv4 addresses are mapped to IPv6 using the
+		`:ffff:0:0/96` IPv4 transition prefix.
+
+		```haxe
+		"127.0.0.1".toIpv4().mapToIpv6().toString(); // ::ffff:7f00:1
+		```
+	**/
+	public static function mapToIpv6(address:Address):Address {
 		return (switch (address) {
-			case IPv4(ip):
+			case Ipv4(ip):
 				var buffer = Bytes.alloc(16);
 				buffer.set(10, 0xFF);
 				buffer.set(11, 0xFF);
@@ -124,22 +168,28 @@ class AddressTools {
 				buffer.set(13, (ip >> 16) & 0xFF);
 				buffer.set(14, (ip >> 8) & 0xFF);
 				buffer.set(15, ip & 0xFF);
-				IPv6(buffer);
+				Ipv6(buffer);
 			case _:
 				address;
 		});
 	}
 
+	/**
+		Returns `true` if `a` and `b` are the same IP address.
+
+		If `ipv6mapped` is `true`, bot `a` and `b` are mapped to IPv6 (using
+		`mapToIpv6`) before the comparison.
+	**/
 	public static function equals(a:Address, b:Address, ?ipv6mapped:Bool = false):Bool {
 		if (ipv6mapped) {
-			return (switch [mapToIPv6(a), mapToIPv6(b)] {
-				case [IPv6(a), IPv6(b)]: a.compare(b) == 0;
+			return (switch [mapToIpv6(a), mapToIpv6(b)] {
+				case [Ipv6(a), Ipv6(b)]: a.compare(b) == 0;
 				case _: false; // cannot happen?
 			});
 		}
 		return (switch [a, b] {
-			case [IPv4(a), IPv4(b)]: a == b;
-			case [IPv6(a), IPv6(b)]: a.compare(b) == 0;
+			case [Ipv4(a), Ipv4(b)]: a == b;
+			case [Ipv6(a), Ipv6(b)]: a.compare(b) == 0;
 			case _: false;
 		});
 	}

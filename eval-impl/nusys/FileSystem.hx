@@ -13,13 +13,17 @@ typedef FileReadStreamCreationOptions = {
 	nusys.io.FileReadStream.FileReadStreamOptions;
 
 class FileSystem {
-	public static final async = nusys.async.FileSystem;
+	public static inline final async = nusys.async.FileSystem;
 
 	extern public static function access(path:FilePath, ?mode:FileAccessMode = FileAccessMode.Ok):Void;
 
 	extern public static function chmod(path:FilePath, mode:FilePermissions, ?followSymLinks:Bool = true):Void;
 
 	extern public static function chown(path:FilePath, uid:Int, gid:Int, ?followSymLinks:Bool = true):Void;
+
+	public static function copyFile(src:FilePath, dest:FilePath /* , ?flags:FileCopyFlags */):Void {
+		throw "not implemented";
+	}
 
 	extern public static function exists(path:FilePath):Bool;
 
@@ -37,7 +41,7 @@ class FileSystem {
 
 	public static function mkdir(path:FilePath, ?recursive:Bool = false, ?mode:FilePermissions):Void {
 		if (mode == null)
-			mode = FilePermissions.fromOctal("777");
+			mode = @:privateAccess new FilePermissions(511); // 0777
 		if (!recursive)
 			return mkdir_native(path, mode);
 		var pathBuffer:FilePath = null;
@@ -121,7 +125,7 @@ class FileSystem {
 
 	public static function open(path:FilePath, ?flags:FileOpenFlags = FileOpenFlags.ReadOnly, ?mode:FilePermissions, ?binary:Bool = true):nusys.io.File {
 		if (mode == null)
-			mode = @:privateAccess new FilePermissions(438) /* 0666 */;
+			mode = @:privateAccess new FilePermissions(438); // 0666
 		return open_native(path, flags, mode, binary);
 	}
 
@@ -131,13 +135,40 @@ class FileSystem {
 		try {
 			var size = file.stat().size;
 			buffer = Bytes.alloc(size);
-			file.read(buffer, 0, size, 0);
+			file.readBuffer(buffer, 0, size, 0);
 		} catch (e:Dynamic) {
 			file.close();
 			throw e;
 		}
 		file.close();
 		return buffer;
+	}
+
+	@:access(sys.FileOpenFlags)
+	public static function writeFile(path:FilePath, data:Bytes, ?flags:FileOpenFlags, ?mode:FilePermissions):Void {
+		if (flags == null)
+			flags = "w";
+		if (mode == null)
+			mode = @:privateAccess new FilePermissions(438) /* 0666 */;
+		var file = open(path, flags, mode);
+		var offset = 0;
+		var length = data.length;
+		var position:Null<Int> = null;
+		if (flags.get_raw() & FileOpenFlags.Append.get_raw() == 0)
+			position = 0;
+		try {
+			while (length > 0) {
+				var written = file.writeBuffer(data, offset, length, position).bytesWritten;
+				offset += written;
+				length -= written;
+				if (position != null) {
+					position += written;
+				}
+			}
+		} catch (e:Dynamic) {
+			file.close();
+			throw e;
+		}
 	}
 
 	// compatibility sys.FileSystem functions

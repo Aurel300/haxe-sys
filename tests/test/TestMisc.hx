@@ -32,29 +32,29 @@ class TestMisc extends Test {
 	}
 
 	function testAddressTools() {
-		f("127.256.0.1".isIPv4());
-		f("127.0.1".isIPv4());
+		f("127.256.0.1".isIpv4());
+		f("127.0.1".isIpv4());
 
-		f("::1::".isIPv6());
-		f("1::2::3".isIPv6());
-		f("1::127.0.1".isIPv6());
-		f("::127.0.0.1:ffff:127.0.0.1".isIPv6());
-		f("1234:1234:1234:1234::1234:1234:1234:1234".isIPv6());
+		f("::1::".isIpv6());
+		f("1::2::3".isIpv6());
+		f("1::127.0.1".isIpv6());
+		f("::127.0.0.1:ffff:127.0.0.1".isIpv6());
+		f("1234:1234:1234:1234::1234:1234:1234:1234".isIpv6());
 
-		t("0.0.0.0".toIPv4().match(IPv4(0)));
-		t("255.255.255.255".toIPv4().match(IPv4(0xFFFFFFFF)));
-		t("127.0.0.1".toIPv4().match(IPv4(0x7F000001)));
-		t("123.32.1.0".toIPv4().match(IPv4(0x7B200100)));
+		t("0.0.0.0".toIpv4().match(Ipv4(0)));
+		t("255.255.255.255".toIpv4().match(Ipv4(0xFFFFFFFF)));
+		t("127.0.0.1".toIpv4().match(Ipv4(0x7F000001)));
+		t("123.32.1.0".toIpv4().match(Ipv4(0x7B200100)));
 
-		"::".toIPv6().match(IPv6(beq(_, Bytes.ofHex("00000000000000000000000000000000")) => _));
-		"::1".toIPv6().match(IPv6(beq(_, Bytes.ofHex("00000000000000000000000000000001")) => _));
-		"1::".toIPv6().match(IPv6(beq(_, Bytes.ofHex("00010000000000000000000000000000")) => _));
-		"2001:db8:1234:5678:11:2233:4455:6677".toIPv6().match(IPv6(beq(_, Bytes.ofHex("20010DB8123456780011223344556677")) => _));
-		"4861:7865:2069:7320:6177:6573:6F6D:6521".toIPv6().match(IPv6(beq(_, Bytes.ofHex("4861786520697320617765736F6D6521")) => _));
-		"1:2:3::ffff:127.0.0.1".toIPv6().match(IPv6(beq(_, Bytes.ofHex("00010002000300000000FFFF7F000001")) => _));
+		"::".toIpv6().match(Ipv6(beq(_, Bytes.ofHex("00000000000000000000000000000000")) => _));
+		"::1".toIpv6().match(Ipv6(beq(_, Bytes.ofHex("00000000000000000000000000000001")) => _));
+		"1::".toIpv6().match(Ipv6(beq(_, Bytes.ofHex("00010000000000000000000000000000")) => _));
+		"2001:db8:1234:5678:11:2233:4455:6677".toIpv6().match(Ipv6(beq(_, Bytes.ofHex("20010DB8123456780011223344556677")) => _));
+		"4861:7865:2069:7320:6177:6573:6F6D:6521".toIpv6().match(Ipv6(beq(_, Bytes.ofHex("4861786520697320617765736F6D6521")) => _));
+		"1:2:3::ffff:127.0.0.1".toIpv6().match(Ipv6(beq(_, Bytes.ofHex("00010002000300000000FFFF7F000001")) => _));
 
-		t("123.32.1.0".toIP().match(IPv4(0x7B200100)));
-		"123.32.1.0".toIP().mapToIPv6().match(IPv6(beq(_, Bytes.ofHex("00000000000000000000FFFF7B200100")) => _));
-		"1:2:3::ffff:127.0.0.1".toIP().match(IPv6(beq(_, Bytes.ofHex("00010002000300000000FFFF7F000001")) => _));
+		t("123.32.1.0".toIp().match(Ipv4(0x7B200100)));
+		"123.32.1.0".toIp().mapToIpv6().match(Ipv6(beq(_, Bytes.ofHex("00000000000000000000FFFF7B200100")) => _));
+		"1:2:3::ffff:127.0.0.1".toIp().match(Ipv6(beq(_, Bytes.ofHex("00010002000300000000FFFF7F000001")) => _));
 	}
 }

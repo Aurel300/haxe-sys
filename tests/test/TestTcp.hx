@@ -25,7 +25,7 @@ class TestTcp extends Test {
 				});
 			}));
 			server.listeningSignal.on(() -> {
-				t(server.localAddress.match(Network(AddressTools.equals(_, "127.0.0.1".toIP()) => true, 3232)));
+				t(server.localAddress.match(Network(AddressTools.equals(_, "127.0.0.1".toIp()) => true, 3232)));
 				done();
 			});
 			server.errorSignal.on(err -> assert());
@@ -42,8 +42,8 @@ class TestTcp extends Test {
 				})
 			}, (err) -> {
 					eq(err, null);
-					t(client.localAddress.match(Network(AddressTools.equals(_, "127.0.0.1".toIP()) => true, _)));
-					t(client.remoteAddress.match(Network(AddressTools.equals(_, "127.0.0.1".toIP()) => true, 3232)));
+					t(client.localAddress.match(Network(AddressTools.equals(_, "127.0.0.1".toIp()) => true, _)));
+					t(client.remoteAddress.match(Network(AddressTools.equals(_, "127.0.0.1".toIp()) => true, 3232)));
 					client.errorSignal.on(err -> assert());
 					client.write(TestBase.helloBytes);
 					client.dataSignal.on(chunk -> {
@@ -64,13 +64,13 @@ class TestTcp extends Test {
 			var client = nusys.async.net.Socket.create();
 			client.errorSignal.on(err -> assert());
 			client.lookupSignal.on(address -> {
-				t(address.equals("127.0.0.1".toIP(), true));
+				t(address.equals("127.0.0.1".toIp(), true));
 				done();
 			});
 			client.connectTcp({
 				port: 10123,
 				host: "localhost",
-				family: IPv4
+				family: Ipv4
 			}, (err:haxe.Error) -> {
 					switch (err.type) {
 						case UVError(sys.uv.UVErrorType.ECONNREFUSED):

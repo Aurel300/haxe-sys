@@ -31,7 +31,7 @@ class FileReadStream extends Readable {
 		// TODO: async read
 		var chunk = Bytes.alloc(remaining);
 		// TODO: check errors
-		file.read(chunk, 0, remaining, position);
+		file.readBuffer(chunk, 0, remaining, position);
 		position += remaining;
 		// TODO: check EOF for file as well
 		return Data([chunk], position >= end);

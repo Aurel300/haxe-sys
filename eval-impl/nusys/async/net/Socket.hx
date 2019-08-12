@@ -8,27 +8,8 @@ import haxe.io.Readable.ReadResult;
 // import sys.net.Dns.DnsHints;
 // import sys.net.Dns.DnsLookupFunction;
 import nusys.net.*;
-import sys.Net.IPFamily;
-
-typedef SocketOptions = {
-	// ?file:sys.io.File, // fd in Node
-	?allowHalfOpen:Bool,
-	?readable:Bool,
-	?writable:Bool
-};
-
-typedef SocketConnectTcpOptions = {
-	port:Int,
-	?host:String,
-	?address:Address,
-	?localAddress:String,
-	?localPort:Int,
-	?family:IPFamily
-};
-
-typedef SocketConnectIpcOptions = {
-	path:String
-};
+import nusys.async.net.SocketOptions.SocketConnectTcpOptions;
+import nusys.async.net.SocketOptions.SocketConnectIpcOptions;
 
 class Socket extends Duplex {
 	public static function create(?options:SocketOptions):Socket {
@@ -53,7 +34,7 @@ class Socket extends Duplex {
 	var readStarted = false;
 	var connectStarted = false;
 	var connected = false;
-	public var serverSpawn:Bool = false;
+	var serverSpawn:Bool = false;
 	public var localAddress(get, never):Null<SocketAddress>;
 	public var remoteAddress(get, never):Null<SocketAddress>;
 

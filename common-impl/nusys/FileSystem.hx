@@ -3,9 +3,14 @@ package nusys;
 import haxe.Error;
 import haxe.io.Bytes;
 import haxe.io.FilePath;
-import nusys.io.FileReadStream;
-import nusys.io.FileWriteStream;
 import sys.*;
+import nusys.io.*;
+
+typedef FileReadStreamCreationOptions = {
+	?flags:FileOpenFlags,
+	?mode:FilePermissions
+} &
+	nusys.io.FileReadStream.FileReadStreamOptions;
 
 /**
 	This class provides methods for synchronous operations on files and
@@ -15,6 +20,11 @@ import sys.*;
 	in unspecified behaviour.
 **/
 extern class FileSystem {
+	public static inline final async = nusys.async.FileSystem;
+
+	@:deprecated
+	static function absolutePath(path:String):String; // should be implemented in haxe.io.Path
+
 	/**
 		Tests specific user permissions for the file specified by `path`. If the
 		check fails, throws an exception. `mode` is one or more `FileAccessMode`
@@ -43,6 +53,11 @@ extern class FileSystem {
 	static function access(path:FilePath, ?mode:FileAccessMode = FileAccessMode.Ok):Void;
 
 	/**
+		Appends `data` at the end of the file located at `path`.
+	**/
+	static function appendFile(path:FilePath, data:Bytes, ?flags:FileOpenFlags /* a */, ?mode:FilePermissions /* 0666 */):Void;
+
+	/**
 		Changes the permissions of the file specific by `path` to `mode`.
 
 		If `path` points to a symbolic link, this function will change the
@@ -65,10 +80,52 @@ extern class FileSystem {
 	**/
 	static function chown(path:FilePath, uid:Int, gid:Int, ?followSymLinks:Bool = true):Void;
 
-	// static function copyFile(src:FilePath, dest:FilePath, ?flags:FileCopyFlags):Void;
-	// static function exists(path:FilePath):Bool; // deprecated in node.js
-	// static function createReadStream(path:FilePath, ?options:{?flags:FileOpenFlags, ?mode:FilePermissions, ?autoClose:Bool, ?start:Int, ?end:Int, ?highWaterMark:Int}):FileReadStream;
+	/**
+		Copies the file at `src` to `dest`. If `dest` exists, it is overwritten.
+	**/
+	static function copyFile(src:FilePath, dest:FilePath /* , ?flags:FileCopyFlags */):Void;
+
+	@:deprecated("use mkdir instead")
+	static inline function createDirectory(path:String):Void return mkdir(path, true);
+
+	/**
+		Creates a read stream (an instance of `IReadable`) for the given path.
+		`options` can be used to specify how the file is opened, as well as which
+		part of the file will be read by the stream.
+
+		- `options.flags` - see `open`.
+		- `options.mode` - see `open`.
+		- `options.autoClose` - whether the file should be closed automatically
+			once the stream is fully consumed.
+		- `options.start` - starting position in bytes (inclusive).
+		- `options.end` - end position in bytes (non-inclusive).
+	**/
+	static function createReadStream(path:FilePath, ?options:FileReadStreamCreationOptions):FileReadStream;
+
 	// static function createWriteStream(path:FilePath, ?options:{?flags:FileOpenFlags, ?mode:FilePermissions, ?autoClose:Bool, ?start:Int}):FileWriteStream;
+	@:deprecated("use rmdir instead")
+	static inline function deleteDirectory(path:String):Void return rmdir(path);
+
+	@:deprecated("use unlink instead")
+	static inline function deleteFile(path:String):Void return unlink(path);
+
+	/**
+		Returns `true` if the file or directory specified by `path` exists.
+
+		The result of this call should not be used in a condition before a call to
+		e.g. `open`, because this would introduce a race condition (the file could
+		be deleted after the `exists` call, but before the `open` call). Instead,
+		the latter function should be called immediately and errors should be
+		handled with a `try ... catch` block.
+	**/
+	static function exists(path:String):Bool;
+
+	@:deprecated("use realpath instead")
+	static inline function fullPath(path:String):FilePath return realpath(path);
+
+	@:deprecated("use stat(...).isDirectory() instead")
+	static inline function isDirectory(path:String):Bool return stat(path).isDirectory();
+
 	static function link(existingPath:FilePath, newPath:FilePath):Void;
 
 	/**
@@ -90,6 +147,11 @@ extern class FileSystem {
 	static function mkdtemp(prefix:FilePath):FilePath;
 
 	/**
+		Opens the file located at `path`.
+	**/
+	static function open(path:FilePath, ?flags:FileOpenFlags /* a */, ?mode:FilePermissions /* 0666 */, ?binary:Bool = true):File;
+
+	/**
 		Reads the contents of a directory specified by `path`. Returns an array of
 		`FilePath`s relative to the specified directory (i.e. the paths are not
 		absolute). The array will not include `.` or `..`.
@@ -100,6 +162,14 @@ extern class FileSystem {
 		Same as `readdir`, but returns an array of `DirectoryEntry` values instead.
 	**/
 	static function readdirTypes(path:FilePath):Array<DirectoryEntry>;
+
+	@:deprecated("use readdir instead")
+	static inline function readDirectory(path:String):Array<FilePath> return readdir(path);
+
+	/**
+		Reads all the bytes of the file located at `path`.
+	**/
+	static function readFile(path:FilePath, ?flags:FileOpenFlags /* r */):Bytes;
 
 	/**
 		Returns the contents (target path) of the symbolic link located at `path`.
@@ -161,63 +231,15 @@ extern class FileSystem {
 	/**
 		Creates a file watcher for `path`.
 
-		If `persistent` is `true` (default), the process will not exit until the
-		file watcher is closed.
-
-		If `recursive` is `true`, the file watcher will signal for changes in
-		sub-directories of `path` as well.
+		@param persistent If `true` (default), the process will not exit until the
+			file watcher is closed.
+		@param recursive If `true`, the file watcher will signal for changes in
+			sub-directories of `path` as well.
 	**/
 	static function watch(path:FilePath, ?persistent:Bool = true, ?recursive:Bool = false):FileWatcher;
-
-	/**
-		Appends `data` at the end of the file located at `path`.
-	**/
-	static function appendFile(path:FilePath, data:Bytes, ?flags:FileOpenFlags /* a */, ?mode:FilePermissions /* 0666 */):Void;
-
-	/**
-		Opens the file located at `path`.
-	**/
-	static function open(path:FilePath, ?flags:FileOpenFlags /* a */, ?mode:FilePermissions /* 0666 */, ?binary:Bool = true):sys.io.File;
-
-	/**
-		Reads all the bytes of the file located at `path`.
-	**/
-	static function readFile(path:FilePath, ?flags:FileOpenFlags /* r */):Bytes;
 
 	/**
 		Writes `data` to the file located at `path`.
 	**/
 	static function writeFile(path:FilePath, data:Bytes, ?flags:FileOpenFlags /* w */, ?mode:FilePermissions /* 0666 */):Void;
-
-	@:deprecated
-	static function absolutePath(path:String):String; // should be implemented in haxe.io.Path
-
-	@:deprecated("use mkdir instead")
-	static inline function createDirectory(path:String):Void return mkdir(path, true);
-
-	@:deprecated("use rmdir instead")
-	static inline function deleteDirectory(path:String):Void return rmdir(path);
-
-	@:deprecated("use unlink instead")
-	static inline function deleteFile(path:String):Void return unlink(path);
-
-	/**
-		Returns `true` if the file or directory specified by `path` exists.
-
-		The result of this call should not be used in a condition before a call to
-		e.g. `open`, because this would introduce a race condition (the file could
-		be deleted after the `exists` call, but before the `open` call). Instead,
-		the latter function should be called immediately and errors should be
-		handled with a `try ... catch` block.
-	**/
-	static function exists(path:String):Bool;
-
-	@:deprecated("use realpath instead")
-	static inline function fullPath(path:String):FilePath return realpath(path);
-
-	@:deprecated("use stat(...).isDirectory() instead")
-	static inline function isDirectory(path:String):Bool return stat(path).isDirectory();
-
-	@:deprecated("use readdir instead")
-	static inline function readDirectory(path:String):Array<FilePath> return readdir(path);
 }
