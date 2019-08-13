@@ -25,7 +25,7 @@ This is the working draft for the new `sys` package APIs.
 
 | Target | Build | Binds | FS | T | Net | T | Note |
 | ------ |:-----:|:-----:|:--:|:-:|:---:|:-:| ---- |
-| eval   | Y     | P     | P  | P | P   | P | [ffi](https://github.com/Aurel300/haxe/tree/feature/eval-libuv/libs/uv), [impl](https://github.com/Aurel300/haxe/blob/feature/eval-libuv/src/macro/eval/evalStdLib.ml) |
+| eval   | Y     | P     | P  | P | P   | P | [ffi](https://github.com/Aurel300/haxe/tree/feature/eval-libuv/libs/uv), [impl](https://github.com/Aurel300/haxe/blob/feature/eval-libuv/src/macro/eval/evalStdLib.ml), [externs](eval-impl) |
 | hl     | Y     | Y     | Y  | P | N   | N | [ffi](https://github.com/Aurel300/hashlink/tree/feature/libuv), [impl](hl-impl) |
 | cpp    | N     | N     | N  | N | N   | N |      |
 | js     | -     | -     | N  | N | N   | N | hxnodejs only, most APIs forwarded directly |
@@ -59,7 +59,6 @@ These should be implemented in pure Haxe, with minimal `#if <target>` parts wher
 | FS | `truncate` | emulated with `open("r+")`, `ftruncate` (see [node](https://github.com/nodejs/node/blob/e71a0f4d5faa4ad77887fbb3fff0ddb7bca6942e/lib/fs.js#L638-L657)) |
 | FS | `mkdir` with `recursive == true` | emulated |
 | FS | `rmdir` | ??? should we have a `recursive` mode for `rmdir` |
-| loop | `run` | implement `haxe.Timer` with UV? tick UV in RunOnce mode only? |
 
 # Project structure
 

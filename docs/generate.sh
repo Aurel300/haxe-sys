@@ -18,7 +18,6 @@ haxelib run dox -ex ".*" \
     -in "^nusys\." \
     -in "^sys\.net\.DnsLookupOptions" \
     -in "^sys\.net\.IpFamily" \
-    -in "^sys\.net\.UdpSocket" \
     -in "^sys\.uv\." \
     -in "^sys\.DirectoryEntry" \
     -in "^sys\.FileAccessMode" \

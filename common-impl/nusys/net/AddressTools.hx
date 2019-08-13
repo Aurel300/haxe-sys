@@ -1,6 +1,7 @@
 package nusys.net;
 
 import haxe.io.Bytes;
+import sys.net.IpFamily;
 
 /**
 	Methods for converting to and from `Address` instances.
@@ -28,6 +29,20 @@ class AddressTools {
 			+ ")$", // "(%[0-9a-zA-Z]{1,})?$", // TODO: interface not supported
 			"");
 	};
+
+	public static function all(family:IpFamily):Address {
+		return (switch (family) {
+			case Ipv4: Ipv4(0);
+			case Ipv6: Ipv6(Bytes.ofHex("00000000000000000000000000000000"));
+		});
+	}
+
+	public static function localhost(family:IpFamily):Address {
+		return (switch (family) {
+			case Ipv4: Ipv4(0x7F000001);
+			case Ipv6: Ipv6(Bytes.ofHex("00000000000000000000000000000001"));
+		});
+	}
 
 	/**
 		Converts an `Address` to a `String`.
