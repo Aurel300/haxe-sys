@@ -82,7 +82,6 @@ private class TransformWritable extends Writable {
 	final parent:Transform;
 
 	public function new(parent:Transform) {
-		super();
 		this.parent = parent;
 	}
 

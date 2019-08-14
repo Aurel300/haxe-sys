@@ -5,22 +5,68 @@ import haxe.NoData;
 import haxe.async.*;
 import haxe.ds.List;
 
+/**
+	A readable stream.
+
+	This is an abstract base class that should never be used directly. Instead,
+	subclasses should override the `internalRead` method.
+**/
 class Readable implements IReadable {
+	/**
+		Emitted whenever a chunk of data is available.
+	**/
 	public final dataSignal:Signal<Bytes>;
+
+	/**
+		Emitted when the stream is finished. No further signals will be emitted by
+		`this` instance after `endSignal` is emitted.
+	**/
 	public final endSignal:Signal<NoData>;
+
+	/**
+		Emitted for any error that occurs during reading.
+	**/
 	public final errorSignal:Signal<Error> = new ArraySignal<Error>();
+
+	/**
+		Emitted when `this` stream is paused.
+	**/
 	public final pauseSignal:Signal<NoData> = new ArraySignal<NoData>();
+
+	/**
+		Emitted when `this` stream is resumed.
+	**/
 	public final resumeSignal:Signal<NoData> = new ArraySignal<NoData>();
 
+	/**
+		High water mark. `Readable` will call `internalRead` pre-emptively to fill
+		up the internal buffer up to this value when possible. Set to `0` to
+		disable pre-emptive reading.
+	**/
 	public var highWaterMark = 8192;
+
+	/**
+		Total amount of data currently in the internal buffer, in bytes.
+	**/
 	public var bufferLength(default, null) = 0;
+
+	/**
+		Whether data is flowing at the moment. When flowing, data signals will be
+		emitted and the internal buffer will be empty.
+	**/
 	public var flowing(default, null) = false;
+
+	/**
+		Whether this stream is finished. When `true`, no further signals will be
+		emmited by `this` instance.
+	**/
 	public var done(default, null) = false;
 
 	var buffer = new List<Bytes>();
 	var deferred:nusys.Timer;
 	var willEof = false;
 
+	@:dox(show)
 	function new(?highWaterMark:Int = 8192) {
 		this.highWaterMark = highWaterMark;
 		var dataSignal = new WrappedSignal<Bytes>();
@@ -92,6 +138,20 @@ class Readable implements IReadable {
 			deferred = Defer.nextTick(process);
 	}
 
+	function push(chunk:Bytes):Bool {
+		if (done)
+			throw "stream already done";
+		buffer.add(chunk);
+		bufferLength += chunk.length;
+		return bufferLength < highWaterMark;
+	}
+
+	/**
+		This method should be used internally from `internalRead` to provide data
+		resulting from asynchronous operations. The arguments to this method are
+		the same as `ReadableResult.Data`. See `internalRead` for more details.
+	**/
+	@:dox(show)
 	function asyncRead(chunks:Array<Bytes>, eof:Bool):Void {
 		if (done || willEof)
 			throw "stream already done";
@@ -112,21 +172,39 @@ class Readable implements IReadable {
 		return chunk;
 	}
 
-	// override by implementing classes
+	/**
+		This method should be overridden by a subclass.
+
+		This method will be called as needed by `Readable`. The `remaining`
+		argument is an indication of how much data is needed to fill the internal
+		buffer up to the high water mark, or the current requested amount of data.
+		This method is called in a cycle until the read cycle is stopped with a
+		`None` return or an EOF is indicated, as described below.
+
+		If a call to this method returns `None`, the current read cycle is
+		ended. This value should be returned when there is no data available at the
+		moment, but a read request was scheduled and will later be fulfilled by a
+		call to `asyncRead`.
+
+		If a call to this method returns `Data(chunks, eof)`, `chunks` will be
+		added to the internal buffer. If `eof` is `true`, the read cycle is ended
+		and the readable stream signals an EOF (end-of-file). After an EOF, no
+		further calls will be made. `chunks` should not be an empty array if `eof`
+		is `false`.
+
+		Code inside this method should only call `asyncRead` (asynchronously from
+		a callback) or provide data using the return value.
+	**/
+	@:dox(show)
 	function internalRead(remaining:Int):ReadResult {
 		throw "not implemented";
 	}
 
-	// for use by implementing classes
-	function push(chunk:Bytes):Bool {
-		if (done)
-			throw "stream already done";
-		buffer.add(chunk);
-		bufferLength += chunk.length;
-		return bufferLength < highWaterMark;
-	}
-
 	// for consumers
+	/**
+		Resumes flow of data. Note that this method is called automatically
+		whenever listeners to either `dataSignal` or `endSignal` are added.
+	**/
 	public function resume():Void {
 		if (done)
 			return;
@@ -137,6 +215,9 @@ class Readable implements IReadable {
 		}
 	}
 
+	/**
+		Pauses flow of data.
+	**/
 	public function pause():Void {
 		if (done)
 			return;

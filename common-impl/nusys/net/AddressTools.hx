@@ -30,6 +30,12 @@ class AddressTools {
 			"");
 	};
 
+	/**
+		Returns the IP address representing all hosts for the given IP family.
+
+		- For IPv4, the address is `0.0.0.0`.
+		- For IPv6, the address is `::`.
+	**/
 	public static function all(family:IpFamily):Address {
 		return (switch (family) {
 			case Ipv4: Ipv4(0);
@@ -37,6 +43,12 @@ class AddressTools {
 		});
 	}
 
+	/**
+		Returns the IP address representing the local hosts for the given IP family.
+
+		- For IPv4, the address is `127.0.0.1`.
+		- For IPv6, the address is `::1`.
+	**/
 	public static function localhost(family:IpFamily):Address {
 		return (switch (family) {
 			case Ipv4: Ipv4(0x7F000001);

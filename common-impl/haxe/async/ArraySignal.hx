@@ -1,5 +1,9 @@
 package haxe.async;
 
+/**
+	Basic implementation of a `haxe.async.Signal`. Uses an array for storing
+	listeners for the signal.
+**/
 class ArraySignal<T> implements Signal<T> {
 	final listeners:Array<Listener<T>> = [];
 

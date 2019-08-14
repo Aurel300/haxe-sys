@@ -4,6 +4,12 @@ import haxe.NoData;
 import haxe.async.*;
 import haxe.ds.List;
 
+/**
+	A writable stream.
+
+	This is an abstract base class that should never be used directly. Instead,
+	subclasses should override the `internalWrite` method.
+**/
 class Writable implements IWritable {
 	public final drainSignal:Signal<NoData> = new ArraySignal<NoData>();
 	public final finishSignal:Signal<NoData> = new ArraySignal<NoData>();
@@ -19,8 +25,6 @@ class Writable implements IWritable {
 	var willFinish = false;
 	var deferred:nusys.Timer;
 	var buffer = new List<Bytes>();
-
-	function new() {}
 
 	// for use by implementing classes
 	function pop():Bytes {

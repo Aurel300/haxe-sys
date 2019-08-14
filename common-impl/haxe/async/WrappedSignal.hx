@@ -2,6 +2,12 @@ package haxe.async;
 
 import haxe.NoData;
 
+/**
+	An implementation of `haxe.async.Signal` which will listen for changes in its
+	listeners. This is useful when a class changes its behavior depending on
+	whether there are any listeners to some of its signals, e.g. a `Readable`
+	stream will not emit data signals when there are no data handlers.
+**/
 class WrappedSignal<T> implements Signal<T> {
 	final listeners:Array<Listener<T>> = [];
 	public final changeSignal:Signal<NoData> = new ArraySignal<NoData>();

@@ -1,5 +1,8 @@
 package haxe.io;
 
+/**
+	Represents a relative or absolute file path.
+**/
 abstract FilePath(String) from String {
 	@:from public static function encode(bytes:Bytes):FilePath {
 		// TODO: standard UTF-8 decoding, except any invalid bytes is replaced

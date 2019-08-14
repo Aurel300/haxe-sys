@@ -6,6 +6,13 @@ import haxe.async.*;
 import haxe.ds.List;
 import haxe.io.Readable.ReadResult;
 
+/**
+	A stream which is both readable and writable.
+
+	This is an abstract base class that should never be used directly. Instead,
+	child classes should override the `internalRead` and `internalWrite` methods.
+	See `haxe.io.Readable` and `haxe.io.Writable`.
+**/
 @:access(haxe.io.Readable)
 @:access(haxe.io.Writable)
 class Duplex implements IReadable implements IWritable {
@@ -107,7 +114,6 @@ private class DuplexWritable extends Writable {
 	final parent:Duplex;
 
 	public function new(parent:Duplex) {
-		super();
 		this.parent = parent;
 	}
 
