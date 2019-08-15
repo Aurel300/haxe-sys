@@ -76,7 +76,7 @@ class TestStreams extends Test {
 		stream.pause();
 
 		Sys.sleep(.05);
-		TestBase.uvRun(true);
+		TestBase.uvRun(RunOnce);
 
 		stream.dataSignal.on((chunk) -> calls.push(chunk.length));
 		stream.endSignal.once(() -> {

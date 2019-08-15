@@ -31,7 +31,7 @@ class TestTcp extends Test {
 			server.errorSignal.on(err -> assert());
 		}, 2);
 
-		TestBase.uvRun(true);
+		TestBase.uvRun(RunOnce);
 
 		sub(async, done -> {
 			var client:nusys.async.net.Socket = null;

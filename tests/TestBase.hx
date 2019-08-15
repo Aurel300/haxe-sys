@@ -31,17 +31,17 @@ non-BMP 🐄";
 		UV.loop_close(UV.loop);
 		#elseif eval
 		eval.Uv.stop();
-		eval.Uv.run(false);
+		eval.Uv.run(RunDefault);
 		eval.Uv.close();
 		#end
 	}
 
-	public static function uvRun(?singleTick:Bool = false):Bool {
+	public static function uvRun(?mode:sys.uv.UVRunMode = sys.uv.UVRunMode.RunDefault):Bool {
 		return
 		#if hl
-		UV.run(UV.loop, singleTick ? RunOnce : RunDefault);
+		UV.run(UV.loop, mode);
 		#elseif eval
-		eval.Uv.run(singleTick);
+		eval.Uv.run(mode);
 		#end
 	}
 

@@ -71,7 +71,7 @@ class TestAsyncFileSystem extends Test {
 
 		NewFS.mkdir('$dir/foo');
 
-		TestBase.uvRun(true);
+		TestBase.uvRun(RunOnce);
 		t(events.length == 1 && events[0].match(Rename("foo")));
 		events.resize(0);
 
@@ -82,12 +82,12 @@ class TestAsyncFileSystem extends Test {
 
 		NewFS.rmdir('$dir/foo');
 
-		TestBase.uvRun(true);
+		TestBase.uvRun(RunOnce);
 		t(events.length == 2 && events[0].match(Rename("foo/hello.txt")));
 		t(events.length == 2 && events[1].match(Rename("foo")));
 		events.resize(0);
 
 		watcher.close();
-		TestBase.uvRun(true);
+		TestBase.uvRun(RunOnce);
 	}
 }
