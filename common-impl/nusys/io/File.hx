@@ -43,6 +43,8 @@ extern class File {
 	static inline function write(path:String, ?binary:Bool = true):FileOutput
 		return @:privateAccess new FileOutput(nusys.FileSystem.open(path, "w", binary));
 
+	private function get_async():AsyncFile;
+
 	var async(get, never):AsyncFile;
 
 	/**

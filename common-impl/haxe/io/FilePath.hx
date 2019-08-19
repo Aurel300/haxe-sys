@@ -14,6 +14,9 @@ abstract FilePath(String) from String {
 		return null;
 	}
 
+	/**
+		The components of `this` path.
+	**/
 	public var components(get, never):Array<FilePath>;
 
 	private function get_components():Array<FilePath> {

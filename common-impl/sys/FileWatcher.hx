@@ -8,7 +8,7 @@ import sys.FileWatcherEvent;
 
 typedef FileWatcherNative =
 	#if doc_gen
-	{};
+	{function ref():Void; function unref():Void;};
 	#elseif hl
 	UV.UVFsEvent;
 	#elseif eval
@@ -42,11 +42,13 @@ class FileWatcher {
 	private var native:FileWatcherNative;
 
 	private function new(filename:FilePath, recursive:Bool) {
+		#if !doc_gen
 		native = new FileWatcherNative(filename, recursive, (err, event) -> {
 			if (err != null)
 				return errorSignal.emit(err);
 			changeSignal.emit(event);
 		});
+		#end
 	}
 
 	/**

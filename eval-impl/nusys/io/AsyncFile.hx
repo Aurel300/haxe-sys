@@ -36,7 +36,7 @@ class AsyncFile {
 
 	extern public function truncate(?len:Int = 0, callback:Callback<NoData>):Void;
 
-	extern public function utimes_native(atime:Float, mtime:Float, callback:Callback<NoData>):Void;
+	extern function utimes_native(atime:Float, mtime:Float, callback:Callback<NoData>):Void;
 
 	public function utimes(atime:Date, mtime:Date, callback:Callback<NoData>):Void {
 		utimes_native(atime.getTime() / 1000, mtime.getTime() / 1000, callback);

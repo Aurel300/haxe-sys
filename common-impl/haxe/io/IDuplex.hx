@@ -1,21 +1,12 @@
 package haxe.io;
 
-import haxe.NoData;
-import haxe.async.Signal;
+/**
+	A stream which is both readable and writable.
 
-interface IDuplex {
-	final dataSignal:Signal<Bytes>;
-	final endSignal:Signal<NoData>;
-	function resume():Void;
-	function pause():Void;
-	function pipe(to:IWritable):Void;
+	This interface should be used wherever an object that is both readable and
+	writable is expected, regardless of a specific implementation. See `Duplex`
+	for an abstract base class that can be used to implement an `IDuplex`.
 
-	final drainSignal:Signal<NoData>;
-	final finishSignal:Signal<NoData>;
-	final pipeSignal:Signal<IReadable>;
-	final unpipeSignal:Signal<IReadable>;
-	function write(chunk:Bytes):Bool;
-	function end():Void;
-	function cork():Void;
-	function uncork():Void;
-}
+	See also `IReadable` and `IWritable`.
+**/
+interface IDuplex extends IReadable extends IWritable {}

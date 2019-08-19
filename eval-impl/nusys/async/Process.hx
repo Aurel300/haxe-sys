@@ -145,5 +145,3 @@ class Process {
 		native.unref();
 	}
 }
-
-typedef ProcessExit = {code:Int, signal:Int};

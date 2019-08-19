@@ -25,7 +25,7 @@ class FileSystem {
 		throw "not implemented";
 	}
 
-	extern public static function exists(path:FilePath):Bool;
+	extern public static function exists(path:String):Bool;
 
 	public static function createReadStream(path:FilePath, ?options:FileReadStreamCreationOptions):FileReadStream {
 		if (options == null)
@@ -66,7 +66,7 @@ class FileSystem {
 		return readdirTypes(path).map(entry -> entry.name);
 	}
 
-	extern public static function readdirTypes(path:FilePath):Array<eval.uv.DirectoryEntry>;
+	extern public static function readdirTypes(path:FilePath):Array<sys.DirectoryEntry>;
 
 	extern public static function readlink(path:FilePath):FilePath;
 
@@ -80,7 +80,7 @@ class FileSystem {
 
 	extern public static function symlink(target:FilePath, path:FilePath, ?type:SymlinkType = SymlinkType.SymlinkDir):Void;
 
-	public static function truncate(path:FilePath, len:Int):Void {
+	public static function truncate(path:FilePath, ?len:Int = 0):Void {
 		var f = open(path, FileOpenFlags.ReadWrite);
 		try {
 			f.truncate(len);
@@ -99,8 +99,8 @@ class FileSystem {
 		utimes_native(path, atime.getTime(), mtime.getTime());
 	}
 
-	public static inline function watch(filename:FilePath, ?recursive:Bool = false):sys.FileWatcher {
-		return @:privateAccess new sys.FileWatcher(filename, recursive);
+	public static inline function watch(path:FilePath, ?recursive:Bool = false):sys.FileWatcher {
+		return @:privateAccess new sys.FileWatcher(path, recursive);
 	}
 
 	extern static function open_native(path:FilePath, flags:FileOpenFlags, mode:FilePermissions, binary:Bool):nusys.io.File;

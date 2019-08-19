@@ -8,5 +8,12 @@ haxe.ErrorType
 haxe.NoData
 --macro include("nusys")
 --macro include("sys")
---hl dummy.hl
--xml docs-xml/hl.xml
+--each
+
+--xml docs-xml/cross.xml
+--interp
+--next
+
+-cp ../eval-impl
+--xml docs-xml/eval.xml
+--interp

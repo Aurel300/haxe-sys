@@ -6,35 +6,35 @@ import sys.*;
 
 class File {
 	@:deprecated("use sys.FileSystem.appendFile instead")
-	static inline function append(path:String, ?binary:Bool = true):FileOutput
+	public static inline function append(path:String, ?binary:Bool = true):FileOutput
 		return @:privateAccess new FileOutput(nusys.FileSystem.open(path, "a", binary));
 
 	@:deprecated("use sys.FileSystem.copy instead")
-	static inline function copy(srcPath:String, dstPath:String):Void
+	public static inline function copy(srcPath:String, dstPath:String):Void
 		nusys.FileSystem.copyFile(srcPath, dstPath);
 
 	@:deprecated("use sys.FileSystem.readFile instead")
-	static inline function getBytes(path:String):Bytes return nusys.FileSystem.readFile(path);
+	public static inline function getBytes(path:String):Bytes return nusys.FileSystem.readFile(path);
 
 	@:deprecated("use sys.FileSystem.readFile instead")
-	static inline function getContent(path:String):String return nusys.FileSystem.readFile(path).toString();
+	public static inline function getContent(path:String):String return nusys.FileSystem.readFile(path).toString();
 
 	@:deprecated("use sys.FileSystem.open instead")
-	static inline function read(path:String, ?binary:Bool = true):FileInput
+	public static inline function read(path:String, ?binary:Bool = true):FileInput
 		return @:privateAccess new FileInput(nusys.FileSystem.open(path, "r", binary));
 
 	@:deprecated("use sys.FileSystem.writeFile instead")
-	static inline function saveBytes(path:String, bytes:Bytes):Void return nusys.FileSystem.writeFile(path, bytes);
+	public static inline function saveBytes(path:String, bytes:Bytes):Void return nusys.FileSystem.writeFile(path, bytes);
 
 	@:deprecated("use sys.FileSystem.writeFile instead")
-	static inline function saveContent(path:String, content:String):Void return nusys.FileSystem.writeFile(path, Bytes.ofString(content));
+	public static inline function saveContent(path:String, content:String):Void return nusys.FileSystem.writeFile(path, Bytes.ofString(content));
 
 	@:deprecated("use sys.FileSystem.open instead")
-	static inline function update(path:String, ?binary:Bool = true):FileOutput
+	public static inline function update(path:String, ?binary:Bool = true):FileOutput
 		return @:privateAccess new FileOutput(nusys.FileSystem.open(path, ReadWrite, binary));
 
 	@:deprecated("use sys.FileSystem.open instead")
-	static inline function write(path:String, ?binary:Bool = true):FileOutput
+	public static inline function write(path:String, ?binary:Bool = true):FileOutput
 		return @:privateAccess new FileOutput(nusys.FileSystem.open(path, "w", binary));
 
 	extern function get_async():AsyncFile;
@@ -63,7 +63,7 @@ class File {
 
 	extern public function truncate(?len:Int = 0):Void;
 
-	extern public function utimes_native(atime:Float, mtime:Float):Void;
+	extern function utimes_native(atime:Float, mtime:Float):Void;
 
 	public function utimes(atime:Date, mtime:Date):Void {
 		utimes_native(atime.getTime() / 1000, mtime.getTime() / 1000);

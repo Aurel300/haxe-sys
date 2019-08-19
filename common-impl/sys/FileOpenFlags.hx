@@ -10,7 +10,7 @@ package sys;
 	- will be in append mode
 	- will be opened exclusively by this process
 
-	Instances of this type can be created by combining flags with the `|`
+	Instances of this type can be created by combining flags with the bitwise or
 	operator:
 
 	```haxe
