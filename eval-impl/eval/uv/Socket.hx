@@ -20,4 +20,6 @@ extern class Socket {
 	function setNoDelay(noDelay:Bool):Void;
 	function getSockName():SocketAddress;
 	function getPeerName():SocketAddress;
+	function ref():Void;
+	function unref():Void;
 }

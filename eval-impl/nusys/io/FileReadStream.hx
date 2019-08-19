@@ -28,12 +28,18 @@ class FileReadStream extends Readable {
 	override function internalRead(remaining):ReadResult {
 		if (readInProgress)
 			return None;
-		// TODO: async read
-		var chunk = Bytes.alloc(remaining);
+		readInProgress = true;
 		// TODO: check errors
-		file.readBuffer(chunk, 0, remaining, position);
-		position += remaining;
+		var chunk = Bytes.alloc(remaining);
 		// TODO: check EOF for file as well
-		return Data([chunk], position >= end);
+		var willEnd = (position + remaining) >= end;
+		file.async.readBuffer(chunk, 0, remaining, position, (err, _) -> {
+			readInProgress = false;
+			if (err != null)
+				errorSignal.emit(err);
+			asyncRead([chunk], willEnd);
+		});
+		position += remaining;
+		return None;
 	}
 }

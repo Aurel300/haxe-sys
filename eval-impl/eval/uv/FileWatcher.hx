@@ -1,5 +1,11 @@
 package eval.uv;
 
+import haxe.async.*;
+import haxe.io.FilePath;
+
 extern class FileWatcher {
-	function close(cb:haxe.async.Callback<haxe.NoData>):Void;
+	function new(filename:FilePath, recursive:Bool, cb:Callback<sys.FileWatcherEvent>);
+	function close(cb:Callback<haxe.NoData>):Void;
+	function ref():Void;
+	function unref():Void;
 }

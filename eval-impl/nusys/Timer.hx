@@ -3,8 +3,8 @@ package nusys;
 class Timer {
 	var native:eval.uv.Timer;
 
-	public static function delay(f:() -> Void, timeMs:Int, ?persistent:Bool = true):Timer {
-		var t = new Timer(timeMs, persistent);
+	public static function delay(f:() -> Void, timeMs:Int):Timer {
+		var t = new Timer(timeMs);
 		t.run = function() {
 			t.stop();
 			f();
@@ -23,13 +23,21 @@ class Timer {
 		return Sys.time();
 	}
 
-	public function new(timeMs:Int, ?persistent:Bool = true) {
-		native = new eval.uv.Timer(timeMs, persistent, () -> run());
+	public function new(timeMs:Int) {
+		native = new eval.uv.Timer(timeMs, () -> run());
 	}
 
 	public dynamic function run():Void {}
 
 	public function stop():Void {
 		native.close((err) -> {});
+	}
+
+	public function ref():Void {
+		native.ref();
+	}
+
+	public function unref():Void {
+		native.unref();
 	}
 }

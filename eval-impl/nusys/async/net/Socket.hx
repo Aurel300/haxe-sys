@@ -174,8 +174,10 @@ class Socket extends Duplex {
 		if (timeoutTimer != null)
 			timeoutTimer.stop();
 		timeoutTimer = null;
-		if (timeoutTime != 0)
-			timeoutTimer = nusys.Timer.delay(timeoutTrigger, timeoutTime, false);
+		if (timeoutTime != 0) {
+			timeoutTimer = nusys.Timer.delay(timeoutTrigger, timeoutTime);
+			timeoutTimer.unref();
+		}
 	}
 
 	public function setTimeout(timeout:Int, ?listener:Listener<NoData>):Void {
@@ -186,11 +188,12 @@ class Socket extends Duplex {
 	}
 
 	// function connectIPC(path:String, ?connectListener:Listener<NoData>):Void;
-	// function destroy from Duplex
-	// function end from Duplex
-	// function pause from Duplex
-	// function ref():Void;
-	// function resume from Duplex
-	// function unref():Void;
-	// function write from Duplex
+
+	public function ref():Void {
+		native.ref();
+	}
+
+	public function unref():Void {
+		native.unref();
+	}
 }

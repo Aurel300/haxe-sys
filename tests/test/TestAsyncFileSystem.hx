@@ -61,7 +61,7 @@ class TestAsyncFileSystem extends Test {
 		sys.FileSystem.createDirectory(dir);
 		var events = [];
 
-		var watcher = NewFS.watch(dir, true, true);
+		var watcher = NewFS.watch(dir, true);
 		watcher.closeSignal.on(_ -> {
 			async.done();
 			OldFS.deleteDirectory(dir);

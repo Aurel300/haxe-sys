@@ -1,5 +1,6 @@
 package eval.uv;
 
+import haxe.NoData;
 import haxe.async.*;
 
 extern class Process {
@@ -10,10 +11,22 @@ extern class Process {
 		env:Array<String>,
 		cwd:String,
 		flags:sys.uv.UVProcessSpawnFlags,
-		stdio:Array<nusys.async.ProcessIO>,
+		stdio:Array<ProcessIO>,
 		uid:Int,
 		gid:Int
 	);
 	function kill(signal:Int):Void;
 	function getPid():Int;
+	function close(cb:Callback<NoData>):Void;
+	function ref():Void;
+	function unref():Void;
+}
+
+enum ProcessIO {
+	Pipe(readable:Bool, writable:Bool, pipe:eval.uv.Pipe);
+	// Ipc;
+	Ignore;
+	Inherit;
+	// Stream(_);
+	// Fd(_);
 }

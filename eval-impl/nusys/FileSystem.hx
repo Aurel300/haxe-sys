@@ -99,26 +99,8 @@ class FileSystem {
 		utimes_native(path, atime.getTime(), mtime.getTime());
 	}
 
-	extern static function watch_native(filename:FilePath, ?persistent:Bool = true, ?recursive:Bool = false,
-		cb:(error:Error, path:FilePath, event:sys.uv.UVFsEventType) -> Void):eval.uv.FileWatcher;
-
-	public static function watch(filename:FilePath, ?persistent:Bool = true, ?recursive:Bool = false):sys.FileWatcher {
-		var watcher:sys.FileWatcher = null;
-		var handle = watch_native(filename, persistent, recursive, (error, path, event) -> {
-			if (error != null)
-				watcher.errorSignal.emit(error);
-			else
-				watcher.changeSignal.emit(switch (event) {
-					case sys.uv.UVFsEventType.Rename:
-						sys.FileWatcherEvent.Rename(path);
-					case sys.uv.UVFsEventType.Change:
-						sys.FileWatcherEvent.Change(path);
-					case _:
-						sys.FileWatcherEvent.RenameChange(path);
-				});
-		});
-		watcher = @:privateAccess new sys.FileWatcher(handle);
-		return watcher;
+	public static inline function watch(filename:FilePath, ?recursive:Bool = false):sys.FileWatcher {
+		return @:privateAccess new sys.FileWatcher(filename, recursive);
 	}
 
 	extern static function open_native(path:FilePath, flags:FileOpenFlags, mode:FilePermissions, binary:Bool):nusys.io.File;

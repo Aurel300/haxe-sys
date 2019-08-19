@@ -231,12 +231,10 @@ extern class FileSystem {
 	/**
 		Creates a file watcher for `path`.
 
-		@param persistent If `true` (default), the process will not exit until the
-			file watcher is closed.
 		@param recursive If `true`, the file watcher will signal for changes in
 			sub-directories of `path` as well.
 	**/
-	static function watch(path:FilePath, ?persistent:Bool = true, ?recursive:Bool = false):FileWatcher;
+	static function watch(path:FilePath, ?recursive:Bool = false):FileWatcher;
 
 	/**
 		Writes `data` to the file located at `path`.
