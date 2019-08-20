@@ -4,7 +4,7 @@ import haxe.Error;
 import haxe.NoData;
 import haxe.async.*;
 import haxe.io.*;
-import nusys.io.Pipe;
+import nusys.async.net.Socket;
 
 /**
 	Options for spawning a process. See `Process.spawn`.
@@ -17,7 +17,7 @@ typedef ProcessSpawnOptions = {
 	?detached:Bool,
 	?uid:Int,
 	?gid:Int,
-	//?shell:?,
+	// ?shell:?,
 	?windowsVerbatimArguments:Bool,
 	?windowsHide:Bool
 };
@@ -78,21 +78,35 @@ extern class Process {
 	**/
 	static function spawn(command:String, ?args:Array<String>, ?options:ProcessSpawnOptions):Process;
 
+	/**
+		Emitted when `this` process and all of its pipes are closed.
+	**/
 	final closeSignal:Signal<NoData>;
-	final disconnectSignal:Signal<NoData>;
-	final errorSignal:Signal<Error>;
-	final exitSignal:Signal<ProcessExit>;
-	// final messageSignal:Signal<String>; // IPC
 
+	// final disconnectSignal:Signal<NoData>; // IPC
+
+	/**
+		Emitted when an error occurs during communication with `this` process.
+	**/
+	final errorSignal:Signal<Error>;
+
+	/**
+		Emitted when `this` process exits, potentially due to a signal.
+	**/
+	final exitSignal:Signal<ProcessExit>;
+
+	// final messageSignal:Signal<String>; // IPC
 	// var channel:IDuplex; // IPC
 	// var connected:Bool; // IPC
 	var killed:Bool;
+
+	private function get_pid():Int;
 
 	/**
 		Process identifier of `this` process. A PID uniquely identifies a process
 		on its host machine for the duration of its lifetime.
 	**/
-	var pid:Int;
+	var pid(get, never):Int;
 
 	/**
 		Standard input. May be `null` - see `options.stdio` in `spawn`.
@@ -116,7 +130,7 @@ extern class Process {
 		pipes, i.e. file descriptors 3 and higher, as well as file descriptors 0-2
 		with non-standard read/write access.
 	**/
-	var stdio:Array<Pipe>;
+	var stdio:Array<Socket>;
 
 	// function disconnect():Void; // IPC
 

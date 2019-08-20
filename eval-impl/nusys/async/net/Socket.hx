@@ -13,34 +13,42 @@ import nusys.async.net.SocketOptions.SocketConnectIpcOptions;
 
 class Socket extends Duplex {
 	public static function create(?options:SocketOptions):Socket {
-		var native = new eval.uv.Socket();
 		// TODO: use options
-		return new Socket(native);
+		return new Socket();
 	}
 
 	// dataSignal (in Duplex)
 	// drainSignal (in Duplex)
 	// errorSignal (in Duplex)
 
-	// closeSignal
-	public final connectSignal:Signal<NoData> = new ArraySignal<NoData>();
+	public final closeSignal:Signal<NoData> = new ArraySignal();
+	public final connectSignal:Signal<NoData> = new ArraySignal();
 	// endSignal
-	public final lookupSignal:Signal<Address> = new ArraySignal<Address>();
-	public final timeoutSignal:Signal<NoData> = new ArraySignal<NoData>();
+	public final lookupSignal:Signal<Address> = new ArraySignal();
+	public final timeoutSignal:Signal<NoData> = new ArraySignal();
 
 	var connectDefer:nusys.Timer;
-	final native:eval.uv.Socket;
+	var native:eval.uv.Stream;
+	var nativeSocket:eval.uv.Socket;
+	var nativePipe:eval.uv.Pipe;
 	var internalReadCalled = false;
 	var readStarted = false;
 	var connectStarted = false;
 	var connected = false;
 	var serverSpawn:Bool = false;
+	var timeoutTime:Int = 0;
+	var timeoutTimer:nusys.Timer;
 	public var localAddress(get, never):Null<SocketAddress>;
 	public var remoteAddress(get, never):Null<SocketAddress>;
 
-	function new(native) {
+	function new() {
 		super();
-		this.native = native;
+	}
+
+	function initPipe():Void {
+		nativePipe = new eval.uv.Pipe();
+		native = nativePipe.asStream();
+		connected = true;
 	}
 
 	override function internalRead(remaining):ReadResult {
@@ -88,13 +96,13 @@ class Socket extends Duplex {
 	function get_localAddress():Null<SocketAddress> {
 		if (!connected)
 			return null;
-		return native.getSockName();
+		return nativeSocket.getSockName();
 	}
 
 	function get_remoteAddress():Null<SocketAddress> {
 		if (!connected)
 			return null;
-		return native.getPeerName();
+		return nativeSocket.getPeerName();
 	}
 
 	public function connectTcp(options:SocketConnectTcpOptions, ?cb:Callback<NoData>):Void {
@@ -103,6 +111,10 @@ class Socket extends Duplex {
 
 		if (options.host != null && options.address != null)
 			throw "cannot specify both host and address";
+
+		connectStarted = true;
+		nativeSocket = new eval.uv.Socket();
+		native = nativeSocket.asStream();
 
 		// take a copy since we reuse the object asynchronously
 		var options = {
@@ -118,16 +130,18 @@ class Socket extends Duplex {
 			connectDefer = null;
 			// TODO: bindTcp for localAddress and localPort, if specified
 			try {
-				native.connectTcp(address, options.port, (err, nd) -> {
+				nativeSocket.connectTcp(address, options.port, (err, nd) -> {
 					timeoutReset();
 					if (err == null)
 						connected = true;
-					cb(err, nd);
+					if (cb != null)
+						cb(err, nd);
 					if (err == null)
 						connectSignal.emit(new NoData());
 				});
 			} catch (err:haxe.Error) {
-				cb(err, new NoData());
+				if (cb != null)
+					cb(err, new NoData());
 			}
 		}
 
@@ -148,22 +162,49 @@ class Socket extends Duplex {
 		});
 	}
 
+	public function connectIpc(options:SocketConnectIpcOptions, ?cb:Callback<NoData>):Void {
+		if (connectStarted || connected)
+			throw "already connected";
+
+		connectStarted = true;
+		nativePipe = new eval.uv.Pipe();
+		native = nativePipe.asStream();
+
+		try {
+			nativePipe.connectIpc(options.path, (err, nd) -> {
+				timeoutReset();
+				if (err == null)
+					connected = true;
+				if (cb != null)
+					cb(err, nd);
+				if (err == null)
+					connectSignal.emit(new NoData());
+			});
+		} catch (err:haxe.Error) {
+			if (cb != null)
+				cb(err, new NoData());
+		}
+	}
+
 	public function destroy(?cb:Callback<NoData>):Void {
 		if (readStarted)
 			native.stopRead();
-		native.close(Callback.nonNull(cb));
+		native.close((err, nd) -> {
+			if (err != null)
+				errorSignal.emit(err);
+			if (cb != null)
+				cb(err, nd);
+			closeSignal.emit(new NoData());
+		});
 	}
 
 	public function setKeepAlive(?enable:Bool = false, ?initialDelay:Int = 0):Void {
-		native.setKeepAlive(enable, initialDelay);
+		nativeSocket.setKeepAlive(enable, initialDelay);
 	}
 
 	public function setNoDelay(?noDelay:Bool = true):Void {
-		native.setNoDelay(noDelay);
+		nativeSocket.setNoDelay(noDelay);
 	}
-
-	var timeoutTime:Int = 0;
-	var timeoutTimer:nusys.Timer;
 
 	function timeoutTrigger():Void {
 		timeoutTimer = null;
@@ -186,8 +227,6 @@ class Socket extends Duplex {
 		if (listener != null)
 			timeoutSignal.once(listener);
 	}
-
-	// function connectIPC(path:String, ?connectListener:Listener<NoData>):Void;
 
 	public function ref():Void {
 		native.ref();

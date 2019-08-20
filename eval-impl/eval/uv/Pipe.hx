@@ -6,8 +6,8 @@ import haxe.io.Bytes;
 
 extern class Pipe {
 	function new();
-	function write(data:Bytes, cb:Callback<NoData>):Void;
-	function startRead(cb:Callback<Bytes>):Void;
-	function stopRead():Void;
-	function close(cb:Callback<NoData>):Void;
+	function connectIpc(path:String, cb:Callback<NoData>):Void;
+	function bindIpc(path:String):Void;
+	function accept():Pipe;
+	function asStream():Stream;
 }

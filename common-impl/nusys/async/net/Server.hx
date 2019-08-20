@@ -19,6 +19,14 @@ typedef ServerListenTcpOptions = {
 	?ipv6only:Bool
 };
 
+typedef ServerListenIpcOptions = {
+	path:String,
+	?backlog:Int,
+	?exclusive:Bool,
+	?readableAll:Bool,
+	?writableAll:Bool
+};
+
 extern class Server {
 	final closeSignal:Signal<NoData>;
 	final connectionSignal:Signal<Socket>;
@@ -35,9 +43,10 @@ extern class Server {
 	// function listenSocket(socket:Socket, ?backlog:Int, ?listener:Listener<NoData>):Void;
 	// function listenServer(server:Server, ?backlog:Int, ?listener:Listener<NoData>):Void;
 	// function listenFile(file:sys.io.File, ?backlog:Int, ?listener:Listener<NoData>):Void;
-	// function listenIPC(path:String, ?backlog:Int, ?options:{?exclusive:Bool, ?readableAll:Bool, ?writableAll:Bool}, ?listener:Listener<NoData>):Void;
+	function listenIpc(options:ServerListenIpcOptions, ?listener:Listener<Socket>):Void;
+
 	function listenTcp(options:ServerListenTcpOptions, ?listener:Listener<Socket>):Void;
 
-	// function ref():Void;
-	// function unref():Void;
+	function ref():Void;
+	function unref():Void;
 }

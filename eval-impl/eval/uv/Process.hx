@@ -23,7 +23,7 @@ extern class Process {
 }
 
 enum ProcessIO {
-	Pipe(readable:Bool, writable:Bool, pipe:eval.uv.Pipe);
+	Pipe(readable:Bool, writable:Bool, pipe:eval.uv.Stream);
 	// Ipc;
 	Ignore;
 	Inherit;

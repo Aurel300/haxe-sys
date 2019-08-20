@@ -1,7 +1,7 @@
 package nusys.async;
 
 enum ProcessIO {
-	Pipe(readable:Bool, writable:Bool, ?pipe:nusys.io.Pipe);
+	Pipe(readable:Bool, writable:Bool, ?pipe:nusys.async.net.Socket);
 	// Ipc;
 	Ignore;
 	Inherit;

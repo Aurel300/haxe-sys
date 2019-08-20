@@ -19,36 +19,78 @@ typedef ServerListenTcpOptions = {
 	?ipv6only:Bool
 };
 
+typedef ServerListenIpcOptions = {
+	path:String,
+	?backlog:Int,
+	?exclusive:Bool,
+	?readableAll:Bool,
+	?writableAll:Bool
+};
+
 class Server {
 	public final closeSignal:Signal<NoData> = new ArraySignal<NoData>();
 	public final connectionSignal:Signal<Socket> = new ArraySignal<Socket>();
 	public final errorSignal:Signal<Error> = new ArraySignal<Error>();
 	public final listeningSignal:Signal<NoData> = new ArraySignal<NoData>();
 
-	final native:eval.uv.Socket;
+	var native:eval.uv.Stream;
+	var nativeSocket:eval.uv.Socket;
+	var nativePipe:eval.uv.Pipe;
 	var listenDefer:nusys.Timer;
+
 	public var listening(default, null):Bool;
 	public var maxConnections:Int;
 	public var localAddress(get, never):Null<SocketAddress>;
 
-	public function new(?options:ServerOptions) {
-		native = new eval.uv.Socket();
-	}
+	public function new(?options:ServerOptions) {}
 
 	function get_localAddress():Null<SocketAddress> {
 		if (!listening)
 			return null;
-		return native.getSockName();
+		return nativeSocket.getSockName();
 	}
 
 	public function close(?callback:Callback<NoData>):Void {
 		native.close(Callback.nonNull(callback));
 	}
+
 	// function getConnections(callback:Callback<Int>):Void;
 	// function listenSocket(socket:Socket, ?backlog:Int, ?listener:Listener<NoData>):Void;
 	// function listenServer(server:Server, ?backlog:Int, ?listener:Listener<NoData>):Void;
 	// function listenFile(file:sys.io.File, ?backlog:Int, ?listener:Listener<NoData>):Void;
-	// function listenIPC(path:String, ?backlog:Int, ?options:{?exclusive:Bool, ?readableAll:Bool, ?writableAll:Bool}, ?listener:Listener<NoData>):Void;
+	public function listenIpc(options:ServerListenIpcOptions, ?listener:Listener<Socket>):Void {
+		if (listening || listenDefer != null)
+			throw "already listening";
+		if (listener != null)
+			connectionSignal.on(listener);
+
+		nativePipe = new eval.uv.Pipe();
+		native = nativePipe.asStream();
+
+		listening = true;
+		try {
+			// TODO: probably prepend "\\?\pipe\" to the path on Windows
+			nativePipe.bindIpc(options.path);
+			native.listen(options.backlog == null ? 511 : options.backlog, (err) -> {
+				if (err != null)
+					return errorSignal.emit(err);
+				try {
+					var client = @:privateAccess new Socket();
+					@:privateAccess client.nativePipe = nativePipe.accept();
+					@:privateAccess client.native = @:privateAccess client.nativePipe.asStream();
+					@:privateAccess client.connected = true;
+					@:privateAccess client.serverSpawn = true;
+					connectionSignal.emit(client);
+				} catch (e:haxe.Error) {
+					errorSignal.emit(e);
+				}
+			});
+			listeningSignal.emit(new NoData());
+		} catch (e:haxe.Error) {
+			errorSignal.emit(e);
+		}
+	}
+
 	public function listenTcp(options:ServerListenTcpOptions, ?listener:Listener<Socket>):Void {
 		if (listening || listenDefer != null)
 			throw "already listening";
@@ -57,6 +99,9 @@ class Server {
 
 		if (options.host != null && options.address != null)
 			throw "cannot specify both host and address";
+
+		nativeSocket = new eval.uv.Socket();
+		native = nativeSocket.asStream();
 
 		// take a copy since we reuse the object asynchronously
 		var options = {
@@ -74,12 +119,14 @@ class Server {
 			if (options.ipv6only == null)
 				options.ipv6only = false;
 			try {
-				native.bindTcp(address, options.port == null ? 0 : options.port, options.ipv6only);
+				nativeSocket.bindTcp(address, options.port == null ? 0 : options.port, options.ipv6only);
 				native.listen(options.backlog == null ? 511 : options.backlog, (err) -> {
 					if (err != null)
 						return errorSignal.emit(err);
 					try {
-						var client = @:privateAccess new Socket(native.accept());
+						var client = @:privateAccess new Socket();
+						@:privateAccess client.nativeSocket = nativeSocket.accept();
+						@:privateAccess client.native = @:privateAccess client.nativeSocket.asStream();
 						@:privateAccess client.connected = true;
 						@:privateAccess client.serverSpawn = true;
 						connectionSignal.emit(client);
@@ -108,6 +155,11 @@ class Server {
 		});
 	}
 
-	// function ref():Void;
-	// function unref():Void;
+	public function ref():Void {
+		native.ref();
+	}
+
+	public function unref():Void {
+		native.unref();
+	}
 }

@@ -8,6 +8,7 @@ import nusys.async.net.SocketOptions.SocketConnectTcpOptions;
 import nusys.async.net.SocketOptions.SocketConnectIpcOptions;
 import nusys.async.net.Server.ServerOptions;
 import nusys.async.net.Server.ServerListenTcpOptions;
+import nusys.async.net.Server.ServerListenIpcOptions;
 
 enum SocketConnect {
 	Tcp(options:SocketConnectTcpOptions);
@@ -16,6 +17,7 @@ enum SocketConnect {
 
 enum ServerListen {
 	Tcp(options:ServerListenTcpOptions);
+	Ipc(options:ServerListenIpcOptions);
 }
 
 typedef SocketCreationOptions = SocketOptions & {?connect:SocketConnect};
@@ -42,7 +44,7 @@ class Net {
 				case Tcp(options):
 					socket.connectTcp(options, cb);
 				case Ipc(options):
-					// socket.connectIpc(options, cb);
+					socket.connectIpc(options, cb);
 			}
 		return socket;
 	}
@@ -62,6 +64,8 @@ class Net {
 			switch (options.listen) {
 				case Tcp(options):
 					server.listenTcp(options, listener);
+				case Ipc(options):
+					server.listenIpc(options, listener);
 			}
 		return server;
 	}

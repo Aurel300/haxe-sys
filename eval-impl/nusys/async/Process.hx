@@ -6,6 +6,7 @@ import haxe.async.*;
 import haxe.io.*;
 import nusys.io.*;
 import sys.uv.UVProcessSpawnFlags;
+import nusys.async.net.Socket;
 
 typedef ProcessSpawnOptions = {
 	?cwd:String,
@@ -46,8 +47,13 @@ class Process {
 			for (i in 0...options.stdio.length)
 				switch (options.stdio[i]) {
 					case Pipe(r, w, pipe):
-						if (pipe == null)
-							pipe = Pipe.create();
+						if (pipe == null) {
+							pipe = Socket.create();
+							@:privateAccess pipe.initPipe();
+						} else {
+							if (@:privateAccess pipe.native == null)
+								throw "invalid pipe";
+						}
 						switch (i) {
 							case 0 if (r && !w):
 								stdin = pipe;
@@ -90,7 +96,7 @@ class Process {
 	}
 
 	public final closeSignal:Signal<NoData> = new ArraySignal();
-	public final disconnectSignal:Signal<NoData> = new ArraySignal();
+	// public final disconnectSignal:Signal<NoData> = new ArraySignal(); // IPC
 	public final errorSignal:Signal<Error> = new ArraySignal();
 	public final exitSignal:Signal<ProcessExit> = new ArraySignal();
 	// public final messageSignal:Signal<String>; // IPC
@@ -102,7 +108,7 @@ class Process {
 	public var stdin:IWritable;
 	public var stdout:IReadable;
 	public var stderr:IReadable;
-	public var stdio:Array<Pipe>;
+	public var stdio:Array<Socket>;
 
 	var native:eval.uv.Process;
 
@@ -129,7 +135,7 @@ class Process {
 		for (pipe in stdio) {
 			if (pipe != null) {
 				needed++;
-				pipe.close(close);
+				pipe.destroy(close);
 			}
 		}
 		native.close(close);

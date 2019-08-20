@@ -6,6 +6,7 @@ This is the working draft for the new `sys` package APIs.
 
 ---
 
+ - [Major features](#major-features)
  - [Status](#status)
    - [Target TODO](#target-todo)
    - [Common TODO](#common-todo)
@@ -17,24 +18,39 @@ This is the working draft for the new `sys` package APIs.
    - [Eval setup](#eval-setup)
    - [Running tests](#running-tests)
 
+# Major features
+
+ - asynchrony
+ - more filesystem operations
+ - networking
+   - DNS
+   - TCP
+   - UDP
+   - Unix/IPC
+ - processes
+   - pipes
+   - (TODO) message passing (via extended `Serializer`)
+ - streams
+
 # Status
 
 **Current WIP is the eval implementation.**
 
 ## Target TODO
 
-| Target | Build | Binds | FS | T | Net | T | Note |
-| ------ |:-----:|:-----:|:--:|:-:|:---:|:-:| ---- |
-| eval   | Y     | P     | P  | P | P   | P | [ffi](https://github.com/Aurel300/haxe/tree/feature/eval-libuv/libs/uv), [impl](https://github.com/Aurel300/haxe/blob/feature/eval-libuv/src/macro/eval/evalStdLib.ml), [externs](eval-impl) |
-| hl     | Y     | Y     | Y  | P | N   | N | [ffi](https://github.com/Aurel300/hashlink/tree/feature/libuv), [impl](hl-impl) |
-| cpp    | N     | N     | N  | N | N   | N |      |
-| js     | -     | -     | N  | N | N   | N | hxnodejs only, most APIs forwarded directly |
-| rest   | -     | N     | N  | N | N   | N |      |
+| Target | Build | Binds | FS | T | Net | T | Prc | T | Note |
+| ------ |:-----:|:-----:|:--:|:-:|:---:|:-:|:---:|:-:| ---- |
+| eval   | Y     | P     | P  | P | P   | P | P   | P | [ffi](https://github.com/Aurel300/haxe/tree/feature/eval-libuv/libs/uv), [impl](https://github.com/Aurel300/haxe/blob/feature/eval-libuv/src/macro/eval/evalStdLib.ml), [externs](eval-impl) |
+| hl     | Y     | Y     | Y  | P | N   | N | N   | N | [ffi](https://github.com/Aurel300/hashlink/tree/feature/libuv), [impl](hl-impl) |
+| cpp    | N     | N     | N  | N | N   | N | N   | N |      |
+| js     | -     | -     | N  | N | N   | N | N   | N | hxnodejs only, most APIs forwarded directly |
+| rest   | -     | N     | N  | N | N   | N | N   | N |      |
 
  - `Build` - can we compile the interpreter (if any) with libuv?
  - `Binds` - is the FFI finished, or is there a good binding library available?
  - `FS` - are the filesystem functions implemented?
  - `Net` - are the networking (TCP, UDP, DNS) functions implemented?
+ - `Prc` - are the process functions implemented?
  - `T` - are the tests for the previous column done?
  - `Y`, `P`, `N`, `-` - yes, partially, no, not applicable
 
@@ -48,6 +64,9 @@ These should be implemented in pure Haxe, with minimal `#if <target>` parts wher
 | Feature | Impl   | T | Notes |
 | ------- | ------ |:-:| ----- |
 | streams | P      | P | based on `streams3` of Node.js; simplified interface (dropped legacy APIs) |
+
+ - [ ] stream auto-HWM balancing, piping
+ - [ ] message-passing serialisation in IPC
 
 ## Per function notes
 
