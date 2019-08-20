@@ -3,6 +3,9 @@ package nusys.async.net;
 import sys.net.*;
 import nusys.net.*;
 
+/**
+	See `Socket.create`.
+**/
 typedef SocketOptions = {
 	// ?file:sys.io.File, // fd in Node
 	?allowHalfOpen:Bool,
@@ -10,6 +13,9 @@ typedef SocketOptions = {
 	?writable:Bool
 };
 
+/**
+	See `Socket.connectTcp`.
+**/
 typedef SocketConnectTcpOptions = {
 	port:Int,
 	?host:String,
@@ -19,6 +25,20 @@ typedef SocketConnectTcpOptions = {
 	?family:IpFamily
 };
 
+/**
+	See `Socket.connectIpc`.
+**/
 typedef SocketConnectIpcOptions = {
 	path:String
+};
+
+/**
+	See `UdpSocket.create`.
+**/
+typedef UdpSocketOptions = {
+	?reuseAddr:Bool,
+	?ipv6Only:Bool,
+	?recvBufferSize:Int,
+	?sendBufferSize:Int,
+	// ?lookup:DnsLookupFunction
 };

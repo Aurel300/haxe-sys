@@ -7,15 +7,10 @@ import haxe.io.Bytes;
 // import sys.net.DnsLookupFunction;
 import sys.net.*;
 import nusys.net.*;
+import nusys.async.net.SocketOptions.UdpSocketOptions;
 
 class UdpSocket {
-	public static function create(type:IpFamily, ?options:{
-		?reuseAddr:Bool,
-		?ipv6Only:Bool,
-		?recvBufferSize:Int,
-		?sendBufferSize:Int,
-		// ?lookup:DnsLookupFunction
-	}, ?listener:Listener<UdpMessage>):UdpSocket {
+	public static function create(type:IpFamily, ?options:UdpSocketOptions, ?listener:Listener<UdpMessage>):UdpSocket {
 		var native = new eval.uv.UdpSocket();
 		var res = new UdpSocket(native, type);
 		// TODO: use other options, register listener
@@ -151,8 +146,13 @@ class UdpSocket {
 		native.setTTL(ttl);
 	}
 
-	//function ref():Void;
-	//function unref():Void;
+	public function ref():Void {
+		native.ref();
+	}
+
+	public function unref():Void {
+		native.unref();
+	}
 }
 
 typedef UdpMessage = {

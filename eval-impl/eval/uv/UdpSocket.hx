@@ -24,4 +24,6 @@ extern class UdpSocket {
 	function getSendBufferSize():Int;
 	function setRecvBufferSize(size:Int):Int;
 	function setSendBufferSize(size:Int):Int;
+	function ref():Void;
+	function unref():Void;
 }

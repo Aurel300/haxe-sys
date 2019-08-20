@@ -32,8 +32,7 @@ class TestIpc extends Test {
 				})
 			}, (err) -> {
 					eq(err, null);
-					//t(client.localAddress.match(Network(AddressTools.equals(_, "127.0.0.1".toIp()) => true, _)));
-					//t(client.remoteAddress.match(Network(AddressTools.equals(_, "127.0.0.1".toIp()) => true, 3232)));
+					t(client.remoteAddress.match(Unix("resources-rw/ipc-pipe")));
 					client.errorSignal.on(err -> assert());
 					client.write(TestBase.helloBytes);
 					client.dataSignal.on(chunk -> {

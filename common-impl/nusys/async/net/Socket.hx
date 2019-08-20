@@ -67,20 +67,71 @@ extern class Socket extends Duplex {
 
 	/**
 		Connect this socket via TCP to the given remote.
+
+		If neither `options.host` nor `options.address` is specified, the host
+		`localhost` is resolved via DNS and used as the address. At least one of
+		`options.host` or `options.address` must be `null`.
+
+		`options.localAddress` and `options.localPort` can be used to specify what
+		address and port to use on the local machine for the outgoing connection.
+		If `null` or not specified, an address and/or a port will be chosen
+		automatically by the system when connecting. The local address and port can
+		be obtained using the `localAddress`.
+
+		@param options.port Remote port to connect to.
+		@param options.host Hostname to connect to, will be resolved using
+			`Dns.resolve` to an address. `lookupSignal` will be emitted with the
+			resolved address before the connection is attempted.
+		@param options.address IPv4 or IPv6 address to connect to.
+		@param options.localAddress Local IPv4 or IPv6 address to connect from.
+		@param options.localPort Local port to connect from.
+		@param options.family Limit DNS lookup to the given family.
 	**/
 	function connectTcp(options:SocketConnectTcpOptions, ?cb:Callback<NoData>):Void;
 
 	/**
 		Connect this socket to an IPC pipe.
+
+		@param options.path Pipe path.
 	**/
 	function connectIpc(options:SocketConnectIpcOptions, ?cb:Callback<NoData>):Void;
 
+	/**
+		Closes `this` socket and all underlying resources.
+	**/
 	function destroy(?cb:Callback<NoData>):Void;
 
+	/**
+		(TCP only.) Enable or disable TCP keep-alive.
+
+		@param initialDelay Initial delay in seconds. Ignored if `enable` is
+			`false`.
+	**/
 	function setKeepAlive(?enable:Bool = false, ?initialDelay:Int = 0):Void;
 
+	/**
+		(TCP only.) Enable or disable TCP no-delay. Enabling no-delay disables
+		Nagle's algorithm.
+	**/
 	function setNoDelay(?noDelay:Bool = true):Void;
 
+	/**
+		Set a timeout for socket oprations. Any time activity is detected on the
+		socket (see below), the timer is reset to `timeout`. When the timer runs
+		out, `timeoutSignal` is emitted. Note that a timeout will not automatically
+		do anything to the socket - it is up to the `timeoutSignal` handler to
+		perform an action, e.g. ping the remote host or close the socket.
+
+		Socket activity which resets the timer:
+
+		- A chunk of data is received.
+		- An error occurs during reading.
+		- A chunk of data is written to the socket.
+		- Connection is established.
+		- (TCP only.) DNS lookup is finished (successfully or not).
+
+		@param timeout Timeout in seconds, or `0` to disable.
+	**/
 	function setTimeout(timeout:Int, ?listener:Listener<NoData>):Void;
 
 	function ref():Void;

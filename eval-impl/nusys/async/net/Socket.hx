@@ -94,15 +94,19 @@ class Socket extends Duplex {
 	}
 
 	function get_localAddress():Null<SocketAddress> {
-		if (!connected)
-			return null;
-		return nativeSocket.getSockName();
+		if (nativeSocket != null)
+			return nativeSocket.getSockName();
+		if (nativePipe != null)
+			return nativePipe.getSockName();
+		return null;
 	}
 
 	function get_remoteAddress():Null<SocketAddress> {
-		if (!connected)
-			return null;
-		return nativeSocket.getPeerName();
+		if (nativeSocket != null)
+			return nativeSocket.getPeerName();
+		if (nativePipe != null)
+			return nativePipe.getPeerName();
+		return null;
 	}
 
 	public function connectTcp(options:SocketConnectTcpOptions, ?cb:Callback<NoData>):Void {
@@ -199,10 +203,14 @@ class Socket extends Duplex {
 	}
 
 	public function setKeepAlive(?enable:Bool = false, ?initialDelay:Int = 0):Void {
+		if (nativeSocket == null)
+			throw "not connected via TCP";
 		nativeSocket.setKeepAlive(enable, initialDelay);
 	}
 
 	public function setNoDelay(?noDelay:Bool = true):Void {
+		if (nativeSocket == null)
+			throw "not connected via TCP";
 		nativeSocket.setNoDelay(noDelay);
 	}
 
@@ -229,10 +237,14 @@ class Socket extends Duplex {
 	}
 
 	public function ref():Void {
+		if (native == null)
+			throw "not connected";
 		native.ref();
 	}
 
 	public function unref():Void {
+		if (native == null)
+			throw "not connected";
 		native.unref();
 	}
 }
