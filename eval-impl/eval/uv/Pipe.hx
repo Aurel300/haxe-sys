@@ -6,11 +6,20 @@ import haxe.io.Bytes;
 import nusys.net.*;
 
 extern class Pipe {
-	function new();
+	function new(ipc:Bool);
+	function open(fd:Int):Void;
 	function connectIpc(path:String, cb:Callback<NoData>):Void;
 	function bindIpc(path:String):Void;
 	function accept():Pipe;
+	function writeHandle(data:Bytes, handle:eval.uv.Stream):Void;
+	function pendingCount():Int;
+	function acceptPending():PipeAccept;
 	function getSockName():SocketAddress;
 	function getPeerName():SocketAddress;
 	function asStream():Stream;
+}
+
+enum PipeAccept {
+	Socket(_:eval.uv.Socket);
+	Pipe(_:eval.uv.Pipe);
 }

@@ -96,6 +96,8 @@ extern class Socket extends Duplex {
 	**/
 	function connectIpc(options:SocketConnectIpcOptions, ?cb:Callback<NoData>):Void;
 
+	function connectFd(ipc:Bool, fd:Int):Void;
+
 	/**
 		Closes `this` socket and all underlying resources.
 	**/
@@ -133,6 +135,14 @@ extern class Socket extends Duplex {
 		@param timeout Timeout in seconds, or `0` to disable.
 	**/
 	function setTimeout(timeout:Int, ?listener:Listener<NoData>):Void;
+
+	function writeHandle(data:Bytes, handle:Socket):Void;
+
+	private function get_handlesPending():Int;
+
+	var handlesPending(get, never):Int;
+
+	function readHandle():Null<Socket>;
 
 	function ref():Void;
 	function unref():Void;

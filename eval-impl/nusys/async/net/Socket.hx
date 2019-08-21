@@ -7,6 +7,7 @@ import haxe.io.*;
 import haxe.io.Readable.ReadResult;
 // import sys.net.Dns.DnsHints;
 // import sys.net.Dns.DnsLookupFunction;
+import nusys.io.*;
 import nusys.net.*;
 import nusys.async.net.SocketOptions.SocketConnectTcpOptions;
 import nusys.async.net.SocketOptions.SocketConnectIpcOptions;
@@ -45,8 +46,8 @@ class Socket extends Duplex {
 		super();
 	}
 
-	function initPipe():Void {
-		nativePipe = new eval.uv.Pipe();
+	function initPipe(ipc:Bool):Void {
+		nativePipe = new eval.uv.Pipe(ipc);
 		native = nativePipe.asStream();
 		connected = true;
 	}
@@ -171,7 +172,7 @@ class Socket extends Duplex {
 			throw "already connected";
 
 		connectStarted = true;
-		nativePipe = new eval.uv.Pipe();
+		nativePipe = new eval.uv.Pipe(false);
 		native = nativePipe.asStream();
 
 		try {
@@ -188,6 +189,19 @@ class Socket extends Duplex {
 			if (cb != null)
 				cb(err, new NoData());
 		}
+	}
+
+	public function connectFd(ipc:Bool, fd:Int):Void {
+		if (connectStarted || connected)
+			throw "already connected";
+
+		connectStarted = true;
+		nativePipe = new eval.uv.Pipe(ipc);
+		nativePipe.open(fd);
+		connected = true;
+		native = nativePipe.asStream();
+
+		// TODO: signal consistency with other connect methods
 	}
 
 	public function destroy(?cb:Callback<NoData>):Void {
@@ -234,6 +248,55 @@ class Socket extends Duplex {
 		timeoutReset();
 		if (listener != null)
 			timeoutSignal.once(listener);
+	}
+
+	public function writeHandle(data:Bytes, handle:Socket):Void {
+		if (nativePipe == null)
+			throw "not connected via IPC";
+		nativePipe.writeHandle(data, handle.native);
+	}
+
+	private function get_handlesPending():Int {
+		if (nativePipe == null)
+			throw "not connected via IPC";
+		return nativePipe.pendingCount();
+	}
+
+	public var handlesPending(get, never):Int;
+
+	public function readHandle():Socket {
+		if (nativePipe == null)
+			throw "not connected via IPC";
+		var ret = new Socket();
+		switch (nativePipe.acceptPending()) {
+			case Socket(nativeSocket):
+				ret.nativeSocket = nativeSocket;
+				ret.native = nativeSocket.asStream();
+			case Pipe(nativePipe):
+				ret.nativePipe = nativePipe;
+				ret.native = nativePipe.asStream();
+		}
+		ret.connected = true;
+		return ret;
+	}
+
+	@:access(nusys.io.IpcSerializer)
+	private function hxSerialize(_):Void {
+		if (IpcSerializer.activeSerializer == null)
+			throw "cannot serialize socket";
+		IpcSerializer.activeSerializer.chunkSockets.push(this);
+	}
+
+	@:access(nusys.io.IpcUnserializer)
+	private function hxUnserialize(_):Void {
+		if (IpcUnserializer.activeUnserializer == null)
+			throw "cannot unserialize socket";
+		var source:Socket = IpcUnserializer.activeUnserializer.chunkSockets.shift();
+		this.native = source.native;
+		this.nativePipe = source.nativePipe;
+		this.nativeSocket = source.nativeSocket;
+		this.connected = true;
+		// TODO: static hxUnserialize would be much better
 	}
 
 	public function ref():Void {

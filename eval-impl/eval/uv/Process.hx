@@ -23,10 +23,10 @@ extern class Process {
 }
 
 enum ProcessIO {
-	Pipe(readable:Bool, writable:Bool, pipe:eval.uv.Stream);
-	// Ipc;
 	Ignore;
 	Inherit;
+	Pipe(readable:Bool, writable:Bool, pipe:eval.uv.Stream);
+	Ipc(pipe:eval.uv.Stream);
 	// Stream(_);
 	// Fd(_);
 }

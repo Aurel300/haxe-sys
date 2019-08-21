@@ -43,13 +43,18 @@ class Process {
 		var stdout:IReadable = null;
 		var stderr:IReadable = null;
 		var stdioPipes = [];
+		var ipc:Socket = null;
 		var nativeStdio:Array<eval.uv.Process.ProcessIO> = [
 			for (i in 0...options.stdio.length)
 				switch (options.stdio[i]) {
+					case Ignore:
+						Ignore;
+					case Inherit:
+						Inherit;
 					case Pipe(r, w, pipe):
 						if (pipe == null) {
 							pipe = Socket.create();
-							@:privateAccess pipe.initPipe();
+							@:privateAccess pipe.initPipe(false);
 						} else {
 							if (@:privateAccess pipe.native == null)
 								throw "invalid pipe";
@@ -65,10 +70,12 @@ class Process {
 						}
 						stdioPipes[i] = pipe;
 						Pipe(r, w, @:privateAccess pipe.native);
-					case Ignore:
-						Ignore;
-					case Inherit:
-						Inherit;
+					case Ipc:
+						if (ipc != null)
+							throw "only one IPC pipe can be specified for a process";
+						ipc = Socket.create();
+						@:privateAccess ipc.initPipe(true);
+						Ipc(@:privateAccess ipc.native);
 				}
 		];
 		var args = args != null ? args : [];
@@ -88,6 +95,13 @@ class Process {
 			options.gid != null ? options.gid : 0
 		);
 		proc.native = native;
+		if (ipc != null) {
+			proc.connected = true;
+			proc.ipc = ipc;
+			proc.ipcOut = @:privateAccess new nusys.io.IpcSerializer(ipc);
+			// proc.ipcIn = @:privateAccess new nusys.io.IpcUnserializer(ipc);
+			// proc.messageSignal = proc.ipcIn.messageSignal;
+		}
 		proc.stdin = stdin;
 		proc.stdout = stdout;
 		proc.stderr = stderr;
@@ -99,10 +113,9 @@ class Process {
 	// public final disconnectSignal:Signal<NoData> = new ArraySignal(); // IPC
 	public final errorSignal:Signal<Error> = new ArraySignal();
 	public final exitSignal:Signal<ProcessExit> = new ArraySignal();
-	// public final messageSignal:Signal<String>; // IPC
+	public var messageSignal(default, null):Signal<Dynamic>;
 
-	// public var channel:IDuplex; // IPC
-	// public var connected:Bool; // IPC
+	public var connected(default, null):Bool = false;
 	public var killed:Bool;
 	public var pid(get, never):Int;
 	public var stdin:IWritable;
@@ -111,6 +124,9 @@ class Process {
 	public var stdio:Array<Socket>;
 
 	var native:eval.uv.Process;
+	var ipc:Socket;
+	var ipcOut:nusys.io.IpcSerializer;
+	// var ipcIn:nusys.io.IpcUnserializer;
 
 	function new() {}
 
@@ -138,14 +154,24 @@ class Process {
 				pipe.destroy(close);
 			}
 		}
+		if (connected) {
+			needed++;
+			ipc.destroy(close);
+		}
 		native.close(close);
+	}
+
+	public function send(data:Dynamic):Void {
+		if (!connected)
+			throw "IPC not connected";
+		trace("sending?");
+		ipcOut.write(data);
+		trace("sent");
 	}
 
 	public function ref():Void {
 		native.ref();
 	}
-
-	// public function send(); // IPC
 
 	public function unref():Void {
 		native.unref();

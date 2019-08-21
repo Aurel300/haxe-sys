@@ -43,6 +43,12 @@ extern class Process {
 			`writable` specify whether the pipe will be readable and writable from
 			the point of view of the spawned process. If `pipe` is given, it is used
 			directly, otherwise a new pipe is created.
+		- `Ipc` - create an IPC (inter-process comunication) pipe. Only one may be
+			specified in `options.stdio`. This special pipe will not have an entry in
+			the `stdio` array of the resulting process; instead, messages can be sent
+			using the `send` method, and received over `messageSignal`. IPC pipes
+			allow sending and receiving structured Haxe data, but also open sockets
+			and files.
 
 		Pipes are made available in the `stdio` array afther the process is
 		spawned. Standard file descriptors have their own variables:
@@ -144,7 +150,11 @@ extern class Process {
 	**/
 	function close(?cb:Callback<NoData>):Void;
 
+	/**
+		Send `data` to the process over the IPC channel. See `SerializerPipe.send`.
+	**/
+	function send(data:Dynamic):Void;
+
 	function ref():Void;
-	// function send(); // IPC
 	function unref():Void;
 }

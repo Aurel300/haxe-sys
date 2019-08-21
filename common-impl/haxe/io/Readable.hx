@@ -13,30 +13,29 @@ import haxe.ds.List;
 **/
 class Readable implements IReadable {
 	/**
-		Emitted whenever a chunk of data is available.
+		See `IReadable.dataSignal`.
 	**/
 	public final dataSignal:Signal<Bytes>;
 
 	/**
-		Emitted when the stream is finished. No further signals will be emitted by
-		`this` instance after `endSignal` is emitted.
+		See `IReadable.endSignal`.
 	**/
 	public final endSignal:Signal<NoData>;
 
 	/**
-		Emitted for any error that occurs during reading.
+		See `IReadable.errorSignal`.
 	**/
-	public final errorSignal:Signal<Error> = new ArraySignal<Error>();
+	public final errorSignal:Signal<Error> = new ArraySignal();
 
 	/**
-		Emitted when `this` stream is paused.
+		See `IReadable.pauseSignal`.
 	**/
-	public final pauseSignal:Signal<NoData> = new ArraySignal<NoData>();
+	public final pauseSignal:Signal<NoData> = new ArraySignal();
 
 	/**
-		Emitted when `this` stream is resumed.
+		See `IReadable.resumeSignal`.
 	**/
-	public final resumeSignal:Signal<NoData> = new ArraySignal<NoData>();
+	public final resumeSignal:Signal<NoData> = new ArraySignal();
 
 	/**
 		High water mark. `Readable` will call `internalRead` pre-emptively to fill
@@ -87,7 +86,6 @@ class Readable implements IReadable {
 		return !done && (dataSignal.listenerCount > 0 || endSignal.listenerCount > 0);
 	}
 
-	// internal
 	function process():Void {
 		deferred = null;
 		if (!shouldFlow())
@@ -200,10 +198,8 @@ class Readable implements IReadable {
 		throw "not implemented";
 	}
 
-	// for consumers
 	/**
-		Resumes flow of data. Note that this method is called automatically
-		whenever listeners to either `dataSignal` or `endSignal` are added.
+		See `IReadable.resume`.
 	**/
 	public function resume():Void {
 		if (done)
@@ -216,7 +212,7 @@ class Readable implements IReadable {
 	}
 
 	/**
-		Pauses flow of data.
+		See `IReadable.pause`.
 	**/
 	public function pause():Void {
 		if (done)
@@ -227,11 +223,17 @@ class Readable implements IReadable {
 		}
 	}
 
+	/**
+		See `IReadable.pipe`.
+	**/
 	public function pipe(to:IWritable):Void {
 		throw "!";
 	}
 }
 
+/**
+	See `Readable.internalRead`.
+**/
 enum ReadResult {
 	None;
 	Data(chunks:Array<Bytes>, eof:Bool);

@@ -64,7 +64,7 @@ class Server {
 		if (listener != null)
 			connectionSignal.on(listener);
 
-		nativePipe = new eval.uv.Pipe();
+		nativePipe = new eval.uv.Pipe(false);
 		native = nativePipe.asStream();
 
 		listening = true;
