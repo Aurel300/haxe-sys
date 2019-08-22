@@ -3,6 +3,7 @@
 This is the working draft for the new `sys` package APIs.
 
  - [Haxe Evolution proposal](https://github.com/HaxeFoundation/haxe-evolution/pull/59)
+ - [API documentation](https://media.thenet.sk/haxe-sys/)
 
 ---
 
@@ -31,10 +32,11 @@ This is the working draft for the new `sys` package APIs.
    - pipes
    - message passing (via extended `Serializer`)
  - streams
+   - (TODO) wrap stdin, stdout, stderr in streams
 
 # Status
 
-**Current WIP is the eval implementation.**
+**Current WIP is the eval implementation.** HL will remain broken until eval is feature-complete.
 
 ## Target TODO
 
@@ -81,10 +83,14 @@ These should be implemented in pure Haxe, with minimal `#if <target>` parts wher
 
 # Project structure
 
- - [`common-impl`](common-impl) - implementations common to all targets
- - [`eval-impl`](eval-impl) - externs for eval
- - [`hl-impl`](hl-impl) - implementations for HashLink
- - [`tests`](tests) - unit tests
+ - implementations
+   - [`common-impl`](common-impl) - implementations common to all targets
+   - [`eval-impl`](eval-impl) - externs for eval
+   - [`hl-impl`](hl-impl) - implementations for HashLink
+ - documentation
+   - [`docs`](docs)
+ - tests
+   - [`tests`](tests) - unit tests
 
 Note that `nusys` is used as a temporary package for the classes that will eventually become `sys`. This allows the tests to rely on old APIs for verifying the behaviour of the new ones.
 
@@ -99,7 +105,7 @@ Once the new APIs are ready to be merged into the standard library:
 
 ## Documentation
 
-The documentation for the new APIs is available in the externs and classes in `common-impl`. `dox` can be run in the `docs` folder with the `generate.sh` script.
+A build of the documentation is available [here](https://media.thenet.sk/haxe-sys/). It can be built manually using the [`docs/generate.sh`](docs/generate.sh) script.
 
 # Testing
 

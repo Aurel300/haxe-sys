@@ -1,7 +1,8 @@
 #!/bin/bash
 
 haxe make.hxml && \
-haxelib run dox -ex ".*" \
+haxelib run dox \
+    -ex ".*" \
     -in "^haxe\.async\." \
     -in "^haxe\.io\.Duplex" \
     -in "^haxe\.io\.FilePath" \
@@ -9,6 +10,7 @@ haxelib run dox -ex ".*" \
     -in "^haxe\.io\.IReadable" \
     -in "^haxe\.io\.IWritable" \
     -in "^haxe\.io\.Readable" \
+    -in "^haxe\.io\.ReadResult" \
     -in "^haxe\.io\.StreamTools" \
     -in "^haxe\.io\.Transform" \
     -in "^haxe\.io\.Writable" \
