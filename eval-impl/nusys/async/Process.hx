@@ -99,8 +99,8 @@ class Process {
 			proc.connected = true;
 			proc.ipc = ipc;
 			proc.ipcOut = @:privateAccess new nusys.io.IpcSerializer(ipc);
-			// proc.ipcIn = @:privateAccess new nusys.io.IpcUnserializer(ipc);
-			// proc.messageSignal = proc.ipcIn.messageSignal;
+			proc.ipcIn = @:privateAccess new nusys.io.IpcUnserializer(ipc);
+			proc.messageSignal = proc.ipcIn.messageSignal;
 		}
 		proc.stdin = stdin;
 		proc.stdout = stdout;
@@ -113,7 +113,7 @@ class Process {
 	// public final disconnectSignal:Signal<NoData> = new ArraySignal(); // IPC
 	public final errorSignal:Signal<Error> = new ArraySignal();
 	public final exitSignal:Signal<ProcessExit> = new ArraySignal();
-	public var messageSignal(default, null):Signal<Dynamic>;
+	public var messageSignal(default, null):Signal<IpcMessage>;
 
 	public var connected(default, null):Bool = false;
 	public var killed:Bool;
@@ -126,7 +126,7 @@ class Process {
 	var native:eval.uv.Process;
 	var ipc:Socket;
 	var ipcOut:nusys.io.IpcSerializer;
-	// var ipcIn:nusys.io.IpcUnserializer;
+	var ipcIn:nusys.io.IpcUnserializer;
 
 	function new() {}
 
@@ -161,12 +161,10 @@ class Process {
 		native.close(close);
 	}
 
-	public function send(data:Dynamic):Void {
+	public function send(message:IpcMessage):Void {
 		if (!connected)
 			throw "IPC not connected";
-		trace("sending?");
-		ipcOut.write(data);
-		trace("sent");
+		ipcOut.write(message);
 	}
 
 	public function ref():Void {

@@ -18,10 +18,6 @@ class Socket extends Duplex {
 		return new Socket();
 	}
 
-	// dataSignal (in Duplex)
-	// drainSignal (in Duplex)
-	// errorSignal (in Duplex)
-
 	public final closeSignal:Signal<NoData> = new ArraySignal();
 	public final connectSignal:Signal<NoData> = new ArraySignal();
 	// endSignal
@@ -35,7 +31,7 @@ class Socket extends Duplex {
 	var internalReadCalled = false;
 	var readStarted = false;
 	var connectStarted = false;
-	var connected = false;
+	public var connected(default, null):Bool = false;
 	var serverSpawn:Bool = false;
 	var timeoutTime:Int = 0;
 	var timeoutTimer:nusys.Timer;
@@ -82,15 +78,18 @@ class Socket extends Duplex {
 		return None;
 	}
 
+	// TODO: keep track of pending writes for finish event emission
+	// in `internalWrite` and `writeHandle`
+	function writeDone(err:Error, nd:NoData):Void {
+		timeoutReset();
+		if (err != null)
+			errorSignal.emit(err);
+		// TODO: destroy stream and socket
+	}
+
 	override function internalWrite():Void {
 		while (inputBuffer.length > 0) {
-			// TODO: keep track of pending writes for finish event emission
-			native.write(pop(), (err) -> {
-				timeoutReset();
-				if (err != null)
-					errorSignal.emit(err);
-				// TODO: destroy stream and socket
-			});
+			native.write(pop(), writeDone);
 		}
 	}
 
@@ -253,7 +252,7 @@ class Socket extends Duplex {
 	public function writeHandle(data:Bytes, handle:Socket):Void {
 		if (nativePipe == null)
 			throw "not connected via IPC";
-		nativePipe.writeHandle(data, handle.native);
+		nativePipe.writeHandle(data, handle.native, writeDone);
 	}
 
 	private function get_handlesPending():Int {
@@ -280,6 +279,12 @@ class Socket extends Duplex {
 		return ret;
 	}
 
+	/*
+	// TODO: #8263 (static hxUnserialize)
+	// Automatic un/serialisation will not work here since hxUnserialize needs to
+	// call supper, otherwise the socket is unusable; for now sockets are
+	// delivered separately in IPC.
+
 	@:access(nusys.io.IpcSerializer)
 	private function hxSerialize(_):Void {
 		if (IpcSerializer.activeSerializer == null)
@@ -291,13 +296,15 @@ class Socket extends Duplex {
 	private function hxUnserialize(_):Void {
 		if (IpcUnserializer.activeUnserializer == null)
 			throw "cannot unserialize socket";
+		trace(dataSignal, input);
 		var source:Socket = IpcUnserializer.activeUnserializer.chunkSockets.shift();
 		this.native = source.native;
 		this.nativePipe = source.nativePipe;
 		this.nativeSocket = source.nativeSocket;
 		this.connected = true;
-		// TODO: static hxUnserialize would be much better
+		trace("successfully unserialized", this.nativeSocket);
 	}
+	*/
 
 	public function ref():Void {
 		if (native == null)

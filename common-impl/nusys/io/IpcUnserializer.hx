@@ -6,17 +6,22 @@ import haxe.async.*;
 import haxe.io.*;
 import nusys.async.net.Socket;
 
+/**
+	Class used internally to receive messages and handles over an IPC channel.
+	See `CurrentProcess.initIpc` for initialising IPC for a process.
+**/
 class IpcUnserializer {
 	static var activeUnserializer:IpcUnserializer = null;
 
-	public final messageSignal:Signal<Dynamic> = new ArraySignal();
+	public final messageSignal:Signal<IpcMessage> = new ArraySignal();
 	public final errorSignal:Signal<Dynamic> = new ArraySignal();
 
 	final pipe:Socket;
-	var chunkSockets:Array<Socket> = [];
+	// var chunkSockets:Array<Socket> = [];
 	var chunkLenbuf:String = "";
 	var chunkBuf:StringBuf;
 	var chunkSize:Null<Int> = 0;
+	var chunkSocketCount:Int = 0;
 
 	function new(pipe:Socket) {
 		this.pipe = pipe;
@@ -33,7 +38,10 @@ class IpcUnserializer {
 					chunkLenbuf += data;
 					var colonPos = chunkLenbuf.indexOf(":");
 					if (colonPos != -1) {
-						chunkSize = Std.parseInt(chunkLenbuf.substr(0, colonPos));
+						chunkSocketCount = 0;
+						while (chunkLenbuf.charAt(chunkSocketCount) == "s")
+							chunkSocketCount++;
+						chunkSize = Std.parseInt(chunkLenbuf.substr(chunkSocketCount, colonPos));
 						if (chunkSize == null || chunkSize <= 0) {
 							chunkSize = 0;
 							throw "invalid chunk size received";
@@ -41,7 +49,7 @@ class IpcUnserializer {
 						chunkBuf = new StringBuf();
 						chunkBuf.add(chunkLenbuf.substr(colonPos + 1));
 						chunkLenbuf = "";
-						chunkSockets.resize(0);
+						// chunkSockets.resize(0);
 					}
 				} else {
 					chunkBuf.add(data);
@@ -55,12 +63,17 @@ class IpcUnserializer {
 							serial = serial.substr(0, chunkSize);
 						}
 						chunkBuf = null;
-						for (i in 0...pipe.handlesPending)
+						var chunkSockets = [];
+						if (chunkSocketCount > pipe.handlesPending)
+							throw "not enough handles received";
+						for (i in 0...chunkSocketCount)
 							chunkSockets.push(pipe.readHandle());
 						activeUnserializer = this;
-						messageSignal.emit(haxe.Unserializer.run(serial));
+						var message = haxe.Unserializer.run(serial);
+						messageSignal.emit({message: message, sockets: chunkSockets});
 						chunkSize = 0;
-						chunkSockets.resize(0);
+						chunkSocketCount = 0;
+						// chunkSockets.resize(0);
 						activeUnserializer = null;
 					}
 				}

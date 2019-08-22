@@ -16,7 +16,7 @@ class TestTcp extends Test {
 					port: 3232
 				})
 			}, client -> client.dataSignal.on(chunk -> {
-				beq(chunk, TestBase.helloBytes);
+				beq(chunk, TestConstants.helloBytes);
 				client.write(chunk);
 				client.destroy();
 				server.close((err) -> {
@@ -45,9 +45,9 @@ class TestTcp extends Test {
 					t(client.localAddress.match(Network(AddressTools.equals(_, "127.0.0.1".toIp()) => true, _)));
 					t(client.remoteAddress.match(Network(AddressTools.equals(_, "127.0.0.1".toIp()) => true, 3232)));
 					client.errorSignal.on(err -> assert());
-					client.write(TestBase.helloBytes);
+					client.write(TestConstants.helloBytes);
 					client.dataSignal.on(chunk -> {
-						beq(chunk, TestBase.helloBytes);
+						beq(chunk, TestConstants.helloBytes);
 						client.destroy((err) -> {
 							eq(err, null);
 							done();

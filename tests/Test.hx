@@ -1,11 +1,9 @@
-package test;
-
 import utest.Assert;
 import utest.Async;
 import haxe.io.Bytes;
 
 // copy of Test from Haxe unit test sources
-// + beq, noExc
+// + beq, noExc, sub
 class Test implements utest.ITest {
 	public function new() {}
 

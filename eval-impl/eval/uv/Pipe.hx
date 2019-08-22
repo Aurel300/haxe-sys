@@ -11,7 +11,7 @@ extern class Pipe {
 	function connectIpc(path:String, cb:Callback<NoData>):Void;
 	function bindIpc(path:String):Void;
 	function accept():Pipe;
-	function writeHandle(data:Bytes, handle:eval.uv.Stream):Void;
+	function writeHandle(data:Bytes, handle:eval.uv.Stream, cb:Callback<NoData>):Void;
 	function pendingCount():Int;
 	function acceptPending():PipeAccept;
 	function getSockName():SocketAddress;

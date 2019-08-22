@@ -106,7 +106,7 @@ class TestFileSystem extends Test {
 
 	function testRename():Void {
 		// setup
-		OldFile.saveContent("resources-rw/hello.txt", TestBase.helloString);
+		OldFile.saveContent("resources-rw/hello.txt", TestConstants.helloString);
 		OldFile.saveContent("resources-rw/other.txt", "");
 		OldFS.createDirectory("resources-rw/sub");
 		OldFile.saveContent("resources-rw/sub/foo.txt", "");
@@ -119,7 +119,7 @@ class TestFileSystem extends Test {
 
 		f(OldFS.exists("resources-rw/hello.txt"));
 		t(OldFS.exists("resources-rw/world.txt"));
-		eq(OldFile.getContent("resources-rw/world.txt"), TestBase.helloString);
+		eq(OldFile.getContent("resources-rw/world.txt"), TestConstants.helloString);
 
 		// raises if the old path is non-existent
 		exc(() -> NewFS.rename("resources-rw/non-existent", "resources-rw/foobar"));
@@ -142,7 +142,7 @@ class TestFileSystem extends Test {
 
 		f(OldFS.exists("resources-rw/world.txt"));
 		t(OldFS.exists("resources-rw/other.txt"));
-		eq(OldFile.getContent("resources-rw/other.txt"), TestBase.helloString);
+		eq(OldFile.getContent("resources-rw/other.txt"), TestConstants.helloString);
 
 		// cleanup
 		OldFS.deleteFile("resources-rw/other.txt");
@@ -155,16 +155,16 @@ class TestFileSystem extends Test {
 		t(stat.isDirectory());
 
 		var stat = NewFS.stat("resources-ro/hello.txt");
-		eq(stat.size, TestBase.helloBytes.length);
+		eq(stat.size, TestConstants.helloBytes.length);
 		t(stat.isFile());
 
 		var stat = NewFS.stat("resources-ro/binary.bin");
-		eq(stat.size, TestBase.binaryBytes.length);
+		eq(stat.size, TestConstants.binaryBytes.length);
 		t(stat.isFile());
 
 		var file = NewFS.open("resources-ro/binary.bin");
 		var stat = file.stat();
-		eq(stat.size, TestBase.binaryBytes.length);
+		eq(stat.size, TestConstants.binaryBytes.length);
 		t(stat.isFile());
 		file.close();
 
@@ -176,9 +176,9 @@ class TestFileSystem extends Test {
 		`exists` is tested in `testExists`.
 	**/
 	function testCompat():Void {
-		eq(NewFS.readFile("resources-ro/hello.txt").toString(), TestBase.helloString);
-		beq(NewFS.readFile("resources-ro/hello.txt"), TestBase.helloBytes);
-		beq(NewFS.readFile("resources-ro/binary.bin"), TestBase.binaryBytes);
+		eq(NewFS.readFile("resources-ro/hello.txt").toString(), TestConstants.helloString);
+		beq(NewFS.readFile("resources-ro/hello.txt"), TestConstants.helloBytes);
+		beq(NewFS.readFile("resources-ro/binary.bin"), TestConstants.binaryBytes);
 		t(NewFS.isDirectory("resources-ro"));
 		f(NewFS.isDirectory("resources-ro/hello.txt"));
 		aeq(NewFS.readDirectory("resources-ro"), ["binary.bin", "hello.txt"]);

@@ -5,6 +5,7 @@ import haxe.NoData;
 import haxe.async.*;
 import haxe.io.*;
 import nusys.async.net.Socket;
+import nusys.io.*;
 
 /**
 	Options for spawning a process. See `Process.spawn`.
@@ -47,8 +48,8 @@ extern class Process {
 			specified in `options.stdio`. This special pipe will not have an entry in
 			the `stdio` array of the resulting process; instead, messages can be sent
 			using the `send` method, and received over `messageSignal`. IPC pipes
-			allow sending and receiving structured Haxe data, but also open sockets
-			and files.
+			allow sending and receiving structured Haxe data, as well as connected
+			sockets and pipes.
 
 		Pipes are made available in the `stdio` array afther the process is
 		spawned. Standard file descriptors have their own variables:
@@ -101,8 +102,12 @@ extern class Process {
 	**/
 	final exitSignal:Signal<ProcessExit>;
 
-	// final messageSignal:Signal<String>; // IPC
-	// var channel:IDuplex; // IPC
+	/**
+		Emitted when a message is received over IPC. The process must be created
+		with an `Ipc` entry in `options.stdio`; see `Process.spawn`.
+	**/
+	var messageSignal(default, null):Signal<IpcMessage>;
+
 	// var connected:Bool; // IPC
 	var killed:Bool;
 
@@ -151,9 +156,10 @@ extern class Process {
 	function close(?cb:Callback<NoData>):Void;
 
 	/**
-		Send `data` to the process over the IPC channel. See `SerializerPipe.send`.
+		Send `data` to the process over the IPC channel. The process must be
+		created with an `Ipc` entry in `options.stdio`; see `Process.spawn`.
 	**/
-	function send(data:Dynamic):Void;
+	function send(message:IpcMessage):Void;
 
 	function ref():Void;
 	function unref():Void;

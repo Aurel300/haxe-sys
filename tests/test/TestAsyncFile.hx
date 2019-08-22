@@ -70,11 +70,11 @@ class TestAsyncFile extends Test {
 		// binary (+ invalid UTF-8)
 		sub(async, done -> {
 			var file = NewFS.open("resources-ro/binary.bin");
-			var buffer = Bytes.alloc(TestBase.binaryBytes.length);
+			var buffer = Bytes.alloc(TestConstants.binaryBytes.length);
 			file.async.readBuffer(buffer, 0, buffer.length, 0, (err, res) -> {
 				eq(err, null);
 				eq(res.bytesRead, buffer.length);
-				beq(buffer, TestBase.binaryBytes);
+				beq(buffer, TestConstants.binaryBytes);
 				file.close();
 				done();
 			});
@@ -103,7 +103,7 @@ class TestAsyncFile extends Test {
 
 		sub(async, done -> {
 			var file = NewFS.open("resources-rw/unicode.txt", "w");
-			var buffer = TestBase.helloBytes;
+			var buffer = TestConstants.helloBytes;
 			file.async.writeBuffer(buffer, 0, buffer.length, 0, (err, res) -> {
 				eq(err, null);
 				eq(res.bytesWritten, buffer.length);
@@ -116,12 +116,12 @@ class TestAsyncFile extends Test {
 
 		sub(async, done -> {
 			var file = NewFS.open("resources-rw/unicode2.txt", "w");
-			var buffer = TestBase.helloBytes;
-			file.async.writeString(TestBase.helloString, 0, (err, res) -> {
+			var buffer = TestConstants.helloBytes;
+			file.async.writeString(TestConstants.helloString, 0, (err, res) -> {
 				eq(err, null);
-				eq(res.bytesWritten, TestBase.helloBytes.length);
+				eq(res.bytesWritten, TestConstants.helloBytes.length);
 				file.close();
-				beq(OldFile.getBytes("resources-rw/unicode2.txt"), TestBase.helloBytes);
+				beq(OldFile.getBytes("resources-rw/unicode2.txt"), TestConstants.helloBytes);
 				OldFS.deleteFile("resources-rw/unicode2.txt");
 				done();
 			});

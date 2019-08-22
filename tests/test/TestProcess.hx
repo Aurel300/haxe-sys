@@ -7,14 +7,14 @@ class TestProcess extends Test {
 	function testPipes(async:Async) {
 		var proc = nusys.async.Process.spawn("cat");
 		proc.stdout.dataSignal.on(data -> {
-			beq(data, TestBase.helloBytes);
+			beq(data, TestConstants.helloBytes);
 			proc.kill();
 			proc.close((err) -> {
 				eq(err, null);
 				async.done();
 			});
 		});
-		proc.stdin.write(TestBase.helloBytes);
+		proc.stdin.write(TestConstants.helloBytes);
 
 		TestBase.uvRun();
 	}

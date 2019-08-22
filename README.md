@@ -29,7 +29,7 @@ This is the working draft for the new `sys` package APIs.
    - Unix/IPC
  - processes
    - pipes
-   - (TODO) message passing (via extended `Serializer`)
+   - message passing (via extended `Serializer`)
  - streams
 
 # Status
@@ -66,7 +66,7 @@ These should be implemented in pure Haxe, with minimal `#if <target>` parts wher
 | streams | P      | P | based on `streams3` of Node.js; simplified interface (dropped legacy APIs) |
 
  - [ ] stream auto-HWM balancing, piping
- - [ ] message-passing serialisation in IPC
+ - [ ] cleanup packages (move `nusys` to `sys2` and drop some of the `async` sub-packaging?)
 
 ## Per function notes
 

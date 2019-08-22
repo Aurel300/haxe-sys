@@ -13,7 +13,7 @@ class TestIpc extends Test {
 					path: "resources-rw/ipc-pipe"
 				})
 			}, client -> client.dataSignal.on(chunk -> {
-				beq(chunk, TestBase.helloBytes);
+				beq(chunk, TestConstants.helloBytes);
 				client.write(chunk);
 				client.destroy();
 				server.close((err) -> {
@@ -34,9 +34,9 @@ class TestIpc extends Test {
 					eq(err, null);
 					t(client.remoteAddress.match(Unix("resources-rw/ipc-pipe")));
 					client.errorSignal.on(err -> assert());
-					client.write(TestBase.helloBytes);
+					client.write(TestConstants.helloBytes);
 					client.dataSignal.on(chunk -> {
-						beq(chunk, TestBase.helloBytes);
+						beq(chunk, TestConstants.helloBytes);
 						client.destroy((err) -> {
 							eq(err, null);
 							done();
@@ -44,6 +44,25 @@ class TestIpc extends Test {
 					});
 				});
 		});
+
+		TestBase.uvRun();
+	}
+
+	function testIpcEcho(async:Async) {
+		var proc = TestBase.helperStart("ipcEcho", [], {
+			stdio: [Ipc, Inherit, Inherit]
+		});
+		proc.messageSignal.on((message:{message:{a:Array<Int>, b:String, d:Bool}}) -> {
+			t(switch (message.message) {
+				case {a: [1, 2], b: "c", d: true}: true;
+				case _: false;
+			});
+			proc.close(err -> {
+				eq(err, null);
+				async.done();
+			});
+		});
+		proc.send({message: {a: [1, 2], b: "c", d: true}});
 
 		TestBase.uvRun();
 	}

@@ -65,8 +65,21 @@ extern class Socket extends Duplex {
 	**/
 	var remoteAddress(get, never):Null<SocketAddress>;
 
+	private function get_handlesPending():Int;
+
 	/**
-		Connect this socket via TCP to the given remote.
+		(IPC only.) Number of pending sockets or pipes. Accessible using
+		`readHandle`.
+	**/
+	var handlesPending(get, never):Int;
+
+	/**
+		`true` when `this` socket is connected to a remote host or an IPC pipe.
+	**/
+	var connected(default, null):Bool;
+
+	/**
+		Connect `this` socket via TCP to the given remote.
 
 		If neither `options.host` nor `options.address` is specified, the host
 		`localhost` is resolved via DNS and used as the address. At least one of
@@ -90,12 +103,18 @@ extern class Socket extends Duplex {
 	function connectTcp(options:SocketConnectTcpOptions, ?cb:Callback<NoData>):Void;
 
 	/**
-		Connect this socket to an IPC pipe.
+		Connect `this` socket to an IPC pipe.
 
 		@param options.path Pipe path.
 	**/
 	function connectIpc(options:SocketConnectIpcOptions, ?cb:Callback<NoData>):Void;
 
+	/**
+		Connect `this` socket to a file descriptor. Used internally to establish
+		IPC channels between Haxe processes.
+
+		@param ipc Whether IPC features (sending sockets) should be enabled.
+	**/
 	function connectFd(ipc:Bool, fd:Int):Void;
 
 	/**
@@ -136,13 +155,17 @@ extern class Socket extends Duplex {
 	**/
 	function setTimeout(timeout:Int, ?listener:Listener<NoData>):Void;
 
+	/**
+		(IPC only.) Send a socket or pipe in along with the given `data`. The
+		socket must be connected.
+	**/
 	function writeHandle(data:Bytes, handle:Socket):Void;
 
-	private function get_handlesPending():Int;
-
-	var handlesPending(get, never):Int;
-
-	function readHandle():Null<Socket>;
+	/**
+		(IPC only.) Receive a socket or pipe. Should only be called when
+		`handlesPending` is greater than zero.
+	**/
+	function readHandle():Socket;
 
 	function ref():Void;
 	function unref():Void;

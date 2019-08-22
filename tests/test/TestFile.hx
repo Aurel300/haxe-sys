@@ -36,14 +36,14 @@ class TestFile extends Test {
 
 		// binary (+ invalid UTF-8)
 		var file = NewFS.open("resources-ro/binary.bin");
-		var buffer = Bytes.alloc(TestBase.binaryBytes.length);
+		var buffer = Bytes.alloc(TestConstants.binaryBytes.length);
 		eq(file.readBuffer(buffer, 0, buffer.length, 0).bytesRead, buffer.length);
-		beq(buffer, TestBase.binaryBytes);
+		beq(buffer, TestConstants.binaryBytes);
 		file.close();
 
 		// readFile
 		var file = NewFS.open("resources-ro/hello.txt");
-		beq(file.readFile(), TestBase.helloBytes);
+		beq(file.readFile(), TestConstants.helloBytes);
 		file.close();
 	}
 
@@ -59,17 +59,17 @@ class TestFile extends Test {
 		beq(OldFile.getBytes("resources-rw/hello.txt"), buffer);
 
 		var file = NewFS.open("resources-rw/unicode.txt", "w");
-		var buffer = TestBase.helloBytes;
+		var buffer = TestConstants.helloBytes;
 		eq(file.writeBuffer(buffer, 0, buffer.length, 0).bytesWritten, buffer.length);
 		file.close();
 
 		beq(OldFile.getBytes("resources-rw/unicode.txt"), buffer);
 
 		var file = NewFS.open("resources-rw/unicode2.txt", "w");
-		eq(file.writeString(TestBase.helloString, 0).bytesWritten, TestBase.helloBytes.length);
+		eq(file.writeString(TestConstants.helloString, 0).bytesWritten, TestConstants.helloBytes.length);
 		file.close();
 
-		beq(OldFile.getBytes("resources-rw/unicode2.txt"), TestBase.helloBytes);
+		beq(OldFile.getBytes("resources-rw/unicode2.txt"), TestConstants.helloBytes);
 
 		// cleanup
 		OldFS.deleteFile("resources-rw/hello.txt");

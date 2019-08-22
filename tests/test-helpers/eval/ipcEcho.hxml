@@ -1,0 +1,4 @@
+-p ../common-impl
+-p ../eval-impl
+-p test-helpers/src
+--main IpcEcho

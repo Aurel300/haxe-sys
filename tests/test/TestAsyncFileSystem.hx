@@ -31,18 +31,18 @@ class TestAsyncFileSystem extends Test {
 		t(stat.isDirectory());
 
 		var stat = NewFS.stat("resources-ro/hello.txt");
-		eq(stat.size, TestBase.helloBytes.length);
+		eq(stat.size, TestConstants.helloBytes.length);
 		t(stat.isFile());
 
 		var stat = NewFS.stat("resources-ro/binary.bin");
-		eq(stat.size, TestBase.binaryBytes.length);
+		eq(stat.size, TestConstants.binaryBytes.length);
 		t(stat.isFile());
 		*/
 		sub(async, done -> {
 			var file = NewFS.open("resources-ro/binary.bin");
 			file.async.stat((err, stat) -> {
 				eq(err, null);
-				eq(stat.size, TestBase.binaryBytes.length);
+				eq(stat.size, TestConstants.binaryBytes.length);
 				t(stat.isFile());
 				file.close();
 				done();
