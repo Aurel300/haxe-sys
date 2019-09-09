@@ -3,7 +3,7 @@ package eval.uv;
 import haxe.NoData;
 import haxe.async.Callback;
 import haxe.io.Bytes;
-import nusys.net.*;
+import asys.net.*;
 
 extern class Pipe {
 	function new(ipc:Bool);

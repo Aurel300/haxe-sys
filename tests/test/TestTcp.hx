@@ -3,14 +3,14 @@ package test;
 import haxe.io.Bytes;
 import utest.Async;
 
-using nusys.net.AddressTools;
+using asys.net.AddressTools;
 
 class TestTcp extends Test {
 	#if eval
 	function testEcho(async:Async) {
 		sub(async, done -> {
-			var server:nusys.async.net.Server = null;
-			server = sys.Net.createServer({
+			var server:asys.net.Server = null;
+			server = asys.Net.createServer({
 				listen: Tcp({
 					host: "127.0.0.1",
 					port: 3232
@@ -34,8 +34,8 @@ class TestTcp extends Test {
 		TestBase.uvRun(RunOnce);
 
 		sub(async, done -> {
-			var client:nusys.async.net.Socket = null;
-			client = sys.Net.createConnection({
+			var client:asys.net.Socket = null;
+			client = asys.Net.createConnection({
 				connect: Tcp({
 					host: "127.0.0.1",
 					port: 3232
@@ -61,7 +61,7 @@ class TestTcp extends Test {
 
 	function testSignals(async:Async) {
 		sub(async, done -> {
-			var client = nusys.async.net.Socket.create();
+			var client = asys.net.Socket.create();
 			client.errorSignal.on(err -> assert());
 			client.lookupSignal.on(address -> {
 				t(address.equals("127.0.0.1".toIp(), true));
@@ -73,7 +73,7 @@ class TestTcp extends Test {
 				family: Ipv4
 			}, (err:haxe.Error) -> {
 					switch (err.type) {
-						case UVError(sys.uv.UVErrorType.ECONNREFUSED):
+						case UVError(asys.uv.UVErrorType.ECONNREFUSED):
 							client.destroy();
 							done();
 						case _:

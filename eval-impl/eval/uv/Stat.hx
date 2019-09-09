@@ -1,6 +1,6 @@
 package eval.uv;
 
-import sys.FilePermissions;
+import asys.FilePermissions;
 
 class Stat {
 	extern function get_dev():Int;
@@ -51,21 +51,21 @@ class Stat {
 
 	public var gen(get, never):Int;
 
-	public function isBlockDevice():Bool return (mode & sys.uv.UVConstants.S_IFMT) == sys.uv.UVConstants.S_IFBLK;
+	public function isBlockDevice():Bool return (mode & asys.uv.UVConstants.S_IFMT) == asys.uv.UVConstants.S_IFBLK;
 
-	public function isCharacterDevice():Bool return (mode & sys.uv.UVConstants.S_IFMT) == sys.uv.UVConstants.S_IFCHR;
+	public function isCharacterDevice():Bool return (mode & asys.uv.UVConstants.S_IFMT) == asys.uv.UVConstants.S_IFCHR;
 
-	public function isDirectory():Bool return (mode & sys.uv.UVConstants.S_IFMT) == sys.uv.UVConstants.S_IFDIR;
+	public function isDirectory():Bool return (mode & asys.uv.UVConstants.S_IFMT) == asys.uv.UVConstants.S_IFDIR;
 
-	public function isFIFO():Bool return (mode & sys.uv.UVConstants.S_IFMT) == sys.uv.UVConstants.S_IFIFO;
+	public function isFIFO():Bool return (mode & asys.uv.UVConstants.S_IFMT) == asys.uv.UVConstants.S_IFIFO;
 
-	public function isFile():Bool return (mode & sys.uv.UVConstants.S_IFMT) == sys.uv.UVConstants.S_IFREG;
+	public function isFile():Bool return (mode & asys.uv.UVConstants.S_IFMT) == asys.uv.UVConstants.S_IFREG;
 
-	public function isSocket():Bool return (mode & sys.uv.UVConstants.S_IFMT) == sys.uv.UVConstants.S_IFSOCK;
+	public function isSocket():Bool return (mode & asys.uv.UVConstants.S_IFMT) == asys.uv.UVConstants.S_IFSOCK;
 
-	public function isSymbolicLink():Bool return (mode & sys.uv.UVConstants.S_IFMT) == sys.uv.UVConstants.S_IFLNK;
+	public function isSymbolicLink():Bool return (mode & asys.uv.UVConstants.S_IFMT) == asys.uv.UVConstants.S_IFLNK;
 
-	function get_permissions():FilePermissions return @:privateAccess new FilePermissions(mode & sys.uv.UVConstants.S_PERM);
+	function get_permissions():FilePermissions return @:privateAccess new FilePermissions(mode & asys.uv.UVConstants.S_PERM);
 
 	public var permissions(get, never):FilePermissions;
 }

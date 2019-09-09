@@ -17,16 +17,5 @@ haxelib run dox \
     -in "^haxe\.Error" \
     -in "^haxe\.ErrorType" \
     -in "^haxe\.NoData" \
-    -in "^nusys\." \
-    -in "^sys\.net\.DnsLookupOptions" \
-    -in "^sys\.net\.IpFamily" \
-    -in "^sys\.uv\." \
-    -in "^sys\.DirectoryEntry" \
-    -in "^sys\.FileAccessMode" \
-    -in "^sys\.FileOpenFlags" \
-    -in "^sys\.FilePermissions" \
-    -in "^sys\.FileWatcher" \
-    -in "^sys\.FileWatcherEvent" \
-    -in "^sys\.Net" \
-    -in "^sys\.SymlinkType" \
+    -in "^asys\." \
     -i docs-xml -o docs-html

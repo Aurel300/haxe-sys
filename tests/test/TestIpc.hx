@@ -7,8 +7,8 @@ class TestIpc extends Test {
 	#if eval
 	function testEcho(async:Async) {
 		sub(async, done -> {
-			var server:nusys.async.net.Server = null;
-			server = sys.Net.createServer({
+			var server:asys.net.Server = null;
+			server = asys.Net.createServer({
 				listen: Ipc({
 					path: "resources-rw/ipc-pipe"
 				})
@@ -25,8 +25,8 @@ class TestIpc extends Test {
 		});
 
 		sub(async, done -> {
-			var client:nusys.async.net.Socket = null;
-			client = sys.Net.createConnection({
+			var client:asys.net.Socket = null;
+			client = asys.Net.createConnection({
 				connect: Ipc({
 					path: "resources-rw/ipc-pipe"
 				})

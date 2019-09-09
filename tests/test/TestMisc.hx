@@ -1,9 +1,9 @@
 package test;
 
 import haxe.io.Bytes;
-import sys.FilePermissions;
+import asys.FilePermissions;
 
-using nusys.net.AddressTools;
+using asys.net.AddressTools;
 
 class TestMisc extends Test {
 	/**

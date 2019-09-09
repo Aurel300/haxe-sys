@@ -1,8 +1,8 @@
 package test;
 
 import utest.Async;
-import nusys.FileSystem as NewFS;
-import nusys.io.File as NewFile;
+import asys.FileSystem as NewFS;
+import asys.io.File as NewFile;
 import sys.FileSystem as OldFS;
 import sys.io.File as OldFile;
 

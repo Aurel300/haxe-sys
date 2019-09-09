@@ -1,6 +1,6 @@
 import haxe.io.Bytes;
-import nusys.io.*;
-import nusys.async.*;
+import asys.io.*;
+import asys.*;
 import utest.Assert;
 
 class TestBase {
@@ -27,7 +27,7 @@ class TestBase {
 		#end
 	}
 
-	public static function uvRun(?mode:sys.uv.UVRunMode = sys.uv.UVRunMode.RunDefault):Bool {
+	public static function uvRun(?mode:asys.uv.UVRunMode = asys.uv.UVRunMode.RunDefault):Bool {
 		return
 		#if hl
 		UV.run(UV.loop, mode);
@@ -42,7 +42,7 @@ class TestBase {
 		- `eval` - `test-helpers/eval/<name>.hxml`; will be executed with the hxml
 			and `--run <Name>` appended in order to support passing arguments.
 	**/
-	public static function helperStart(name:String, ?args:Array<String>, ?options:nusys.async.Process.ProcessSpawnOptions):Process {
+	public static function helperStart(name:String, ?args:Array<String>, ?options:asys.Process.ProcessSpawnOptions):Process {
 		if (args == null)
 			args = [];
 		var proc:Process;

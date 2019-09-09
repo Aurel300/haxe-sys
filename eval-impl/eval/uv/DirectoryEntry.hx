@@ -2,9 +2,9 @@ package eval.uv;
 
 import haxe.io.FilePath;
 
-class DirectoryEntry implements sys.DirectoryEntry {
+class DirectoryEntry implements asys.DirectoryEntry {
 	public var name(get, never):FilePath;
-	extern function get_type():sys.uv.UVDirentType;
+	extern function get_type():asys.uv.UVDirentType;
 	extern function get_name():FilePath;
 	public function isBlockDevice():Bool return get_type() == DirentBlock;
 	public function isCharacterDevice():Bool return get_type() == DirentChar;

@@ -1,4 +1,4 @@
-import nusys.async.CurrentProcess;
+import asys.CurrentProcess;
 
 class IpcEcho {
 	public static function main():Void {

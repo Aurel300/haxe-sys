@@ -3,13 +3,13 @@ package test;
 import haxe.io.Bytes;
 import utest.Async;
 
-using nusys.net.AddressTools;
+using asys.net.AddressTools;
 
 class TestUdp extends Test {
 	#if eval
 	function testEcho(async:Async) {
 		sub(async, done -> {
-			var server = nusys.async.net.UdpSocket.create(Ipv4);
+			var server = asys.net.UdpSocket.create(Ipv4);
 			server.bind("127.0.0.1".toIp(), 3232);
 			server.messageSignal.on(msg -> {
 				beq(msg.data, TestConstants.helloBytes);
@@ -21,7 +21,7 @@ class TestUdp extends Test {
 		});
 
 		sub(async, done -> {
-			var client = nusys.async.net.UdpSocket.create(Ipv4);
+			var client = asys.net.UdpSocket.create(Ipv4);
 			client.send(TestConstants.helloBytes, 0, TestConstants.helloBytes.length, "127.0.0.1".toIp(), 3232, (err) -> {
 				eq(err, null);
 				client.close(err -> {
@@ -36,7 +36,7 @@ class TestUdp extends Test {
 
 	function testEcho6(async:Async) {
 		sub(async, done -> {
-			var server = nusys.async.net.UdpSocket.create(Ipv6);
+			var server = asys.net.UdpSocket.create(Ipv6);
 			server.bind(AddressTools.localhost(Ipv6), 3232);
 			server.messageSignal.on(msg -> {
 				beq(msg.data, TestConstants.helloBytes);
@@ -48,7 +48,7 @@ class TestUdp extends Test {
 		});
 
 		sub(async, done -> {
-			var client = nusys.async.net.UdpSocket.create(Ipv6);
+			var client = asys.net.UdpSocket.create(Ipv6);
 			client.send(TestConstants.helloBytes, 0, TestConstants.helloBytes.length, AddressTools.localhost(Ipv6), 3232, (err) -> {
 				eq(err, null);
 				client.close(err -> {

@@ -1,6 +1,6 @@
 package haxe;
 
-import sys.uv.UVErrorType;
+import asys.uv.UVErrorType;
 import haxe.PosInfos;
 
 /**

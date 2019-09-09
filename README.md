@@ -1,6 +1,6 @@
 # **Work in progress!**
 
-This is the working draft for the new `sys` package APIs.
+This is the working draft for the new `asys` package APIs.
 
  - [Haxe Evolution proposal](https://github.com/HaxeFoundation/haxe-evolution/pull/59)
  - [API documentation](https://media.thenet.sk/haxe-sys/)
@@ -68,7 +68,6 @@ These should be implemented in pure Haxe, with minimal `#if <target>` parts wher
 | streams | P      | P | based on `streams3` of Node.js; simplified interface (dropped legacy APIs) |
 
  - [ ] stream auto-HWM balancing, piping
- - [ ] cleanup packages (move `nusys` to `sys2` and drop some of the `async` sub-packaging?)
 
 ## Per function notes
 
@@ -92,9 +91,7 @@ These should be implemented in pure Haxe, with minimal `#if <target>` parts wher
  - tests
    - [`tests`](tests) - unit tests
 
-Note that `nusys` is used as a temporary package for the classes that will eventually become `sys`. This allows the tests to rely on old APIs for verifying the behaviour of the new ones.
-
-The classes in `<target>-impl` are expected to shadow those in `common-impl`, just like the existing standard library in Haxe.
+The new sys APIs are in the `asys` package. Some new additions which are not sys-specific are added to the `haxe` pacakge. The classes in `<target>-impl` are expected to shadow those in `common-impl`, just like the existing standard library in Haxe.
 
 Once the new APIs are ready to be merged into the standard library:
 

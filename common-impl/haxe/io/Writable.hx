@@ -23,7 +23,7 @@ class Writable implements IWritable {
 
 	var willDrain = false;
 	var willFinish = false;
-	var deferred:nusys.Timer;
+	var deferred:asys.Timer;
 	var buffer = new List<Bytes>();
 
 	// for use by implementing classes

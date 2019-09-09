@@ -5,7 +5,7 @@ import utest.Async;
 
 class TestProcess extends Test {
 	function testPipes(async:Async) {
-		var proc = nusys.async.Process.spawn("cat");
+		var proc = asys.Process.spawn("cat");
 		proc.stdout.dataSignal.on(data -> {
 			beq(data, TestConstants.helloBytes);
 			proc.kill();

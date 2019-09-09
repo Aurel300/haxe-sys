@@ -62,7 +62,7 @@ class Readable implements IReadable {
 	public var done(default, null) = false;
 
 	var buffer = new List<Bytes>();
-	var deferred:nusys.Timer;
+	var deferred:asys.Timer;
 	var willEof = false;
 
 	@:dox(show)

@@ -10,7 +10,7 @@ extern class Process {
 		args:Array<String>,
 		env:Array<String>,
 		cwd:String,
-		flags:sys.uv.UVProcessSpawnFlags,
+		flags:asys.uv.UVProcessSpawnFlags,
 		stdio:Array<ProcessIO>,
 		uid:Int,
 		gid:Int
