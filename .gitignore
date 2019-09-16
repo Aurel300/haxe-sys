@@ -1,4 +1,5 @@
 tests/bin/*
+tests/test-helpers/hl/*
 samples/*/bin/*
 docs/docs-html/*
 docs/docs-xml/*

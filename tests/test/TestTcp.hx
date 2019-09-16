@@ -6,7 +6,6 @@ import utest.Async;
 using asys.net.AddressTools;
 
 class TestTcp extends Test {
-	#if eval
 	function testEcho(async:Async) {
 		sub(async, done -> {
 			var server:asys.net.Server = null;
@@ -84,5 +83,4 @@ class TestTcp extends Test {
 
 		TestBase.uvRun();
 	}
-	#end
 }

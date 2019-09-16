@@ -24,8 +24,6 @@ class FileSystem {
 		throw "not implemented";
 	}
 
-	extern public static function exists(path:String):Bool;
-
 	public static function createReadStream(path:FilePath, ?options:FileReadStreamCreationOptions):FileReadStream {
 		if (options == null)
 			options = {};
@@ -33,6 +31,8 @@ class FileSystem {
 	}
 
 	// static function createWriteStream(path:FilePath, ?options:{?flags:FileOpenFlags, ?mode:FilePermissions, ?autoClose:Bool, ?start:Int}):FileWriteStream;
+
+	extern public static function exists(path:FilePath):Bool;
 
 	extern public static function link(existingPath:FilePath, newPath:FilePath):Void;
 
@@ -151,23 +151,4 @@ class FileSystem {
 			throw e;
 		}
 	}
-
-	// compatibility sys.FileSystem functions
-	////static inline function absolutePath(path:String):String; // should be implemented in haxe.io.Path?
-	public static inline function createDirectory(path:String):Void return mkdir(path, true);
-
-	public static inline function deleteDirectory(path:String):Void
-		rmdir(path);
-
-	public static inline function deleteFile(path:String):Void
-		unlink(path);
-
-	public static inline function fullPath(path:String):FilePath return realpath(path);
-
-	public static inline function isDirectory(path:String):Bool return stat(path).isDirectory();
-
-	public static inline function readDirectory(path:String):Array<FilePath> return readdir(path);
-
-	// static function rename(path:String, newPath:String) return rename(path, newPath); // matching interface
-	// static function stat(path:String) return stat(path); // matching interface (more or less)
 }

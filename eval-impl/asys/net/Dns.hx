@@ -13,6 +13,7 @@ class Dns {
 				return callback(err, null);
 			var lastRes:Address = null;
 			callback(null, [ for (entry in res) {
+				// TODO: report more information rather than suppress duplicates?
 				if (lastRes != null && lastRes.equals(entry))
 					continue;
 				lastRes = entry;

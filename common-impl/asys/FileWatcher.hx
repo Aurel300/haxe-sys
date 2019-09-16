@@ -8,10 +8,10 @@ import haxe.io.FilePath;
 typedef FileWatcherNative =
 	#if doc_gen
 	{function ref():Void; function unref():Void;};
-	#elseif hl
-	UV.UVFsEvent;
 	#elseif eval
 	eval.uv.FileWatcher;
+	#elseif hl
+	hl.uv.FileWatcher;
 	#else
 	#error "file watcher not supported on this platform"
 	#end
@@ -61,9 +61,7 @@ class FileWatcher {
 		#if doc_gen
 		var err:haxe.Error = null;
 		({
-		#elseif hl
-		UV.fs_event_stop(native, (err) -> {
-		#elseif eval
+		#else
 		native.close((err, _) -> {
 		#end
 			if (err != null)

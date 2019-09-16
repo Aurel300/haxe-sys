@@ -10,38 +10,6 @@ import asys.*;
 	variants of the same methods in `asys.FileSystem`.
 **/
 extern class File {
-	@:deprecated("use sys.FileSystem.appendFile instead")
-	static inline function append(path:String, ?binary:Bool = true):FileOutput
-		return @:privateAccess new FileOutput(asys.FileSystem.open(path, "a", binary));
-
-	@:deprecated("use sys.FileSystem.copy instead")
-	static inline function copy(srcPath:String, dstPath:String):Void
-		asys.FileSystem.copyFile(srcPath, dstPath);
-
-	@:deprecated("use sys.FileSystem.readFile instead")
-	static inline function getBytes(path:String):Bytes return asys.FileSystem.readFile(path);
-
-	@:deprecated("use sys.FileSystem.readFile instead")
-	static inline function getContent(path:String):String return asys.FileSystem.readFile(path).toString();
-
-	@:deprecated("use sys.FileSystem.open instead")
-	static inline function read(path:String, ?binary:Bool = true):FileInput
-		return @:privateAccess new FileInput(asys.FileSystem.open(path, "r", binary));
-
-	@:deprecated("use sys.FileSystem.writeFile instead")
-	static inline function saveBytes(path:String, bytes:Bytes):Void return asys.FileSystem.writeFile(path, bytes);
-
-	@:deprecated("use sys.FileSystem.writeFile instead")
-	static inline function saveContent(path:String, content:String):Void return asys.FileSystem.writeFile(path, Bytes.ofString(content));
-
-	@:deprecated("use sys.FileSystem.open instead")
-	static inline function update(path:String, ?binary:Bool = true):FileOutput
-		return @:privateAccess new FileOutput(asys.FileSystem.open(path, ReadWrite, binary));
-
-	@:deprecated("use sys.FileSystem.open instead")
-	static inline function write(path:String, ?binary:Bool = true):FileOutput
-		return @:privateAccess new FileOutput(asys.FileSystem.open(path, "w", binary));
-
 	private function get_async():AsyncFile;
 
 	var async(get, never):AsyncFile;

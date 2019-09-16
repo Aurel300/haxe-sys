@@ -6,7 +6,6 @@ import utest.Async;
 using asys.net.AddressTools;
 
 class TestUdp extends Test {
-	#if eval
 	function testEcho(async:Async) {
 		sub(async, done -> {
 			var server = asys.net.UdpSocket.create(Ipv4);
@@ -60,5 +59,4 @@ class TestUdp extends Test {
 
 		TestBase.uvRun();
 	}
-	#end
 }

@@ -6,6 +6,29 @@ import haxe.async.*;
 import haxe.io.*;
 import asys.net.Socket;
 import asys.io.*;
+import asys.uv.UVProcessSpawnFlags;
+
+private typedef Native =
+	#if doc_gen
+	Void;
+	#elseif eval
+	eval.uv.Process;
+	#elseif hl
+	hl.uv.Process;
+	#else
+	#error "process not supported on this platform"
+	#end
+
+private typedef NativeProcessIO =
+	#if doc_gen
+	Void;
+	#elseif eval
+	eval.uv.Process.ProcessIO;
+	#elseif hl
+	hl.uv.Process.ProcessIO;
+	#else
+	#error "process not supported on this platform"
+	#end
 
 /**
 	Options for spawning a process. See `Process.spawn`.
@@ -26,7 +49,7 @@ typedef ProcessSpawnOptions = {
 /**
 	Class representing a spawned process.
 **/
-extern class Process {
+class Process {
 	/**
 		Execute the given `command` with `args` (none by default). `options` can be
 		specified to change the way the process is spawned.
@@ -83,56 +106,144 @@ extern class Process {
 		@param options.windowsHide (Windows only.) Automatically hide the window of
 			the spawned process.
 	**/
-	static function spawn(command:String, ?args:Array<String>, ?options:ProcessSpawnOptions):Process;
+	public static function spawn(command:String, ?args:Array<String>, ?options:ProcessSpawnOptions):Process {
+		var proc = new Process();
+		var flags:UVProcessSpawnFlags = None;
+		if (options == null)
+			options = {};
+		if (options.detached)
+			flags |= UVProcessSpawnFlags.Detached;
+		if (options.uid != null)
+			flags |= UVProcessSpawnFlags.SetUid;
+		if (options.gid != null)
+			flags |= UVProcessSpawnFlags.SetGid;
+		if (options.windowsVerbatimArguments)
+			flags |= UVProcessSpawnFlags.WindowsVerbatimArguments;
+		if (options.windowsHide)
+			flags |= UVProcessSpawnFlags.WindowsHide;
+		if (options.stdio == null)
+			options.stdio = [Pipe(true, false), Pipe(false, true), Pipe(false, true)];
+		var stdin:IWritable = null;
+		var stdout:IReadable = null;
+		var stderr:IReadable = null;
+		var stdioPipes = [];
+		var ipc:Socket = null;
+		var nativeStdio:Array<NativeProcessIO> = [
+			for (i in 0...options.stdio.length)
+				switch (options.stdio[i]) {
+					case Ignore:
+						Ignore;
+					case Inherit:
+						Inherit;
+					case Pipe(r, w, pipe):
+						if (pipe == null) {
+							pipe = Socket.create();
+							@:privateAccess pipe.initPipe(false);
+						} else {
+							if (@:privateAccess pipe.native == null)
+								throw "invalid pipe";
+						}
+						switch (i) {
+							case 0 if (r && !w):
+								stdin = pipe;
+							case 1 if (!r && w):
+								stdout = pipe;
+							case 2 if (!r && w):
+								stderr = pipe;
+							case _:
+						}
+						stdioPipes[i] = pipe;
+						Pipe(r, w, @:privateAccess pipe.native);
+					case Ipc:
+						if (ipc != null)
+							throw "only one IPC pipe can be specified for a process";
+						ipc = Socket.create();
+						@:privateAccess ipc.initPipe(true);
+						Ipc(@:privateAccess ipc.native);
+				}
+		];
+		var args = args != null ? args : [];
+		if (options.argv0 != null)
+			args.unshift(options.argv0);
+		else
+			args.unshift(command);
+		var native = new Native(
+			(err, data) -> proc.exitSignal.emit(data),
+			command,
+			args,
+			options.env != null ? [ for (k => v in options.env) '$k=$v' ] : [],
+			options.cwd != null ? @:privateAccess options.cwd.get_raw() : Sys.getCwd(),
+			flags,
+			nativeStdio,
+			options.uid != null ? options.uid : 0,
+			options.gid != null ? options.gid : 0
+		);
+		proc.native = native;
+		if (ipc != null) {
+			proc.connected = true;
+			proc.ipc = ipc;
+			proc.ipcOut = @:privateAccess new asys.io.IpcSerializer(ipc);
+			proc.ipcIn = @:privateAccess new asys.io.IpcUnserializer(ipc);
+			proc.messageSignal = new ArraySignal(); //proc.ipcIn.messageSignal;
+			proc.ipcIn.messageSignal.on(message -> proc.messageSignal.emit(message));
+		}
+		proc.stdin = stdin;
+		proc.stdout = stdout;
+		proc.stderr = stderr;
+		proc.stdio = stdioPipes;
+		return proc;
+	}
 
 	/**
 		Emitted when `this` process and all of its pipes are closed.
 	**/
-	final closeSignal:Signal<NoData>;
+	public final closeSignal:Signal<NoData> = new ArraySignal();
 
-	// final disconnectSignal:Signal<NoData>; // IPC
+	// public final disconnectSignal:Signal<NoData> = new ArraySignal(); // IPC
 
 	/**
 		Emitted when an error occurs during communication with `this` process.
 	**/
-	final errorSignal:Signal<Error>;
+	public final errorSignal:Signal<Error> = new ArraySignal();
 
 	/**
 		Emitted when `this` process exits, potentially due to a signal.
 	**/
-	final exitSignal:Signal<ProcessExit>;
+	public final exitSignal:Signal<ProcessExit> = new ArraySignal();
 
 	/**
 		Emitted when a message is received over IPC. The process must be created
 		with an `Ipc` entry in `options.stdio`; see `Process.spawn`.
 	**/
-	var messageSignal(default, null):Signal<IpcMessage>;
+	public var messageSignal(default, null):Signal<IpcMessage>;
 
-	// var connected:Bool; // IPC
-	var killed:Bool;
+	public var connected(default, null):Bool = false;
+	public var killed:Bool;
 
-	private function get_pid():Int;
+	private function get_pid():Int {
+		return native.getPid();
+	}
 
 	/**
 		Process identifier of `this` process. A PID uniquely identifies a process
 		on its host machine for the duration of its lifetime.
 	**/
-	var pid(get, never):Int;
+	public var pid(get, never):Int;
 
 	/**
 		Standard input. May be `null` - see `options.stdio` in `spawn`.
 	**/
-	var stdin:IWritable;
+	public var stdin:IWritable;
 
 	/**
 		Standard output. May be `null` - see `options.stdio` in `spawn`.
 	**/
-	var stdout:IReadable;
+	public var stdout:IReadable;
 
 	/**
 		Standard error. May be `null` - see `options.stdio` in `spawn`.
 	**/
-	var stderr:IReadable;
+	public var stderr:IReadable;
 
 	/**
 		Pipes created between the current (host) process and `this` (spawned)
@@ -141,26 +252,63 @@ extern class Process {
 		pipes, i.e. file descriptors 3 and higher, as well as file descriptors 0-2
 		with non-standard read/write access.
 	**/
-	var stdio:Array<Socket>;
+	public var stdio:Array<Socket>;
 
-	// function disconnect():Void; // IPC
+	var native:Native;
+	var ipc:Socket;
+	var ipcOut:asys.io.IpcSerializer;
+	var ipcIn:asys.io.IpcUnserializer;
+
+	// public function disconnect():Void; // IPC
 
 	/**
 		Send a signal to `this` process.
 	**/
-	function kill(?signal:Int = 7):Void;
+	public function kill(?signal:Int = 7):Void {
+		native.kill(signal);
+	}
 
 	/**
 		Close `this` process handle and all pipes in `stdio`.
 	**/
-	function close(?cb:Callback<NoData>):Void;
+	public function close(?cb:Callback<NoData>):Void {
+		var needed = 1;
+		var closed = 0;
+		function close(err:Error, _:NoData):Void {
+			closed++;
+			if (closed == needed && cb != null)
+				cb(null, new NoData());
+		}
+		for (pipe in stdio) {
+			if (pipe != null) {
+				needed++;
+				pipe.destroy(close);
+			}
+		}
+		if (connected) {
+			needed++;
+			ipc.destroy(close);
+		}
+		native.close(close);
+	}
 
 	/**
 		Send `data` to the process over the IPC channel. The process must be
 		created with an `Ipc` entry in `options.stdio`; see `Process.spawn`.
 	**/
-	function send(message:IpcMessage):Void;
+	public function send(message:IpcMessage):Void {
+		if (!connected)
+			throw "IPC not connected";
+		ipcOut.write(message);
+	}
 
-	function ref():Void;
-	function unref():Void;
+	public function ref():Void {
+		native.ref();
+	}
+
+	public function unref():Void {
+		native.unref();
+	}
+
+	private function new() {}
 }

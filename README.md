@@ -33,6 +33,7 @@ This is the working draft for the new `asys` package APIs.
    - message passing (via extended `Serializer`)
  - streams
    - (TODO) wrap stdin, stdout, stderr in streams
+ - (TODO) compatibility layer for old APIs to aid transition
 
 # Status
 
@@ -68,6 +69,7 @@ These should be implemented in pure Haxe, with minimal `#if <target>` parts wher
 | streams | P      | P | based on `streams3` of Node.js; simplified interface (dropped legacy APIs) |
 
  - [ ] stream auto-HWM balancing, piping
+ - [ ] compatibility layer (`sys-compat`)
 
 ## Per function notes
 
@@ -86,6 +88,7 @@ These should be implemented in pure Haxe, with minimal `#if <target>` parts wher
    - [`common-impl`](common-impl) - implementations common to all targets
    - [`eval-impl`](eval-impl) - externs for eval
    - [`hl-impl`](hl-impl) - implementations for HashLink
+   - [`sys-compat`](sys-compat) - compatibility layer (old APIs implemented using the new APIs)
  - documentation
    - [`docs`](docs)
  - tests

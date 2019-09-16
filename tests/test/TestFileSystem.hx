@@ -175,6 +175,7 @@ class TestFileSystem extends Test {
 		Tests old filesystem APIs.
 		`exists` is tested in `testExists`.
 	**/
+	/*
 	function testCompat():Void {
 		eq(NewFS.readFile("resources-ro/hello.txt").toString(), TestConstants.helloString);
 		beq(NewFS.readFile("resources-ro/hello.txt"), TestConstants.helloBytes);
@@ -189,4 +190,5 @@ class TestFileSystem extends Test {
 		NewFS.deleteDirectory("resources-rw/foo");
 		f(OldFS.exists("resources-rw/foo"));
 	}
+	*/
 }

@@ -26,18 +26,32 @@ class TestAsyncFileSystem extends Test {
 	}
 
 	function testStat(async:Async) {
-		/*
-		var stat = NewFS.stat("resources-ro");
-		t(stat.isDirectory());
+		sub(async, done -> {
+			NewFS.async.stat("resources-ro", (error, stat) -> {
+				eq(error, null);
+				t(stat.isDirectory());
+				done();
+			});
+		});
 
-		var stat = NewFS.stat("resources-ro/hello.txt");
-		eq(stat.size, TestConstants.helloBytes.length);
-		t(stat.isFile());
+		sub(async, done -> {
+			NewFS.async.stat("resources-ro/hello.txt", (error, stat) -> {
+				eq(error, null);
+				eq(stat.size, TestConstants.helloBytes.length);
+				t(stat.isFile());
+				done();
+			});
+		});
 
-		var stat = NewFS.stat("resources-ro/binary.bin");
-		eq(stat.size, TestConstants.binaryBytes.length);
-		t(stat.isFile());
-		*/
+		sub(async, done -> {
+			NewFS.async.stat("resources-ro/binary.bin", (error, stat) -> {
+				eq(error, null);
+				eq(stat.size, TestConstants.binaryBytes.length);
+				t(stat.isFile());
+				done();
+			});
+		});
+
 		sub(async, done -> {
 			var file = NewFS.open("resources-ro/binary.bin");
 			file.async.stat((err, stat) -> {
@@ -49,7 +63,13 @@ class TestAsyncFileSystem extends Test {
 			});
 		});
 
-		//exc(() -> NewFS.stat("resources-ro/non-existent-file"));
+		sub(async, done -> {
+			NewFS.async.stat("resources-ro/non-existent-file", (error, nd) -> {
+				neq(error, null);
+				eq(nd, null);
+				done();
+			});
+		});
 
 		eq(asyncDone, 0);
 		TestBase.uvRun();

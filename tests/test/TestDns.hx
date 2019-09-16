@@ -4,7 +4,6 @@ import haxe.io.Bytes;
 import utest.Async;
 
 class TestDns extends Test {
-	#if eval
 	function testLocalhost(async:Async) {
 		sub(async, done -> asys.net.Dns.lookup("localhost", {family: Ipv4}, (err, res) -> {
 			eq(err, null);
@@ -54,5 +53,4 @@ class TestDns extends Test {
 
 		TestBase.uvRun();
 	}
-	#end
 }

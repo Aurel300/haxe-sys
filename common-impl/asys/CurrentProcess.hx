@@ -4,6 +4,12 @@ import haxe.async.*;
 import asys.net.Socket;
 import asys.io.*;
 
+#if hl
+import hl.Uv;
+#elseif eval
+import eval.Uv;
+#end
+
 /**
 	Methods to control the current process and IPC interaction with the parent
 	process.
@@ -47,28 +53,24 @@ class CurrentProcess {
 	}
 
 	public static function initUv():Void {
-		#if eval
-		eval.Uv.init();
-		#else
-		throw "!";
+		#if !doc_gen
+		Uv.init();
 		#end
 	}
 
 	public static function runUv(?mode:asys.uv.UVRunMode = RunDefault):Bool {
-		#if eval
-		return eval.Uv.run(mode);
+		#if doc_gen
+		return false;
 		#else
-		throw "!";
+		return Uv.run(mode);
 		#end
 	}
 
 	public static function stopUv():Void {
-		#if eval
-		eval.Uv.stop();
-		eval.Uv.run(RunDefault);
-		eval.Uv.close();
-		#else
-		throw "!";
+		#if !doc_gen
+		Uv.stop();
+		Uv.run(RunDefault);
+		Uv.close();
 		#end
 	}
 }

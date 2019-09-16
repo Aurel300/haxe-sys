@@ -39,6 +39,10 @@ class Test implements utest.ITest {
 		Assert.equals(v, v2, pos);
 	}
 
+	function neq<T>(v:T, v2:T, ?pos:haxe.PosInfos) {
+		Assert.notEquals(v, v2, pos);
+	}
+
 	function feq(v:Float, v2:Float, ?pos:haxe.PosInfos) {
 		Assert.floatEquals(v, v2, pos);
 	}

@@ -1,11 +1,12 @@
-# New `sys` APIs
+# New `asys` APIs
 
-* Proposal: [HXP-NNNN](NNNN-filename.md)
+* Proposal: [HXP-0010](0010-asys.md)
 * Author: [Aurel Bílý](https://github.com/Aurel300)
+* Status: [to be implemented](https://github.com/Aurel300/haxe-sys)
 
 ## Introduction
 
-Improved API for both synchronous and asynchronous filesystem operations based on Node.js; improved networking API; asynchrony primitives; I/O streams.
+Improved API for both synchronous and asynchronous filesystem operations; improved networking API; improved threading and process API; asynchrony primitives; I/O streams.
 
 ## Motivation
 
@@ -36,66 +37,21 @@ The current filesystem APIs in Haxe lack a number of important features:
 
 ### Networking
 
-Non-blocking socket operations are inconvenient to use in the current API even though they are the only (non-`Thread`) solution to some real-time network communication problems. IPC communication is not possible, UDP sockets are not fully featured.
+Non-blocking socket operations are inconvenient to use in the current API even though they are the only (non-`Thread`) solution to some real-time network communication problems. IPC communication is not possible, UDP sockets are not fully featured, DNS lookup is always synchronous and not fully featured.
 
 There is a lack of proper unit testing of the networking APIs. Certain platforms also miss full implementations of various parts of the networking API. (See https://github.com/HaxeFoundation/haxe/issues/6933, https://github.com/HaxeFoundation/haxe/issues/6816)
 
+### Threads, processes, and timers
+
+Some Haxe targets (e.g. eval) have problematic implementations of threads which can result in unexpected deadlocks or crashes. It is not possible to pass handles (sockets or open files) to open processes (IPC); there is no standardised message passing for child processes.
+
 ## Detailed design
 
-Modified modules (new API + backward compatibility):
+The APIs will be implemented as direct wrappers of [libuv](http://libuv.org/) (which is the foundation of Node.js APIs) on targets which allow this, i.e. eval, Neko, HashLink, hxcpp, and Lua. The hxnodejs library will be updated to map Node.js APIs to the new `sys` APIs.
 
- - [`haxe.io.Path`](haxe/io/Path.hx)
- - [`sys.FileStat`](sys/FileStat.hx)
- - [`sys.FileSystem`](sys/FileSystem.hx)
- - [`sys.io.File`](sys/io/File.hx)
- - [`sys.net.UdpSocket`](sys/net/UdpSocket.hx)
+Java, C#, PHP, and Python may at first expose the new `sys` APIs by requiring a native library (`dll`, `so`, `dylib`). Proper target-native APIs can be added over time, particularly after an in-depth test suite is available.
 
-Added modules:
-
- - [`haxe.Error`](haxe/Error.hx) - for reporting errors, see [errors](#errors)
- - [`haxe.ErrorType`](haxe/ErrorType.hx)
- - [`haxe.NoData`](haxe/NoData.hx) - type to represent an absence of data in generics (e.g. `Callback<NoData>`)
- - [`haxe.async.Callback`](haxe/async/Callback.hx) - generic type to represent an error-first callback, see [callbacks](#callbacks)
- - [`haxe.async.Signal`](haxe/async/Signal.hx) - see [signals](#signals)
- - [`haxe.async.Listener`](haxe/async/Listener.hx) - signal listener
- - [`haxe.io.Duplex`](haxe/io/Duplex.hx) - see [streams](#streams)
- - [`haxe.io.FilePath`](haxe/io/FilePath.hx) - see [non-unicode filepaths](#non-unicode-filepaths)
- - [`haxe.io.IReadable`](haxe/io/IReadable.hx)
- - [`haxe.io.IStream`](haxe/io/IStream.hx)
- - [`haxe.io.IWritable`](haxe/io/IWritable.hx)
- - [`haxe.io.Readable`](haxe/io/Readable.hx)
- - [`haxe.io.Stream`](haxe/io/Stream.hx)
- - [`haxe.io.Writable`](haxe/io/Writable.hx)
- - [`sys.DirectoryEntry`](sys/DirectoryEntry.hx)
- - [`sys.FileAccessMode`](sys/FileAccessMode.hx)
- - [`sys.FileCopyFlags`](sys/FileCopyFlags.hx)
- - [`sys.FileMode`](sys/FileMode.hx)
- - [`sys.FileOpenFlags`](sys/FileOpenFlags.hx)
- - [`sys.FileWatcher`](sys/FileWatcher.hx)
- - [`sys.async.FileSystem`](sys/async/FileSystem.hx)
- - [`sys.async.Http`](sys/async/Http.hx)
- - [`sys.async.net.Socket`](sys/net/Socket.hx)
- - [`sys.io.AsyncFile`](sys/io/AsyncFile.hx)
- - [`sys.io.FileReadStream`](sys/io/FileReadStream.hx)
- - [`sys.io.FileWriteStream`](sys/io/FileWriteStream.hx)
- - [`sys.net.Dns`](sys/net/Dns.hx)
- - [`sys.net.Net`](sys/net/Net.hx)
- - [`sys.net.Server`](sys/net/Server.hx)
- - [`sys.net.UdpSocket`](sys/net/UdpSocket.hx)
- - [`sys.net.Url`](sys/net/Url.hx)
-
-Relevant Node.js APIs:
-
- - [`dgram`](https://nodejs.org/api/dgram.html)
- - [`dns`](https://nodejs.org/api/dns.html)
- - [`fs`](https://nodejs.org/api/fs.html)
- - [`http`](https://nodejs.org/api/http.html)
- - [`net`](https://nodejs.org/api/net.html)
- - [`path`](https://nodejs.org/api/path.html)
- - [`stream`](https://nodejs.org/api/stream.html)
- - [`url`](https://nodejs.org/api/url.html)
-
-See also the [detailed differences from Node.js APIs](NODE-DIFF.md) and [Haxe 4 breaking chagnes](BREAKING.md).
+The full implementation status is available in the [haxe-sys](https://github.com/Aurel300/haxe-sys) repository.
 
 ### Errors
 
@@ -178,25 +134,27 @@ At the core of a lot of Node.js APIs lie [streams](https://nodejs.org/api/stream
 
 ### File descriptors
 
-The Node.js API has a concept of file descriptors, represented by a single integer. To avoid issues with platforms without explicit file descriptor numbers, `sys.io.File` is an `abstract`, similar to the new threading API.
+The libuv API has a concept of file descriptors, represented by a single integer. To avoid issues with platforms without explicit file descriptor numbers, `sys.io.File` is an `abstract`, similar to the new threading API.
 
-Various `fs.f*` methods from Node.js which take `fd` as their first argument are moved into their own methods in the `File` abstract.
+Various methods which take a file descriptor as their first argument are moved into their own methods in the `File` abstract.
 
 ### Synchronous / asynchronous versions
 
 To avoid the `someMethod` + `someMethodSync` naming scheme present in Node.js, the two versions are more clearly split:
 
- - `sys.FileSystem` and `sys.async.FileSystem` (static methods)
- - `sys.io.File` has an `async` field for asynchronous instance methods
+ - `asys.FileSystem` and `asys.AsyncFileSystem` (static methods)
+ - `asys.io.File` and `asys.io.AsyncFile` (instance methods)
+
+`asys.io.File` exposes an `async` field to access the `asys.io.AsyncFile` corresponding to a particular file.
 
 ```haxe
 // synchronously:
-var file = sys.FileSystem.open("file.txt", Read);
+var file = asys.FileSystem.open("file.txt", Read);
 var data = file.readFile();
 
 // asynchronously:
-sys.async.FileSystem.open("file.txt", Read, (err, file) -> {
-    file.readFile((err, data) -> {
+asys.AsyncFileSystem.open("file.txt", Read, (err, file) -> {
+    file.async.readFile((err, data) -> {
         // ...
       });
   });
@@ -204,69 +162,41 @@ sys.async.FileSystem.open("file.txt", Read, (err, file) -> {
 
 ### Non-Unicode filepaths
 
-In Node.js, wherever a path is expected as an argument, a `Buffer` can be provided, equivalent to `haxe.io.Bytes`. Similarly, whenever paths are to be returned, either a `String` or a `Buffer` is returned, depending on the `encoding` option (`"utf8"` or `"buffer"`).
+In libuv, wherever a path is expected as an argument, a `char *` can be provided, equivalent to `haxe.io.Bytes`. Similarly, whenever paths are to be returned, either a `char *` is returned.
 
-It would be awkward to mirror this behaviour in Haxe, so instead, the assumption is made that filepaths will be Unicode most of the time, and `haxe.io.FilePath` (an `abstract` over `String`) is used consistently in the new API. In the rare cases that non-Unicode paths are returned, they are escaped into a Unicode string. The original `Bytes` can be obtained with `FilePath.decode(path)`. There is also the inverse `FilePath.encode(bytes)`.
+It would be awkward to require `Bytes` objects as file paths in Haxe, so instead, the assumption is made that filepaths will be valid Unicode most of the time, and `haxe.io.FilePath` (an `abstract` over `String`) is used consistently in the new API. In the rare cases that non-Unicode paths are returned, they are escaped into a Unicode string. The original `Bytes` can be obtained with `FilePath.decode(path)`. There is also the inverse `FilePath.encode(bytes)`.
 
 See https://github.com/HaxeFoundation/haxe/issues/8134
 
 ### Backward compatibility
 
-The methods in the current `sys.FileSystem` and `sys.io.File` APIs will be kept for the time being, as `inline`s using the new methods. The names of the methods in Node.js are arguably less intuitive (e.g. `mkdir` instead of `createDirectory`), but they were kept to retain familiarity.
-
-### Target specifics
-
-Where possible, the asynchronous methods should use native calls. For some targets this might not be possible, so in the worst-case scenario these methods will run the synchronous call in a `Thread`, then trigger the callback once done.
-
-For many targets, wrapping libuv (the library that powers Node.js APIs) will be the most straight-forward implementation option.
-
-(**TODO:** research individual APIs on remaining targets)
-
- - cpp
- - cs
- - eval - [libuv bindings for OCaml](https://github.com/fdopen/uwt) ?
- - hl - libuv bindings already started
- - java, jvm
- - js (with `hxnodejs`) - mostly trivial mapping since it is the Node.js API
- - lua - [luvit](https://github.com/luvit/luvit)
- - neko
- - php
- - python
+The new APIs reserved for system targets will be available in a new top-level package `asys`. Some cross-platform types will be added to the `haxe` package. A `sys-compat` library will be provided to map the old `sys` APIs to the new `asys` package for easier transitioning and testing, although the old `sys` APIs will remain untouched when the library is not used.
 
 ### Testing
 
-The majority of tests for the current `sys` classes should be reused. It may be worthwhile to adapt the existing tests to test both implementations (with a forced synchronous operation on `sys.async`) so tests are not duplicated. Additional tests should be written to test async-specific features, such as writing multiple files in parallel.
+The majority of tests for the current `sys` classes should be adapted and reused. It may be worthwhile to adapt the existing tests to test both implementations (with a forced synchronous operation on `sys.async`) so tests are not duplicated. Additional tests should be written to test async-specific features, such as writing multiple files in parallel.
 
-For methods that were not present in the original APIs, some tests may be based on the extensive [Node.js test suite](https://github.com/nodejs/node/tree/master/test/parallel).
+For methods that were not present in the original APIs, some tests may be based on the extensive [libuv test suite](https://github.com/libuv/libuv/tree/v1.x/test) or the [Node.js test suite](https://github.com/nodejs/node/tree/master/test/parallel).
 
 ## Impact on existing code
 
-Existing code should not be affected:
-
- - completely new APIs will be in new packages
- - new APIs which are largely compatible with the old APIs still keep the methods of the old APIs for backward compatibility
+Existing code should not be affected, unless it uses an `asys` package.
 
 ## Drawbacks
 
--
+Wrapping libuv allows easily supporting new APIs without several separate implementations. This approach may reduce portability on some of our targets, see [detailed design](#detailed-design).
 
 ## Alternatives
 
--
+There are currently no alternatives in Haxe libraries with a similar feature range. It might be possible on some of Haxe targets to back the new APIs with target-native features, but it would also seriously increase the complexity of this project.
 
 ## Opening possibilities
 
  - better haxelib
+ - libuv available in the OCaml code of the compiler - threading and parallelisation may be possible
 
 ## Unresolved questions
 
-To be determined before implementation (in PR discussions):
-
  - [error reporting style](#errors)
- - specifics of packages, class names generally
  - currently all filesize and file position arguments are `Int`, but this only allows sizes of up to 2 GiB
-   - should we use `haxe.Int64`?
-   - is the support of `haxe.Int64` good enough on sys targets
-   - Node.js uses the `Number` type, which has at least 53 bits of integer precision
- - Haxe compatibility - Dns (Host), Socket
- - Https - mostly a copy of the Http APIs, some extra SSL-specific options
+   - use `haxe.Int64`? (dependent on better support on all sys targets, e.g. HashLink)

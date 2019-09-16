@@ -3,37 +3,28 @@ import asys.io.*;
 import asys.*;
 import utest.Assert;
 
+#if hl
+import hl.Uv;
+#elseif eval
+import eval.Uv;
+#end
+
 class TestBase {
 	static var helpers:Map<Process, {?exit:ProcessExit}> = [];
 
 	public static function uvSetup():Void {
-		#if hl
-		UV.init();
-		#elseif eval
-		eval.Uv.init();
-		#end
+		Uv.init();
 	}
 
 	public static function uvTeardown():Void {
 		helperTeardown();
-		#if hl
-		UV.stop(UV.loop);
-		UV.run(UV.loop, RunDefault);
-		UV.loop_close(UV.loop);
-		#elseif eval
-		eval.Uv.stop();
-		eval.Uv.run(RunDefault);
-		eval.Uv.close();
-		#end
+		Uv.stop();
+		Uv.run(RunDefault);
+		Uv.close();
 	}
 
 	public static function uvRun(?mode:asys.uv.UVRunMode = asys.uv.UVRunMode.RunDefault):Bool {
-		return
-		#if hl
-		UV.run(UV.loop, mode);
-		#elseif eval
-		eval.Uv.run(mode);
-		#end
+		return Uv.run(mode);
 	}
 
 	/**
@@ -41,6 +32,7 @@ class TestBase {
 
 		- `eval` - `test-helpers/eval/<name>.hxml`; will be executed with the hxml
 			and `--run <Name>` appended in order to support passing arguments.
+		- `hl` - `test-helpers/hl/<name>.hl`
 	**/
 	public static function helperStart(name:String, ?args:Array<String>, ?options:asys.Process.ProcessSpawnOptions):Process {
 		if (args == null)
@@ -51,6 +43,9 @@ class TestBase {
 		args.unshift("--run");
 		args.unshift('test-helpers/eval/$name.hxml');
 		name = "/DevProjects/Repos/haxe/haxe";
+		#elseif hl
+		args.unshift('test-helpers/hl/$name.hl');
+		name = "/DevProjects/Repos/hashlink/hl";
 		#else
 		throw "unsupported platform for helperStart";
 		#end
@@ -61,7 +56,6 @@ class TestBase {
 	}
 
 	public static function helperTeardown():Void {
-		/*
 		var anyFail = false;
 		for (proc => res in helpers) {
 			if (res.exit == null) {
@@ -73,6 +67,5 @@ class TestBase {
 		helpers = [];
 		if (anyFail)
 			Assert.fail("helper script(s) not terminated properly");
-		*/
 	}
 }

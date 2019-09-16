@@ -21,9 +21,6 @@ typedef FileReadStreamCreationOptions = {
 extern class FileSystem {
 	public static inline final async = asys.AsyncFileSystem;
 
-	@:deprecated
-	static function absolutePath(path:String):String; // should be implemented in haxe.io.Path
-
 	/**
 		Tests specific user permissions for the file specified by `path`. If the
 		check fails, throws an exception. `mode` is one or more `FileAccessMode`
@@ -84,9 +81,6 @@ extern class FileSystem {
 	**/
 	static function copyFile(src:FilePath, dest:FilePath /* , ?flags:FileCopyFlags */):Void;
 
-	@:deprecated("use mkdir instead")
-	static inline function createDirectory(path:String):Void return mkdir(path, true);
-
 	/**
 		Creates a read stream (an instance of `IReadable`) for the given path.
 		`options` can be used to specify how the file is opened, as well as which
@@ -102,11 +96,6 @@ extern class FileSystem {
 	static function createReadStream(path:FilePath, ?options:FileReadStreamCreationOptions):FileReadStream;
 
 	// static function createWriteStream(path:FilePath, ?options:{?flags:FileOpenFlags, ?mode:FilePermissions, ?autoClose:Bool, ?start:Int}):FileWriteStream;
-	@:deprecated("use rmdir instead")
-	static inline function deleteDirectory(path:String):Void return rmdir(path);
-
-	@:deprecated("use unlink instead")
-	static inline function deleteFile(path:String):Void return unlink(path);
 
 	/**
 		Returns `true` if the file or directory specified by `path` exists.
@@ -117,13 +106,7 @@ extern class FileSystem {
 		the latter function should be called immediately and errors should be
 		handled with a `try ... catch` block.
 	**/
-	static function exists(path:String):Bool;
-
-	@:deprecated("use realpath instead")
-	static inline function fullPath(path:String):FilePath return realpath(path);
-
-	@:deprecated("use stat(...).isDirectory() instead")
-	static inline function isDirectory(path:String):Bool return stat(path).isDirectory();
+	static function exists(path:FilePath):Bool;
 
 	static function link(existingPath:FilePath, newPath:FilePath):Void;
 
@@ -161,9 +144,6 @@ extern class FileSystem {
 		Same as `readdir`, but returns an array of `DirectoryEntry` values instead.
 	**/
 	static function readdirTypes(path:FilePath):Array<DirectoryEntry>;
-
-	@:deprecated("use readdir instead")
-	static inline function readDirectory(path:String):Array<FilePath> return readdir(path);
 
 	/**
 		Reads all the bytes of the file located at `path`.

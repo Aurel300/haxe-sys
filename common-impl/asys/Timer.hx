@@ -1,19 +1,55 @@
 package asys;
 
-extern class Timer {
-	static function delay(f:() -> Void, timeMs:Int):Timer;
+private typedef Native =
+	#if doc_gen
+	Void;
+	#elseif eval
+	eval.uv.Timer;
+	#elseif hl
+	hl.uv.Timer;
+	#else
+	#error "timer not supported on this platform"
+	#end
 
-	static function measure<T>(f:()->T, ?pos:haxe.PosInfos):T;
+class Timer {
+	public static function delay(f:() -> Void, timeMs:Int):Timer {
+		var t = new Timer(timeMs);
+		t.run = function() {
+			t.stop();
+			f();
+		};
+		return t;
+	}
 
-	static function stamp():Float;
+	public static function measure<T>(f:()->T, ?pos:haxe.PosInfos):T {
+		var t0 = stamp();
+		var r = f();
+		haxe.Log.trace((stamp() - t0) + "s", pos);
+		return r;
+	}
 
-	function new(timeMs:Int);
+	public static function stamp():Float {
+		// TODO: libuv?
+		return Sys.time();
+	}
 
-	dynamic function run():Void;
+	var native:Native;
 
-	function stop():Void;
+	public function new(timeMs:Int) {
+		native = new Native(timeMs, () -> run());
+	}
 
-	function ref():Void;
+	public dynamic function run():Void {}
 
-	function unref():Void;
+	public function stop():Void {
+		native.close((err) -> {});
+	}
+
+	public function ref():Void {
+		native.ref();
+	}
+
+	public function unref():Void {
+		native.unref();
+	}
 }
