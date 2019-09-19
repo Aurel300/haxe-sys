@@ -2,7 +2,6 @@ import haxe.io.Bytes;
 import asys.io.*;
 import asys.*;
 import utest.Assert;
-
 #if hl
 import hl.Uv;
 #elseif eval
@@ -20,7 +19,6 @@ class TestBase {
 
 	public static function uvTeardown():Void {
 		helperTeardown();
-		Uv.stop();
 		Uv.run(RunDefault);
 		Uv.close();
 	}

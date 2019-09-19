@@ -1,0 +1,10 @@
+{
+	"haxe.configurations": [
+		{"label": "HashLink/JIT", "args": ["--cwd", "tests", "build-hl.hxml", "-cmd", "hl bin/test.hl"]},
+		{"label": "Interp", "args": ["--cwd", "tests", "build-eval.hxml"]},
+	],
+	"[haxe]": {
+		"editor.formatOnSave": true
+	},
+	"haxe.enableCompilationServer": false
+}
