@@ -63,7 +63,7 @@ abstract Callback<T>(CallbackData<T>) from CallbackData<T> {
 		return (?err:Error, ?result:T) -> f(err, result);
 	}
 
-	#if hl
+	#if (hl || neko)
 	private inline function toUVNoData() return (error) -> this(error, null);
 	#end
 }

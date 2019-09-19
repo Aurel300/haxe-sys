@@ -1,16 +1,14 @@
-package hl.uv;
+package neko.uv;
 
 import haxe.NoData;
 import haxe.async.*;
 import haxe.io.FilePath;
 
-private typedef Native = hl.Abstract<"uv_fs_event_t">;
-
 @:access(haxe.io.FilePath)
-abstract FileWatcher(Native) {
-	@:hlNative("uv", "w_fs_event_start") static function w_fs_event_start(loop:Loop, _:hl.Bytes, recursive:Bool, cb:(Dynamic, hl.Bytes, asys.uv.UVFsEventType)->Void):Native return null;
-	@:hlNative("uv", "w_fs_event_stop") static function w_fs_event_stop(handle:Native, cb:Dynamic->Void):Void {}
-	@:hlNative("uv", "w_fs_event_handle") static function w_fs_event_handle(_:Native):Handle return null;
+abstract FileWatcher(Dynamic) {
+	static var w_fs_event_start:(Loop, neko.NativeString, Bool, (Dynamic, neko.NativeString, asys.uv.UVFsEventType)->Void)->Dynamic = neko.Lib.load("uv", "w_fs_event_start", 4);
+	static var w_fs_event_stop:(Dynamic, cb:Dynamic->Void)->Void = neko.Lib.load("uv", "w_fs_event_stop", 2);
+	static var w_fs_event_handle:(Dynamic)->Handle = neko.Lib.load("uv", "w_fs_event_handle", 1);
 
 	public inline function new(path:FilePath, recursive:Bool, cb:Callback<asys.FileWatcherEvent>) {
 		this = w_fs_event_start(Uv.loop, path.decodeNative(), recursive, (error, path, event) -> {

@@ -16,6 +16,8 @@ private typedef NativeStream =
 	eval.uv.Stream;
 	#elseif hl
 	hl.uv.Stream;
+	#elseif neko
+	neko.uv.Stream;
 	#else
 	#error "socket not supported on this platform"
 	#end
@@ -27,6 +29,8 @@ private typedef NativeSocket =
 	eval.uv.Socket;
 	#elseif hl
 	hl.uv.Socket;
+	#elseif neko
+	neko.uv.Socket;
 	#else
 	#error "socket not supported on this platform"
 	#end
@@ -38,6 +42,8 @@ private typedef NativePipe =
 	eval.uv.Pipe;
 	#elseif hl
 	hl.uv.Pipe;
+	#elseif neko
+	neko.uv.Pipe;
 	#else
 	#error "socket not supported on this platform"
 	#end

@@ -7,6 +7,8 @@ import utest.Assert;
 import hl.Uv;
 #elseif eval
 import eval.Uv;
+#elseif neko
+import neko.Uv;
 #end
 
 class TestBase {

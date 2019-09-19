@@ -12,6 +12,8 @@ typedef FileWatcherNative =
 	eval.uv.FileWatcher;
 	#elseif hl
 	hl.uv.FileWatcher;
+	#elseif neko
+	neko.uv.FileWatcher;
 	#else
 	#error "file watcher not supported on this platform"
 	#end

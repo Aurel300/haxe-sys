@@ -32,12 +32,20 @@ abstract FilePath(String) from String {
 		return this;
 
 	#if hl
-	private function decodeHl():hl.Bytes {
+	private function decodeNative():hl.Bytes {
 		return @:privateAccess this.toUtf8();
 	}
 
-	private static function encodeHl(data:hl.Bytes):FilePath {
+	private static function encodeNative(data:hl.Bytes):FilePath {
 		return ((@:privateAccess String.fromUCS2(data)) : FilePath);
+	}
+	#elseif neko
+	private function decodeNative():neko.NativeString {
+		return neko.NativeString.ofString(this);
+	}
+
+	private static function encodeNative(data:neko.NativeString):FilePath {
+		return (neko.NativeString.toString(data) : FilePath);
 	}
 	#end
 }

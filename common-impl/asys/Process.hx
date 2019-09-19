@@ -15,6 +15,8 @@ private typedef Native =
 	eval.uv.Process;
 	#elseif hl
 	hl.uv.Process;
+	#elseif neko
+	neko.uv.Process;
 	#else
 	#error "process not supported on this platform"
 	#end
@@ -26,6 +28,8 @@ private typedef NativeProcessIO =
 	eval.uv.Process.ProcessIO;
 	#elseif hl
 	hl.uv.Process.ProcessIO;
+	#elseif neko
+	neko.uv.Process.ProcessIO;
 	#else
 	#error "process not supported on this platform"
 	#end

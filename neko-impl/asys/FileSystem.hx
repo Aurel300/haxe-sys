@@ -4,8 +4,8 @@ import haxe.Error;
 import haxe.io.Bytes;
 import haxe.io.FilePath;
 import asys.io.*;
-import hl.Uv;
-import hl.uv.Loop;
+import neko.Uv;
+import neko.uv.Loop;
 
 @:access(haxe.io.FilePath)
 @:access(asys.FileAccessMode)
@@ -14,23 +14,23 @@ import hl.uv.Loop;
 @:access(asys.SymlinkType)
 @:access(asys.io.File)
 class FileSystem {
-	@:hlNative("uv", "w_fs_open_sync") static function w_fs_open_sync(loop:Loop, _:hl.Bytes, _:Int, _:Int):File return null;
-	@:hlNative("uv", "w_fs_unlink_sync") static function w_fs_unlink_sync(loop:Loop, _:hl.Bytes):Void {}
-	@:hlNative("uv", "w_fs_mkdir_sync") static function w_fs_mkdir_sync(loop:Loop, _:hl.Bytes, _:Int):Void {}
-	@:hlNative("uv", "w_fs_mkdtemp_sync") static function w_fs_mkdtemp_sync(loop:Loop, _:hl.Bytes):hl.Bytes return null;
-	@:hlNative("uv", "w_fs_rmdir_sync") static function w_fs_rmdir_sync(loop:Loop, _:hl.Bytes):Void {}
-	@:hlNative("uv", "w_fs_scandir_sync") static function w_fs_scandir_sync(loop:Loop, _:hl.Bytes, _:Int):hl.NativeArray<hl.uv.DirectoryEntry> return null;
-	@:hlNative("uv", "w_fs_stat_sync") static function w_fs_stat_sync(loop:Loop, _:hl.Bytes):asys.uv.UVStat return null;
-	@:hlNative("uv", "w_fs_lstat_sync") static function w_fs_lstat_sync(loop:Loop, _:hl.Bytes):asys.uv.UVStat return null;
-	@:hlNative("uv", "w_fs_rename_sync") static function w_fs_rename_sync(loop:Loop, _:hl.Bytes, _:hl.Bytes):Void {}
-	@:hlNative("uv", "w_fs_access_sync") static function w_fs_access_sync(loop:Loop, _:hl.Bytes, _:Int):Void {}
-	@:hlNative("uv", "w_fs_chmod_sync") static function w_fs_chmod_sync(loop:Loop, _:hl.Bytes, _:Int):Void {}
-	@:hlNative("uv", "w_fs_utime_sync") static function w_fs_utime_sync(loop:Loop, _:hl.Bytes, _:Float, _:Float):Void {}
-	@:hlNative("uv", "w_fs_link_sync") static function w_fs_link_sync(loop:Loop, _:hl.Bytes, _:hl.Bytes):Void {}
-	@:hlNative("uv", "w_fs_symlink_sync") static function w_fs_symlink_sync(loop:Loop, _:hl.Bytes, _:hl.Bytes, _:Int):Void {}
-	@:hlNative("uv", "w_fs_readlink_sync") static function w_fs_readlink_sync(loop:Loop, _:hl.Bytes):hl.Bytes return null;
-	@:hlNative("uv", "w_fs_realpath_sync") static function w_fs_realpath_sync(loop:Loop, _:hl.Bytes):hl.Bytes return null;
-	@:hlNative("uv", "w_fs_chown_sync") static function w_fs_chown_sync(loop:Loop, _:hl.Bytes, _:Int, _:Int):Void {}
+	static var w_fs_open_sync:(Loop, neko.NativeString, Int, Int)->File = neko.Lib.load("uv", "w_fs_open_sync", 4);
+	static var w_fs_unlink_sync:(Loop, neko.NativeString)->Void = neko.Lib.load("uv", "w_fs_unlink_sync", 2);
+	static var w_fs_mkdir_sync:(Loop, neko.NativeString, Int)->Void = neko.Lib.load("uv", "w_fs_mkdir_sync", 3);
+	static var w_fs_mkdtemp_sync:(Loop, neko.NativeString)->neko.NativeString = neko.Lib.load("uv", "w_fs_mkdtemp_sync", 2);
+	static var w_fs_rmdir_sync:(Loop, neko.NativeString)->Void = neko.Lib.load("uv", "w_fs_rmdir_sync", 2);
+	static var w_fs_scandir_sync:(Loop, neko.NativeString, Int)->neko.NativeArray<neko.uv.DirectoryEntry> = neko.Lib.load("uv", "w_fs_scandir_sync", 3);
+	static var w_fs_stat_sync:(Loop, neko.NativeString)->asys.uv.UVStat = neko.Lib.load("uv", "w_fs_stat_sync", 2);
+	static var w_fs_lstat_sync:(Loop, neko.NativeString)->asys.uv.UVStat = neko.Lib.load("uv", "w_fs_lstat_sync", 2);
+	static var w_fs_rename_sync:(Loop, neko.NativeString, neko.NativeString)->Void = neko.Lib.load("uv", "w_fs_rename_sync", 3);
+	static var w_fs_access_sync:(Loop, neko.NativeString, Int)->Void = neko.Lib.load("uv", "w_fs_access_sync", 3);
+	static var w_fs_chmod_sync:(Loop, neko.NativeString, Int)->Void = neko.Lib.load("uv", "w_fs_chmod_sync", 3);
+	static var w_fs_utime_sync:(Loop, neko.NativeString, Float, Float)->Void = neko.Lib.load("uv", "w_fs_utime_sync", 4);
+	static var w_fs_link_sync:(Loop, neko.NativeString, neko.NativeString)->Void = neko.Lib.load("uv", "w_fs_link_sync", 3);
+	static var w_fs_symlink_sync:(Loop, neko.NativeString, neko.NativeString, Int)->Void = neko.Lib.load("uv", "w_fs_symlink_sync", 4);
+	static var w_fs_readlink_sync:(Loop, neko.NativeString)->neko.NativeString = neko.Lib.load("uv", "w_fs_readlink_sync", 2);
+	static var w_fs_realpath_sync:(Loop, neko.NativeString)->neko.NativeString = neko.Lib.load("uv", "w_fs_realpath_sync", 2);
+	static var w_fs_chown_sync:(Loop, neko.NativeString, Int, Int)->Void = neko.Lib.load("uv", "w_fs_chown_sync", 4);
 
 	public static inline final async = asys.AsyncFileSystem;
 
@@ -88,7 +88,7 @@ class FileSystem {
 			} catch (e:Error) {
 				if (e.type.match(haxe.ErrorType.UVError(asys.uv.UVErrorType.EEXIST)))
 					continue;
-				hl.Api.rethrow(e);
+				throw e;
 			}
 		}
 	}
@@ -101,9 +101,8 @@ class FileSystem {
 		return readdirTypes(path).map(entry -> entry.name);
 	}
 
-	public static function readdirTypes(path:FilePath):Array<asys.DirectoryEntry> {
-		var native = w_fs_scandir_sync(Uv.loop, path.decodeNative(), 0);
-		return [for (i in 0...native.length) native[i]];
+	public static function readdirTypes(path:FilePath):Array<neko.uv.DirectoryEntry> {
+		return neko.NativeArray.toArray(w_fs_scandir_sync(Uv.loop, path.decodeNative(), 0));
 	}
 
 	public static function readlink(path:FilePath):FilePath {
@@ -138,7 +137,7 @@ class FileSystem {
 			f.truncate(len);
 		} catch (e:Dynamic) {
 			f.close();
-			hl.Api.rethrow(e);
+			throw e;
 		}
 		f.close();
 	}

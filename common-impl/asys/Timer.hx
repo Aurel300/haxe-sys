@@ -7,6 +7,8 @@ private typedef Native =
 	eval.uv.Timer;
 	#elseif hl
 	hl.uv.Timer;
+	#elseif neko
+	neko.uv.Timer;
 	#else
 	#error "timer not supported on this platform"
 	#end

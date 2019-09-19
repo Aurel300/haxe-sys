@@ -13,6 +13,8 @@ private typedef Native =
 	eval.uv.UdpSocket;
 	#elseif hl
 	hl.uv.UdpSocket;
+	#elseif neko
+	neko.uv.UdpSocket;
 	#else
 	#error "UDP socket not supported on this platform"
 	#end

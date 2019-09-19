@@ -1,26 +1,24 @@
 package asys.io;
 
 import haxe.io.*;
-import hl.Uv;
-import hl.uv.Loop;
-
-import hl.uv.File as Native;
+import neko.Uv;
+import neko.uv.Loop;
 
 @:access(haxe.io.FilePath)
 @:access(asys.FileOpenFlags)
 @:access(asys.FilePermissions)
-abstract File(Native) {
-	@:hlNative("uv", "w_fs_close_sync") static function w_fs_close_sync(loop:Loop, file:Native):Void {}
-	@:hlNative("uv", "w_fs_read_sync") static function w_fs_read_sync(loop:Loop, file:Native, _:hl.Bytes, _:Int, _:Int, _:Int):Int return 0;
-	@:hlNative("uv", "w_fs_write_sync") static function w_fs_write_sync(loop:Loop, file:Native, _:hl.Bytes, _:Int, _:Int, _:Int):Int return 0;
-	@:hlNative("uv", "w_fs_fstat_sync") static function w_fs_fstat_sync(loop:Loop, file:Native):asys.uv.UVStat return null;
-	@:hlNative("uv", "w_fs_fsync_sync") static function w_fs_fsync_sync(loop:Loop, file:Native):Void {}
-	@:hlNative("uv", "w_fs_fdatasync_sync") static function w_fs_fdatasync_sync(loop:Loop, file:Native):Void {}
-	@:hlNative("uv", "w_fs_ftruncate_sync") static function w_fs_ftruncate_sync(loop:Loop, file:Native, _:Int):Void {}
-	@:hlNative("uv", "w_fs_sendfile_sync") static function w_fs_sendfile_sync(loop:Loop, file:Native, file:Native, _:Int, _:Int):Void {}
-	@:hlNative("uv", "w_fs_fchmod_sync") static function w_fs_fchmod_sync(loop:Loop, file:Native, _:Int):Void {}
-	@:hlNative("uv", "w_fs_futime_sync") static function w_fs_futime_sync(loop:Loop, file:Native, _:Float, _:Float):Void {}
-	@:hlNative("uv", "w_fs_fchown_sync") static function w_fs_fchown_sync(loop:Loop, file:Native, _:Int, _:Int):Void {}
+abstract File(Dynamic) {
+	static var w_fs_close_sync:(Loop, Dynamic)->Void = neko.Lib.load("uv", "w_fs_close_sync", 2);
+	static var w_fs_read_sync:(neko.NativeArray<Dynamic>)->Int = neko.Lib.load("uv", "w_fs_read_sync_dyn", 1);
+	static var w_fs_write_sync:(neko.NativeArray<Dynamic>)->Int = neko.Lib.load("uv", "w_fs_write_sync_dyn", 1);
+	static var w_fs_fstat_sync:(Loop, Dynamic)->asys.uv.UVStat = neko.Lib.load("uv", "w_fs_fstat_sync", 2);
+	static var w_fs_fsync_sync:(Loop, Dynamic)->Void = neko.Lib.load("uv", "w_fs_fsync_sync", 2);
+	static var w_fs_fdatasync_sync:(Loop, Dynamic)->Void = neko.Lib.load("uv", "w_fs_fdatasync_sync", 2);
+	static var w_fs_ftruncate_sync:(Loop, Dynamic, Int)->Void = neko.Lib.load("uv", "w_fs_ftruncate_sync", 3);
+	static var w_fs_sendfile_sync:(Loop, Dynamic, Dynamic, Int, Int)->Void = neko.Lib.load("uv", "w_fs_sendfile_sync", 5);
+	static var w_fs_fchmod_sync:(Loop, Dynamic, Int)->Void = neko.Lib.load("uv", "w_fs_fchmod_sync", 3);
+	static var w_fs_futime_sync:(Loop, Dynamic, Float, Float)->Void = neko.Lib.load("uv", "w_fs_futime_sync", 4);
+	static var w_fs_fchown_sync:(Loop, Dynamic, Int, Int)->Void = neko.Lib.load("uv", "w_fs_fchown_sync", 4);
 
 	private inline function get_async():AsyncFile {
 		return this;
@@ -47,7 +45,9 @@ abstract File(Native) {
 	public function readBuffer(buffer:Bytes, offset:Int, length:Int, position:Int):{bytesRead:Int, buffer:Bytes} {
 		if (length <= 0 || offset < 0 || length + offset > buffer.length)
 			throw "invalid call";
-		return {bytesRead: w_fs_read_sync(Uv.loop, this, hl.Bytes.fromBytes(buffer), offset, length, position), buffer: buffer};
+		return {bytesRead: w_fs_read_sync(neko.NativeArray.ofArrayRef(([
+			Uv.loop, this, buffer.getData(), offset, length, position
+		]:Array<Dynamic>))), buffer: buffer};
 	}
 
 	public function readFile():Bytes {
@@ -75,7 +75,9 @@ abstract File(Native) {
 	public function writeBuffer(buffer:Bytes, offset:Int, length:Int, position:Int):{bytesWritten:Int, buffer:Bytes} {
 		if (length <= 0 || offset < 0 || length + offset > buffer.length)
 			throw "invalid call";
-		return {bytesWritten: w_fs_write_sync(Uv.loop, this, hl.Bytes.fromBytes(buffer), offset, length, position), buffer: buffer};
+		return {bytesWritten: w_fs_write_sync(neko.NativeArray.ofArrayRef(([
+			Uv.loop, this, buffer.getData(), offset, length, position
+		]:Array<Dynamic>))), buffer: buffer};
 	}
 
 	public function writeString(str:String, ?position:Int, ?encoding:Encoding):{bytesWritten:Int, buffer:Bytes} {
