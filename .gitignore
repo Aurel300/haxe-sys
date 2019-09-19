@@ -3,3 +3,4 @@ tests/test-helpers/hl/*
 samples/*/bin/*
 docs/docs-html/*
 docs/docs-xml/*
+tests/resources-rw/
